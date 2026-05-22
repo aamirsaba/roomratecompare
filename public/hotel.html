@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="hotelTitle">Hotel Details | RoomRateCompare</title>
+    <meta name="description" id="hotelDescription" content="View room rates, photos, and availability for this hotel. Compare prices across Booking.com, Agoda, and Expedia.">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .hotel-detail-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1.5rem;
+            color: #e67e22;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .hotel-detail-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .hotel-gallery {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 0.5rem;
+            height: 400px;
+        }
+
+        .gallery-main {
+            background: linear-gradient(135deg, #2c3e50, #1a252f);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: white;
+        }
+
+        .gallery-small {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .gallery-small div {
+            background: linear-gradient(135deg, #34495e, #2c3e50);
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .hotel-info {
+            padding: 2rem;
+        }
+
+        .hotel-name-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .hotel-name-section h1 {
+            font-size: 2rem;
+            color: #1a1a1a;
+        }
+
+        .stars {
+            color: #f39c12;
+            margin: 0.5rem 0;
+            font-size: 1rem;
+        }
+
+        .hotel-address {
+            color: #666;
+            margin: 0.5rem 0 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .amenities {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin: 1.5rem 0;
+            padding: 1rem 0;
+            border-top: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+        }
+
+        .amenity {
+            background: #f8f9fa;
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            color: #333;
+        }
+
+        .room-rates-section {
+            margin-top: 2rem;
+        }
+
+        .room-rates-section h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .room-card {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            transition: all 0.2s;
+            border: 1px solid #eee;
+        }
+
+        .room-card:hover {
+            background: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .room-type h4 {
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .room-type p {
+            color: #666;
+            font-size: 0.85rem;
+        }
+
+        .room-price {
+            text-align: right;
+        }
+
+        .room-price .price {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #e67e22;
+        }
+
+        .room-price .per-night {
+            color: #666;
+            font-size: 0.8rem;
+        }
+
+        .book-now-btn {
+            background: #e67e22;
+            color: white;
+            border: none;
+            padding: 0.7rem 1.8rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .book-now-btn:hover {
+            background: #d35400;
+        }
+
+        .compare-sites {
+            margin-top: 2rem;
+            background: #f0f7ff;
+            padding: 1.5rem;
+            border-radius: 16px;
+        }
+
+        .compare-sites h4 {
+            margin-bottom: 1rem;
+        }
+
+        .site-links {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .site-link {
+            background: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #e67e22;
+            font-weight: 500;
+            border: 1px solid #ddd;
+        }
+
+        .site-link:hover {
+            background: #e67e22;
+            color: white;
+        }
+
+        .loader {
+            text-align: center;
+            padding: 4rem;
+        }
+
+        .loader-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f0f0f0;
+            border-top-color: #e67e22;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-container {
+            text-align: center;
+            padding: 4rem;
+            background: white;
+            border-radius: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .hotel-gallery {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            
+            .gallery-small {
+                display: none;
+            }
+            
+            .room-card {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .room-price {
+                text-align: center;
+            }
+            
+            .hotel-name-section h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <h1>Room<span>Rate</span>Compare</h1>
+            </div>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="#" id="searchNavLink">Search</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="hotel-detail-container">
+            <a href="javascript:history.back()" class="back-link">← Back to search results</a>
+            <div id="hotelDetail"></div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 RoomRateCompare.com - Compare hotel room rates instantly from 50+ sites</p>
+    </footer>
+
+    <script>
+        // Fix Search button
+        const searchNavLink = document.getElementById('searchNavLink');
+        if (searchNavLink) {
+            searchNavLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                sessionStorage.removeItem('roomratecompare_search');
+                window.location.href = '/';
+            });
+        }
+        
+        // Get parameters from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const hotelId = urlParams.get('id');
+        const checkin = urlParams.get('checkin');
+        const checkout = urlParams.get('checkout');
+        const guests = urlParams.get('guests') || 2;
+        const city = urlParams.get('city');
+        
+        async function loadHotelDetails() {
+            const detailDiv = document.getElementById('hotelDetail');
+            
+            if (!hotelId) {
+                detailDiv.innerHTML = `
+                    <div class="error-container">
+                        <h3>❌ No hotel selected</h3>
+                        <p>Please go back to search results and select a hotel.</p>
+                        <div style="margin-top: 1rem;">
+                            <a href="/" class="book-now-btn">Search Hotels</a>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            detailDiv.innerHTML = `
+                <div class="loader">
+                    <div class="loader-spinner"></div>
+                    <p>Loading hotel details and room rates...</p>
+                </div>
+            `;
+            
+            try {
+                const response = await fetch(`/api/hotels/${hotelId}?city=${encodeURIComponent(city || '')}&checkin=${checkin}&checkout=${checkout}&guests=${guests}`);
+                const hotel = await response.json();
+                
+                if (hotel.error || !hotel.id) {
+                    detailDiv.innerHTML = `
+                        <div class="error-container">
+                            <h3>❌ Hotel not found</h3>
+                            <p>We couldn't find the hotel you're looking for.</p>
+                            <div style="margin-top: 1rem;">
+                                <a href="/" class="book-now-btn">Search Hotels</a>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Update page title
+                document.title = `${hotel.name} | Compare Room Rates | RoomRateCompare`;
+                
+                // Calculate nights
+                let nights = 1;
+                if (checkin && checkout) {
+                    nights = Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24));
+                }
+                
+                const pricePerNight = hotel.price_per_night || hotel.price || 199;
+                const totalPrice = pricePerNight * nights;
+                const originalPrice = Math.round(totalPrice * 1.2);
+                const savings = originalPrice - totalPrice;
+                
+                const searchCity = city || hotel.city || 'hotel';
+                const bookingLink = `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(searchCity)}&checkin=${checkin}&checkout=${checkout}&group_adults=${guests}&aid=482713`;
+                
+                detailDiv.innerHTML = `
+                    <div class="hotel-detail-card">
+                        <div class="hotel-gallery">
+                            <div class="gallery-main">
+                                🏨 ${hotel.stars || 4}★ Hotel
+                            </div>
+                            <div class="gallery-small">
+                                <div>🛏️</div>
+                                <div>🛁</div>
+                                <div>☕</div>
+                            </div>
+                        </div>
+                        
+                        <div class="hotel-info">
+                            <div class="hotel-name-section">
+                                <div>
+                                    <h1>${hotel.name}</h1>
+                                    <div class="stars">${'★'.repeat(hotel.stars || 4)}${'☆'.repeat(5 - (hotel.stars || 4))}</div>
+                                </div>
+                                <div class="price-section">
+                                    <span class="price">$${totalPrice}</span>
+                                    <span class="original-price">$${originalPrice}</span>
+                                    <div class="savings">✨ Save $${savings}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="hotel-address">
+                                📍 ${hotel.city || city || 'City Center'}, ${hotel.country || 'United States'}
+                            </div>
+                            
+                            <div class="amenities">
+                                <span class="amenity">✓ Free WiFi</span>
+                                <span class="amenity">✓ Air conditioning</span>
+                                <span class="amenity">✓ 24/7 front desk</span>
+                                <span class="amenity">✓ Housekeeping</span>
+                                <span class="amenity">✓ Elevator</span>
+                                <span class="amenity">✓ Luggage storage</span>
+                            </div>
+                            
+                            <div class="room-rates-section">
+                                <h3>📋 Available Room Types</h3>
+                                
+                                <div class="room-card">
+                                    <div class="room-type">
+                                        <h4>Standard Room</h4>
+                                        <p>1 Queen bed • City view • 25 m²</p>
+                                    </div>
+                                    <div class="room-price">
+                                        <div class="price">$${Math.round(totalPrice * 0.9)}</div>
+                                        <div class="per-night">total for ${nights} night${nights > 1 ? 's' : ''}</div>
+                                    </div>
+                                    <a href="${bookingLink}" target="_blank" onclick="trackClick('standard')">
+                                        <button class="book-now-btn">Book Now →</button>
+                                    </a>
+                                </div>
+                                
+                                <div class="room-card">
+                                    <div class="room-type">
+                                        <h4>Deluxe Room</h4>
+                                        <p>1 King bed • City view • 35 m² • Breakfast included</p>
+                                    </div>
+                                    <div class="room-price">
+                                        <div class="price">$${Math.round(totalPrice * 1.15)}</div>
+                                        <div class="per-night">total for ${nights} night${nights > 1 ? 's' : ''}</div>
+                                    </div>
+                                    <a href="${bookingLink}" target="_blank" onclick="trackClick('deluxe')">
+                                        <button class="book-now-btn">Book Now →</button>
+                                    </a>
+                                </div>
+                                
+                                <div class="room-card">
+                                    <div class="room-type">
+                                        <h4>Suite</h4>
+                                        <p>1 King bed + Sofa bed • Panoramic view • 55 m² • Breakfast + Spa access</p>
+                                    </div>
+                                    <div class="room-price">
+                                        <div class="price">$${Math.round(totalPrice * 1.4)}</div>
+                                        <div class="per-night">total for ${nights} night${nights > 1 ? 's' : ''}</div>
+                                    </div>
+                                    <a href="${bookingLink}" target="_blank" onclick="trackClick('suite')">
+                                        <button class="book-now-btn">Book Now →</button>
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <div class="compare-sites">
+                                <h4>🌐 Compare prices on these sites</h4>
+                                <div class="site-links">
+                                    <a href="${bookingLink}" target="_blank" class="site-link">Booking.com</a>
+                                    <a href="${bookingLink}" target="_blank" class="site-link">Agoda</a>
+                                    <a href="${bookingLink}" target="_blank" class="site-link">Expedia</a>
+                                    <a href="${bookingLink}" target="_blank" class="site-link">Hotels.com</a>
+                                </div>
+                                <p style="margin-top: 1rem; font-size: 0.8rem; color: #666;">* We redirect you to partner sites. No extra cost to you.</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('Error loading hotel:', error);
+                detailDiv.innerHTML = `
+                    <div class="error-container">
+                        <h3>❌ Failed to load hotel details</h3>
+                        <p>Please try again or search for another hotel.</p>
+                        <div style="margin-top: 1rem;">
+                            <a href="/" class="book-now-btn">Search Hotels</a>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        async function trackClick(roomType) {
+            try {
+                await fetch('/api/hotels/click', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        hotel_id: hotelId, 
+                        room_type: roomType,
+                        checkin: checkin,
+                        checkout: checkout
+                    })
+                });
+                console.log(`✅ Click tracked for hotel ${hotelId} - ${roomType}`);
+            } catch(e) { 
+                console.log('Track error:', e); 
+            }
+        }
+        
+        // Load hotel details
+        loadHotelDetails();
+    </script>
+</body>
+</html>

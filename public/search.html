@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compare Room Rates | RoomRateCompare</title>
+    <meta name="description" content="Compare hotel room rates across Booking.com, Agoda, Expedia. Find the best price for your stay.">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .results-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .results-header {
+            margin-bottom: 2rem;
+        }
+        
+        .results-header h2 {
+            font-size: 1.5rem;
+            color: #1a1a1a;
+        }
+        
+        .results-header p {
+            color: #666;
+            margin-top: 0.5rem;
+        }
+        
+        .hotel-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.25rem;
+            display: flex;
+            gap: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.2s;
+            border: 1px solid #eee;
+        }
+        
+        .hotel-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+        
+        .hotel-image {
+            width: 200px;
+            height: 150px;
+            background: linear-gradient(135deg, #e0e0e0, #f0f0f0);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 3rem;
+        }
+        
+        .hotel-details {
+            flex: 1;
+        }
+        
+        .hotel-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+        
+        .stars {
+            color: #f39c12;
+            margin: 0.5rem 0;
+            font-size: 0.9rem;
+        }
+        
+        .price-section {
+            margin: 0.75rem 0;
+        }
+        
+        .price {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #e67e22;
+        }
+        
+        .original-price {
+            text-decoration: line-through;
+            color: #999;
+            font-size: 0.9rem;
+            margin-left: 0.5rem;
+        }
+        
+        .savings {
+            color: #27ae60;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            font-weight: 500;
+        }
+        
+        .booking-details {
+            color: #666;
+            font-size: 0.85rem;
+            margin: 0.5rem 0;
+        }
+        
+        .source-badge {
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            margin-top: 0.5rem;
+        }
+        
+        .view-details-btn {
+            background: #e67e22;
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.2s;
+            white-space: nowrap;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .view-details-btn:hover {
+            background: #d35400;
+            transform: scale(1.02);
+        }
+        
+        .loader {
+            text-align: center;
+            padding: 4rem;
+        }
+        
+        .loader-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f0f0f0;
+            border-top-color: #e67e22;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 4rem;
+            color: #666;
+            background: white;
+            border-radius: 16px;
+        }
+        
+        .search-again {
+            margin-top: 2rem;
+            text-align: center;
+        }
+        
+        .search-again a {
+            color: #e67e22;
+            text-decoration: none;
+        }
+        
+        @media (max-width: 768px) {
+            .hotel-card {
+                flex-direction: column;
+            }
+            
+            .hotel-image {
+                width: 100%;
+                height: 120px;
+            }
+            
+            .view-details-btn {
+                width: 100%;
+                margin-top: 1rem;
+                text-align: center;
+            }
+            
+            .price {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <h1>Room<span>Rate</span>Compare</h1>
+            </div>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/search">Search</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="results-container">
+            <div id="results"></div>
+            <div class="search-again">
+                <a href="/">← Search again</a>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 RoomRateCompare.com - Compare hotel room rates instantly from 50+ sites</p>
+    </footer>
+
+    <script>
+        // Get search params from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        let city = urlParams.get('city');
+        const checkin = urlParams.get('checkin');
+        const checkout = urlParams.get('checkout');
+        const guests = urlParams.get('guests');
+        
+        // If no city in URL, try to get from sessionStorage
+        if (!city) {
+            const savedSearch = sessionStorage.getItem('roomratecompare_search');
+            if (savedSearch) {
+                const search = JSON.parse(savedSearch);
+                city = search.city;
+            }
+        }
+        
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+        
+        async function searchHotels() {
+            const resultsDiv = document.getElementById('results');
+            
+            // Check if we have required parameters
+            if (!city || !checkin || !checkout) {
+                resultsDiv.innerHTML = `
+                    <div class="no-results">
+                        <h3>🔍 Missing search information</h3>
+                        <p>Please go back to the homepage and enter a city and dates.</p>
+                        <div class="search-again">
+                            <a href="/">← Search for hotels</a>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Display search header
+            resultsDiv.innerHTML = `
+                <div class="results-header">
+                    <h2>🏨 ${city.charAt(0).toUpperCase() + city.slice(1)} Hotel Room Rates</h2>
+                    <p>${formatDate(checkin)} → ${formatDate(checkout)} • ${guests || 2} ${guests == 1 ? 'guest' : 'guests'} • Comparing 50+ travel sites</p>
+                </div>
+                <div class="loader">
+                    <div class="loader-spinner"></div>
+                    <p>🔍 Searching Booking.com, Agoda, Expedia...</p>
+                </div>
+            `;
+            
+            try {
+                const response = await fetch(`/api/hotels/search?city=${encodeURIComponent(city)}&checkin=${checkin}&checkout=${checkout}&guests=${guests || 2}`);
+                const data = await response.json();
+                
+                if (data.hotels && data.hotels.length > 0) {
+                    const nights = Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24));
+                    
+                    resultsDiv.innerHTML = `
+                        <div class="results-header">
+                            <h2>🏨 ${city.charAt(0).toUpperCase() + city.slice(1)} Hotel Room Rates</h2>
+                            <p>${formatDate(checkin)} → ${formatDate(checkout)} • ${nights} night${nights > 1 ? 's' : ''} • ${guests || 2} ${guests == 1 ? 'guest' : 'guests'} • Found ${data.hotels.length} hotels</p>
+                        </div>
+                        ${data.hotels.map(hotel => {
+                            const totalPrice = hotel.total_price || hotel.price;
+                            const originalPrice = Math.round(totalPrice * 1.2);
+                            const savings = originalPrice - totalPrice;
+                            
+                            return `
+                            <div class="hotel-card">
+                                <div class="hotel-image">
+                                    🏨
+                                </div>
+                                <div class="hotel-details">
+                                    <div class="hotel-name">${hotel.name}</div>
+                                    <div class="stars">${'★'.repeat(hotel.stars)}${'☆'.repeat(5-hotel.stars)}</div>
+                                    <div class="price-section">
+                                        <span class="price">$${totalPrice}</span>
+                                        <span class="original-price">$${originalPrice}</span>
+                                        <div class="savings">✨ Save $${savings} compared to other sites</div>
+                                    </div>
+                                    <div class="booking-details">
+                                        📅 ${formatDate(checkin)} - ${formatDate(checkout)} • ${nights} night${nights > 1 ? 's' : ''} • ${guests || 2} ${guests == 1 ? 'guest' : 'guests'}
+                                    </div>
+                                    <div class="source-badge">
+                                        🔗 Compare price from Booking.com • Agoda • Expedia
+                                    </div>
+                                </div>
+                                <div>
+                                    <a href="/hotel.html?id=${hotel.id}&checkin=${checkin}&checkout=${checkout}&guests=${guests || 2}&city=${encodeURIComponent(city)}">
+    <button class="view-details-btn">View Details →</button>
+</a>
+                                </div>
+                            </div>
+                        `}).join('')}
+                    `;
+                } else {
+                    resultsDiv.innerHTML = `
+                        <div class="no-results">
+                            <h3>🏨 No hotels found in ${city}</h3>
+                            <p>Try a different city or check your spelling.</p>
+                            <div class="search-again">
+                                <a href="/">← Search again</a>
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Search error:', error);
+                resultsDiv.innerHTML = `
+                    <div class="no-results">
+                        <h3>⚠️ Unable to fetch room rates</h3>
+                        <p>Please try again in a moment.</p>
+                        <div class="search-again">
+                            <a href="/">← Search again</a>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        // Start search if we have parameters
+        if (city && checkin && checkout) {
+            searchHotels();
+        } else if (city) {
+            // Only city provided, redirect to home with message
+            window.location.href = '/';
+        } else {
+            document.getElementById('results').innerHTML = `
+                <div class="no-results">
+                    <h3>🔍 No search criteria found</h3>
+                    <p>Please go to the homepage and search for a city and dates.</p>
+                    <div class="search-again">
+                        <a href="/">← Search for hotels</a>
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

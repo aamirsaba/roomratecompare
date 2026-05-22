@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoomRateCompare | Compare Hotel Room Rates - Best Price Guaranteed</title>
+    <meta name="description" content="Compare room rates from Booking.com, Agoda, Expedia and more. Find the lowest hotel prices instantly. Free hotel price comparison.">
+    <meta name="keywords" content="hotel comparison, compare room rates, hotel prices, cheap hotels, room rate compare">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <h1>Room<span>Rate</span>Compare</h1>
+                <p class="tagline">Compare 1000+ hotels. Find your best room rate.</p>
+            </div>
+            <div class="nav-links">
+    <a href="/">Home</a>
+    <a href="#" id="searchNavLink">Search</a>
+</div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h2>Compare Room Rates Instantly</h2>
+            <p>We search Booking.com, Agoda, Expedia and 50+ sites to find you the lowest price</p>
+            
+            <div class="search-box">
+                <form id="searchForm">
+                    <div class="form-group">
+                        <input type="text" id="city" placeholder="City, hotel, or destination" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="date" id="checkin" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="date" id="checkout" required>
+                    </div>
+                    <div class="form-group">
+                        <select id="guests">
+                            <option value="1">1 Guest</option>
+                            <option value="2" selected>2 Guests</option>
+                            <option value="3">3 Guests</option>
+                            <option value="4">4 Guests</option>
+                        </select>
+                    </div>
+                    <button type="submit">Compare Rates →</button>
+                </form>
+            </div>
+        </section>
+
+        <section class="features">
+            <div class="feature">
+                <h3>💰 Compare Room Rates</h3>
+                <p>We compare 50+ travel sites to find you the lowest room rate</p>
+            </div>
+            <div class="feature">
+                <h3>⚡ Real-time Availability</h3>
+                <p>Live prices and room availability from top providers</p>
+            </div>
+            <div class="feature">
+                <h3>🔒 Book With Trust</h3>
+                <p>Redirected to official booking partners with secure checkout</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 RoomRateCompare.com. Compare hotel room rates worldwide.</p>
+        <p>RoomRateCompare is a product of Aamir Saba Ltd (UK) & Aamir Saba Inc (USA)</p>
+    </footer>
+
+    <script src="/js/main.js"></script>
+
+
+<!-- Travelpayouts Affiliate Script (Converts Booking.com Links) -->
+<script nowprocket data-noptimize="1" data-cfasync="false" data-wpfc-render="false" seraph-accel-crit="1" data-no-defer="1">
+  (function () {
+      var script = document.createElement("script");
+      script.async = 1;
+      script.src = 'https://emrldtp.cc/NTMxODI2.js?t=531826';
+      document.head.appendChild(script);
+  })();
+</script>
+
+// Fix Search button on homepage
+const searchNavLink = document.getElementById('searchNavLink');
+if (searchNavLink) {
+    searchNavLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        // Scroll to search form instead of navigating
+        document.getElementById('searchForm').scrollIntoView({ behavior: 'smooth' });
+    });
+}
+</body>
+</html>
