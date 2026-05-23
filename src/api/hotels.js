@@ -10,6 +10,18 @@ const apifyClient = new ApifyClient({
 // Store search results for detail page access
 let recentSearchResults = {};
 
+// Helper function to get country from city
+function getCountryFromCity(city) {
+    const countries = {
+        'karachi': 'Pakistan', 'lahore': 'Pakistan', 'islamabad': 'Pakistan',
+        'mumbai': 'India', 'delhi': 'India', 'bangalore': 'India',
+        'dubai': 'UAE', 'abu dhabi': 'UAE', 'muscat': 'Oman',
+        'london': 'United Kingdom', 'paris': 'France', 'new york': 'USA',
+        'sohar': 'Oman', 'salalah': 'Oman'
+    };
+    return countries[city?.toLowerCase()] || 'International';
+}
+
 router.get('/search', async (req, res) => {
     const { city, checkin, checkout, guests = 2 } = req.query;
     
@@ -41,24 +53,26 @@ router.get('/search', async (req, res) => {
         
         const nights = Math.ceil((new Date(checkout || '2026-06-04') - new Date(checkin || '2026-06-01')) / (1000 * 60 * 60 * 24));
         
-        const formattedHotels = hotels.slice(0, 20).map((hotel, idx) => ({
-            id: idx + 1,
-            name: hotel.name,
-            stars: 4,
-            price: hotel.pricePerNight * nights,
-            price_per_night: hotel.pricePerNight,
-            currency: hotel.currency || 'USD',
-            rating: hotel.rating || 0,
-            nights: nights,
-            city: city,
-            country: getCountryFromCity(city),
-            checkin: checkin,
-            checkout: checkout,
-            guests: parseInt(guests),
-            booking_link: `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(hotel.name)}&checkin=${checkin}&checkout=${checkout}&group_adults=${guests}`
-        }));
+        const formattedHotels = hotels.slice(0, 20).map((hotel, idx) => {
+            return {
+                id: idx + 1,
+                name: hotel.name,
+                stars: 4,
+                price: hotel.pricePerNight * nights,
+                price_per_night: hotel.pricePerNight,
+                currency: hotel.currency || 'USD',
+                rating: hotel.rating || 0,
+                nights: nights,
+                city: city,
+                country: getCountryFromCity(city),
+                checkin: checkin,
+                checkout: checkout,
+                guests: parseInt(guests),
+                booking_link: `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(hotel.name)}&checkin=${checkin}&checkout=${checkout}&group_adults=${guests}`
+            };
+        });
         
-        // Store in memory for detail page - IMPORTANT!
+        // Store in memory for detail page
         recentSearchResults[city.toLowerCase()] = formattedHotels;
         
         res.json({ 
@@ -73,18 +87,7 @@ router.get('/search', async (req, res) => {
     }
 });
 
-// Helper function to get country from city
-function getCountryFromCity(city) {
-    const countries = {
-        'karachi': 'Pakistan', 'lahore': 'Pakistan', 'islamabad': 'Pakistan',
-        'mumbai': 'India', 'delhi': 'India', 'bangalore': 'India',
-        'dubai': 'UAE', 'abu dhabi': 'UAE', 'muscat': 'Oman',
-        'london': 'United Kingdom', 'paris': 'France', 'new york': 'USA'
-    };
-    return countries[city?.toLowerCase()] || 'International';
-}
-
-// Get single hotel details - FIXED to use cached data
+// Get single hotel details
 router.get('/:id', async (req, res) => {
     const hotelId = parseInt(req.params.id);
     const { city, checkin, checkout, guests, name } = req.query;
@@ -97,21 +100,28 @@ router.get('/:id', async (req, res) => {
         let hotel = null;
         
         if (recentSearchResults[searchKey]) {
-            hotel = recentSearchResults[searchKey].find(h => h.id === hotelId);
-            console.log(`Found hotel in cache: ${hotel ? hotel.name : 'not found'}`);
+            hotel = recentSearchResults[searchKey].find(function(h) {
+                return h.id === hotelId;
+            });
+            if (hotel) {
+                console.log('Found hotel in cache: ' + hotel.name);
+            }
         }
         
         // If found in cache, return real data
         if (hotel) {
-            const nights = checkin && checkout ? 
-                Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24)) : 
-                (hotel.nights || 1);
+            let nights = 1;
+            if (checkin && checkout) {
+                nights = Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24));
+            } else if (hotel.nights) {
+                nights = hotel.nights;
+            }
             
             const totalPrice = hotel.price_per_night * nights;
             const originalPrice = Math.round(totalPrice * 1.2);
             const savings = originalPrice - totalPrice;
             
-            console.log(`✅ Returning real hotel: ${hotel.name}, price: $${hotel.price_per_night}/night`);
+            console.log('✅ Returning real hotel: ' + hotel.name + ', price: $' + hotel.price_per_night + '/night');
             
             return res.json({
                 id: hotel.id,
@@ -124,7 +134,7 @@ router.get('/:id', async (req, res) => {
                 currency: hotel.currency || 'USD',
                 city: hotel.city,
                 country: getCountryFromCity(hotel.city),
-                description: `${hotel.name} offers great accommodation in ${hotel.city}.`,
+                description: hotel.name + ' offers great accommodation in ' + hotel.city + '.',
                 amenities: ['Free WiFi', 'Air conditioning', '24/7 front desk', 'Housekeeping', 'Elevator', 'Luggage storage'],
                 checkin: checkin || hotel.checkin,
                 checkout: checkout || hotel.checkout,
@@ -134,18 +144,20 @@ router.get('/:id', async (req, res) => {
             });
         }
         
-        // If not found in cache, try to use the name parameter to search
+        // If not found in cache, try to use the name parameter
         if (name) {
-            console.log(`Hotel not in cache, using name parameter: ${name}`);
-            const nights = checkin && checkout ? 
-                Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24)) : 1;
+            console.log('Hotel not in cache, using name parameter: ' + name);
+            let nights = 1;
+            if (checkin && checkout) {
+                nights = Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24));
+            }
             
-            // Estimate price based on name (fallback)
+            const decodedName = decodeURIComponent(name);
             const estimatedPrice = 150;
             
             return res.json({
                 id: hotelId,
-                name: decodeURIComponent(name),
+                name: decodedName,
                 stars: 4,
                 price_per_night: estimatedPrice,
                 total_price: estimatedPrice * nights,
@@ -154,24 +166,26 @@ router.get('/:id', async (req, res) => {
                 currency: 'USD',
                 city: city || 'City',
                 country: getCountryFromCity(city),
-                description: `${decodeURIComponent(name)} offers great accommodation.`,
+                description: decodedName + ' offers great accommodation.',
                 amenities: ['Free WiFi', 'Air conditioning', '24/7 front desk', 'Housekeeping'],
                 checkin: checkin || '2026-06-01',
                 checkout: checkout || '2026-06-04',
                 guests: parseInt(guests) || 2,
                 nights: nights,
-                booking_link: `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(name)}&checkin=${checkin}&checkout=${checkout}&group_adults=${guests || 2}`
+                booking_link: 'https://www.booking.com/searchresults.html?ss=' + encodeURIComponent(decodedName) + '&checkin=' + (checkin || '2026-06-01') + '&checkout=' + (checkout || '2026-06-04') + '&group_adults=' + (guests || 2)
             });
         }
         
         // Final fallback
-        console.log(`⚠️ No hotel found, returning fallback`);
-        const nights = checkin && checkout ? 
-            Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24)) : 1;
+        console.log('⚠️ No hotel found, returning fallback');
+        let nights = 1;
+        if (checkin && checkout) {
+            nights = Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24));
+        }
         
         res.json({
             id: hotelId,
-            name: `${city || 'Grand'} Hotel`,
+            name: (city || 'Grand') + ' Hotel',
             stars: 4,
             price_per_night: 199,
             total_price: 199 * nights,
@@ -180,13 +194,13 @@ router.get('/:id', async (req, res) => {
             currency: 'USD',
             city: city || 'City',
             country: getCountryFromCity(city),
-            description: `A beautiful hotel located in ${city || 'the city'}.`,
+            description: 'A beautiful hotel located in ' + (city || 'the city') + '.',
             amenities: ['Free WiFi', 'Air conditioning', '24/7 front desk', 'Housekeeping', 'Elevator', 'Luggage storage'],
             checkin: checkin || '2026-06-01',
             checkout: checkout || '2026-06-04',
             guests: parseInt(guests) || 2,
             nights: nights,
-            booking_link: `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(city || 'hotel')}&checkin=${checkin}&checkout=${checkout}&group_adults=${guests || 2}`
+            booking_link: 'https://www.booking.com/searchresults.html?ss=' + encodeURIComponent(city || 'hotel') + '&checkin=' + (checkin || '2026-06-01') + '&checkout=' + (checkout || '2026-06-04') + '&group_adults=' + (guests || 2)
         });
         
     } catch (error) {
