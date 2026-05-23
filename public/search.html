@@ -120,6 +120,32 @@
             background: #d35400;
         }
         
+        .loader {
+            text-align: center;
+            padding: 3rem;
+        }
+        
+        .loader-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f0f0f0;
+            border-top-color: #e67e22;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            background: white;
+            border-radius: 16px;
+        }
+        
         @media (max-width: 768px) {
             .hotel-card {
                 flex-direction: column;
@@ -165,21 +191,12 @@
     </footer>
 
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        let city = urlParams.get('city');
-        const checkin = urlParams.get('checkin');
-        const checkout = urlParams.get('checkout');
-        const guests = urlParams.get('guests');
-        
-        if (!city) {
-            const savedSearch = sessionStorage.getItem('roomratecompare_search');
-            if (savedSearch) {
-                const search = JSON.parse(savedSearch);
-                city = search.city;
-            }
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         }
         
-        // Function to generate different OTA links
         function generateOTAlinks(hotelName, cityName, checkin, checkout, guests) {
             const searchQuery = encodeURIComponent(hotelName || cityName);
             const checkinParam = checkin || '2026-06-01';
@@ -192,6 +209,33 @@
                 expedia: `https://www.expedia.com/search?q=${searchQuery}&startDate=${checkinParam}&endDate=${checkoutParam}&adults=${guestsParam}`,
                 hotelscom: `https://www.hotels.com/search?q=${searchQuery}&checkIn=${checkinParam}&checkOut=${checkoutParam}&adults=${guestsParam}`
             };
+        }
+        
+        async function trackClick(hotelId, site) {
+            try {
+                await fetch('/api/hotels/click', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ hotel_id: hotelId, site: site })
+                });
+                console.log(`✅ Tracked click for ${site}`);
+            } catch(e) { 
+                console.log('Track error:', e); 
+            }
+        }
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        let city = urlParams.get('city');
+        const checkin = urlParams.get('checkin');
+        const checkout = urlParams.get('checkout');
+        const guests = urlParams.get('guests');
+        
+        if (!city) {
+            const savedSearch = sessionStorage.getItem('roomratecompare_search');
+            if (savedSearch) {
+                const search = JSON.parse(savedSearch);
+                city = search.city;
+            }
         }
         
         async function searchHotels() {
@@ -226,7 +270,7 @@
                             <div class="hotel-card">
                                 <div class="hotel-image">🏨</div>
                                 <div class="hotel-details">
-                                    <div class="hotel-name">${hotel.name}</div>
+                                    <div class="hotel-name">${escapeHtml(hotel.name)}</div>
                                     <div class="stars">${'★'.repeat(hotel.stars)}${'☆'.repeat(5-hotel.stars)}</div>
                                     <div class="price-section">
                                         <span class="price">$${totalPrice}</span>
@@ -252,25 +296,19 @@
                     resultsDiv.innerHTML = `<div class="no-results"><h3>🏨 No hotels found in ${city}</h3><a href="/">← Search again</a></div>`;
                 }
             } catch (error) {
+                console.error('Search error:', error);
                 resultsDiv.innerHTML = `<div class="no-results"><h3>⚠️ Unable to fetch room rates</h3><a href="/">← Try again</a></div>`;
             }
         }
         
-        function formatDate(dateStr) {
-            if (!dateStr) return '';
-            const date = new Date(dateStr);
-            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        }
-        
-        async function trackClick(hotelId, site) {
-            try {
-                await fetch('/api/hotels/click', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ hotel_id: hotelId, site: site })
-                });
-                console.log(`✅ Tracked click for ${site}`);
-            } catch(e) { console.log('Track error:', e); }
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
         }
         
         if (city && checkin && checkout) {
