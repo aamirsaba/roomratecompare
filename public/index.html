@@ -3,10 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RoomRateCompare | Compare Hotel Room Rates - Best Price Guaranteed</title>
-    <meta name="description" content="Compare room rates from Booking.com, Agoda, Expedia and more. Find the lowest hotel prices instantly. Free hotel price comparison.">
-    <meta name="keywords" content="hotel comparison, compare room rates, hotel prices, cheap hotels, room rate compare">
+    <title>RoomRateCompare | Compare Hotel Room Rates</title>
+    <meta name="description" content="Compare room rates from Booking.com, Agoda, Expedia and more. Find the lowest hotel prices instantly.">
     <link rel="stylesheet" href="/css/style.css">
+    
+    <script nowprocket data-noptimize="1" data-cfasync="false" data-wpfc-render="false" seraph-accel-crit="1" data-no-defer="1">
+        (function () {
+            var script = document.createElement("script");
+            script.async = 1;
+            script.src = 'https://emrldtp.cc/NTMxODI2.js?t=531826';
+            document.head.appendChild(script);
+        })();
+    </script>
 </head>
 <body>
     <header>
@@ -16,9 +24,9 @@
                 <p class="tagline">Compare 1000+ hotels. Find your best room rate.</p>
             </div>
             <div class="nav-links">
-    <a href="/">Home</a>
-    <a href="#" id="searchNavLink">Search</a>
-</div>
+                <a href="/">Home</a>
+                <a href="#" id="searchNavLink">Search</a>
+            </div>
         </nav>
     </header>
 
@@ -68,31 +76,42 @@
     </main>
 
     <footer>
-        <p>&copy; 2026 RoomRateCompare.com. Compare hotel room rates worldwide.</p>
+        <p>© 2026 RoomRateCompare.com. Compare hotel room rates worldwide.</p>
         <p>RoomRateCompare is a product of Aamir Saba Ltd (UK) & Aamir Saba Inc (USA)</p>
     </footer>
 
-    <script src="/js/main.js"></script>
+    <script>
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
 
+        const checkinInput = document.getElementById('checkin');
+        const checkoutInput = document.getElementById('checkout');
 
-<!-- Travelpayouts Affiliate Script (Converts Booking.com Links) -->
-<script nowprocket data-noptimize="1" data-cfasync="false" data-wpfc-render="false" seraph-accel-crit="1" data-no-defer="1">
-  (function () {
-      var script = document.createElement("script");
-      script.async = 1;
-      script.src = 'https://emrldtp.cc/NTMxODI2.js?t=531826';
-      document.head.appendChild(script);
-  })();
-</script>
+        if (checkinInput) checkinInput.value = today.toISOString().split('T')[0];
+        if (checkoutInput) checkoutInput.value = tomorrow.toISOString().split('T')[0];
 
-// Fix Search button on homepage
-const searchNavLink = document.getElementById('searchNavLink');
-if (searchNavLink) {
-    searchNavLink.addEventListener('click', function(e) {
-        e.preventDefault();
-        // Scroll to search form instead of navigating
-        document.getElementById('searchForm').scrollIntoView({ behavior: 'smooth' });
-    });
-}
+        const searchForm = document.getElementById('searchForm');
+        if (searchForm) {
+            searchForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const city = document.getElementById('city').value;
+                const checkin = document.getElementById('checkin').value;
+                const checkout = document.getElementById('checkout').value;
+                const guests = document.getElementById('guests').value;
+                if (!city) { alert('Please enter a city'); return; }
+                sessionStorage.setItem('roomratecompare_search', JSON.stringify({city, checkin, checkout, guests}));
+                window.location.href = `/search?city=${encodeURIComponent(city)}&checkin=${checkin}&checkout=${checkout}&guests=${guests}`;
+            });
+        }
+
+        const searchNavLink = document.getElementById('searchNavLink');
+        if (searchNavLink) {
+            searchNavLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('searchForm').scrollIntoView({ behavior: 'smooth' });
+            });
+        }
+    </script>
 </body>
 </html>
