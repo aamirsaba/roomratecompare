@@ -51,13 +51,14 @@ router.get('/search', async (req, res) => {
             rating: hotel.rating || 0,
             nights: nights,
             city: city,
+            country: getCountryFromCity(city),
             checkin: checkin,
             checkout: checkout,
             guests: parseInt(guests),
-            booking_link: `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(city)}&checkin=${checkin}&checkout=${checkout}&group_adults=${guests}`
+            booking_link: `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(hotel.name)}&checkin=${checkin}&checkout=${checkout}&group_adults=${guests}`
         }));
         
-        // Store for detail page
+        // Store in memory for detail page - IMPORTANT!
         recentSearchResults[city.toLowerCase()] = formattedHotels;
         
         res.json({ 
@@ -72,33 +73,45 @@ router.get('/search', async (req, res) => {
     }
 });
 
-// Get single hotel details - FIXED to show correct price
+// Helper function to get country from city
+function getCountryFromCity(city) {
+    const countries = {
+        'karachi': 'Pakistan', 'lahore': 'Pakistan', 'islamabad': 'Pakistan',
+        'mumbai': 'India', 'delhi': 'India', 'bangalore': 'India',
+        'dubai': 'UAE', 'abu dhabi': 'UAE', 'muscat': 'Oman',
+        'london': 'United Kingdom', 'paris': 'France', 'new york': 'USA'
+    };
+    return countries[city?.toLowerCase()] || 'International';
+}
+
+// Get single hotel details - FIXED to use cached data
 router.get('/:id', async (req, res) => {
     const hotelId = parseInt(req.params.id);
-    const { city, checkin, checkout, guests } = req.query;
+    const { city, checkin, checkout, guests, name } = req.query;
     
-    console.log(`🔍 Fetching hotel ID: ${hotelId} for ${city}`);
+    console.log(`🔍 Fetching hotel ID: ${hotelId} for city: ${city}`);
     
     try {
-        // Find the hotel in recent search results
-        const searchKey = (city || 'muscat').toLowerCase();
+        // Try to find hotel in recent search results
+        const searchKey = (city || '').toLowerCase();
         let hotel = null;
         
         if (recentSearchResults[searchKey]) {
             hotel = recentSearchResults[searchKey].find(h => h.id === hotelId);
+            console.log(`Found hotel in cache: ${hotel ? hotel.name : 'not found'}`);
         }
         
+        // If found in cache, return real data
         if (hotel) {
-            // Use REAL data from search results
             const nights = checkin && checkout ? 
                 Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24)) : 
-                hotel.nights;
+                (hotel.nights || 1);
             
             const totalPrice = hotel.price_per_night * nights;
             const originalPrice = Math.round(totalPrice * 1.2);
             const savings = originalPrice - totalPrice;
             
-            console.log(`✅ Found hotel: ${hotel.name}, price: $${hotel.price_per_night}/night`);
+            console.log(`✅ Returning real hotel: ${hotel.name}, price: $${hotel.price_per_night}/night`);
             
             return res.json({
                 id: hotel.id,
@@ -110,7 +123,7 @@ router.get('/:id', async (req, res) => {
                 savings: savings,
                 currency: hotel.currency || 'USD',
                 city: hotel.city,
-                country: 'International',
+                country: getCountryFromCity(hotel.city),
                 description: `${hotel.name} offers great accommodation in ${hotel.city}.`,
                 amenities: ['Free WiFi', 'Air conditioning', '24/7 front desk', 'Housekeeping', 'Elevator', 'Luggage storage'],
                 checkin: checkin || hotel.checkin,
@@ -121,8 +134,38 @@ router.get('/:id', async (req, res) => {
             });
         }
         
-        // Fallback - shouldn't happen if search was done first
-        console.log(`⚠️ Hotel ${hotelId} not found in cache, using fallback`);
+        // If not found in cache, try to use the name parameter to search
+        if (name) {
+            console.log(`Hotel not in cache, using name parameter: ${name}`);
+            const nights = checkin && checkout ? 
+                Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24)) : 1;
+            
+            // Estimate price based on name (fallback)
+            const estimatedPrice = 150;
+            
+            return res.json({
+                id: hotelId,
+                name: decodeURIComponent(name),
+                stars: 4,
+                price_per_night: estimatedPrice,
+                total_price: estimatedPrice * nights,
+                original_price: Math.round(estimatedPrice * nights * 1.2),
+                savings: Math.round(estimatedPrice * nights * 0.2),
+                currency: 'USD',
+                city: city || 'City',
+                country: getCountryFromCity(city),
+                description: `${decodeURIComponent(name)} offers great accommodation.`,
+                amenities: ['Free WiFi', 'Air conditioning', '24/7 front desk', 'Housekeeping'],
+                checkin: checkin || '2026-06-01',
+                checkout: checkout || '2026-06-04',
+                guests: parseInt(guests) || 2,
+                nights: nights,
+                booking_link: `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(name)}&checkin=${checkin}&checkout=${checkout}&group_adults=${guests || 2}`
+            });
+        }
+        
+        // Final fallback
+        console.log(`⚠️ No hotel found, returning fallback`);
         const nights = checkin && checkout ? 
             Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24)) : 1;
         
@@ -135,15 +178,15 @@ router.get('/:id', async (req, res) => {
             original_price: 239 * nights,
             savings: 40 * nights,
             currency: 'USD',
-            city: city || 'Muscat',
-            country: 'International',
-            description: `A beautiful hotel located in ${city || 'Muscat'}.`,
+            city: city || 'City',
+            country: getCountryFromCity(city),
+            description: `A beautiful hotel located in ${city || 'the city'}.`,
             amenities: ['Free WiFi', 'Air conditioning', '24/7 front desk', 'Housekeeping', 'Elevator', 'Luggage storage'],
             checkin: checkin || '2026-06-01',
             checkout: checkout || '2026-06-04',
             guests: parseInt(guests) || 2,
             nights: nights,
-            booking_link: `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(city || 'Muscat')}`
+            booking_link: `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(city || 'hotel')}&checkin=${checkin}&checkout=${checkout}&group_adults=${guests || 2}`
         });
         
     } catch (error) {
@@ -156,10 +199,13 @@ router.post('/click', async (req, res) => {
     try {
         await supabase.from('clicks').insert([{
             hotel_id: req.body.hotel_id,
+            site: req.body.site,
+            room_type: req.body.room_type,
             clicked_at: new Date()
         }]);
         res.json({ success: true });
     } catch (error) {
+        console.error('Click error:', error.message);
         res.json({ success: false });
     }
 });
