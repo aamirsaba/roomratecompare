@@ -7,11 +7,11 @@ const apifyClient = new ApifyClient({
     token: process.env.APIFY_API_TOKEN,
 });
 
-// Cache for 1 hour
-const CACHE_DURATION = 3600000;
-let hotelCache = {};
+// Memory cache (fastest)
+let memoryCache = {};
+const MEMORY_CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
-// Fallback hotels for cities when API fails
+// Fallback hotels
 const FALLBACK_HOTELS = {
     'lahore': [
         { name: 'Pearl Continental Hotel Lahore', pricePerNight: 120, stars: 5 },
@@ -22,26 +22,22 @@ const FALLBACK_HOTELS = {
     ],
     'karachi': [
         { name: 'Pearl Continental Hotel Karachi', pricePerNight: 145, stars: 5 },
-        { name: 'Karachi Marriott Hotel', pricePerNight: 134, stars: 5 },
-        { name: 'Movenpick Hotel Karachi', pricePerNight: 128, stars: 4 },
-        { name: 'Avari Tower Karachi', pricePerNight: 115, stars: 4 }
+        { name: 'Karachi Marriott Hotel', pricePerNight: 134, stars: 5 }
     ],
     'dubai': [
         { name: 'Atlantis The Palm', pricePerNight: 350, stars: 5 },
-        { name: 'Burj Al Arab', pricePerNight: 1200, stars: 5 },
-        { name: 'Jumeirah Beach Hotel', pricePerNight: 280, stars: 5 }
+        { name: 'Burj Al Arab', pricePerNight: 1200, stars: 5 }
     ],
     'muscat': [
         { name: 'Kempinski Hotel Muscat', pricePerNight: 219, stars: 5 },
-        { name: 'Jumeirah Muscat Bay', pricePerNight: 868, stars: 5 },
-        { name: 'DoubleTree By Hilton Muscat', pricePerNight: 237, stars: 4 }
+        { name: 'Jumeirah Muscat Bay', pricePerNight: 868, stars: 5 }
     ]
 };
 
 router.get('/search', async (req, res) => {
     const { city, checkin, checkout, guests = 2 } = req.query;
     
-    console.log(`🔍 Searching for: ${city}`);
+    console.log(`🔍 Search requested for: ${city}`);
     
     if (!city || !checkin || !checkout) {
         return res.status(400).json({ error: 'Missing required fields' });
@@ -49,19 +45,56 @@ router.get('/search', async (req, res) => {
     
     const cacheKey = `${city.toLowerCase()}_${checkin}_${checkout}_${guests}`;
     
-    // Check cache first
-    if (hotelCache[cacheKey] && (Date.now() - hotelCache[cacheKey].timestamp) < CACHE_DURATION) {
-        console.log(`✅ Returning cached results for ${city}`);
+    // STEP 1: Check memory cache (0-1ms response)
+    if (memoryCache[cacheKey] && (Date.now() - memoryCache[cacheKey].timestamp) < MEMORY_CACHE_DURATION) {
+        console.log(`⚡ INSTANT: Returning memory cached results for ${city}`);
         return res.json({ 
-            source: 'cache', 
-            hotels: hotelCache[cacheKey].hotels,
-            count: hotelCache[cacheKey].hotels.length
+            source: 'memory-cache', 
+            hotels: memoryCache[cacheKey].hotels,
+            count: memoryCache[cacheKey].hotels.length,
+            cached: true
         });
     }
     
+    // STEP 2: Check Supabase database cache
+    try {
+        const { data: cached } = await supabase
+            .from('hotel_cache')
+            .select('data, created_at')
+            .eq('city', city.toLowerCase())
+            .eq('checkin', checkin)
+            .eq('checkout', checkout)
+            .single();
+        
+        if (cached && cached.data && cached.data.length > 0) {
+            const cacheAge = Date.now() - new Date(cached.created_at).getTime();
+            if (cacheAge < MEMORY_CACHE_DURATION) {
+                console.log(`⚡ INSTANT: Returning database cached results for ${city} (${Math.round(cacheAge / 1000 / 60)} minutes old)`);
+                
+                // Store in memory cache for even faster next time
+                memoryCache[cacheKey] = {
+                    hotels: cached.data,
+                    timestamp: Date.now()
+                };
+                
+                return res.json({ 
+                    source: 'db-cache', 
+                    hotels: cached.data,
+                    count: cached.data.length,
+                    cached: true
+                });
+            }
+        }
+    } catch (e) {
+        console.log('Cache check error:', e.message);
+    }
+    
+    // STEP 3: Fetch fresh data (only happens once per city/dates)
+    console.log(`🔄 Fetching fresh data for ${city} (this will take ~10-25 seconds once)`);
+    
     try {
         const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Search timeout after 30 seconds')), 30000)
+            setTimeout(() => reject(new Error('Search timeout')), 25000)
         );
         
         const input = {
@@ -70,8 +103,6 @@ router.get('/search', async (req, res) => {
             checkout: checkout,
             guests: parseInt(guests)
         };
-        
-        console.log(`🚀 Calling Actor for ${city}...`);
         
         const runPromise = apifyClient.actor('roomratecompare/apify-hotel-scraper').call(input);
         const run = await Promise.race([runPromise, timeoutPromise]);
@@ -105,11 +136,10 @@ router.get('/search', async (req, res) => {
             }));
         }
         
-        // If no hotels from API, use fallback
+        // Use fallback if needed
         if (formattedHotels.length === 0) {
             const fallback = FALLBACK_HOTELS[city.toLowerCase()];
             if (fallback) {
-                console.log(`⚠️ Using fallback data for ${city}`);
                 formattedHotels = fallback.map((hotel, idx) => ({
                     id: idx + 1,
                     name: hotel.name,
@@ -128,25 +158,42 @@ router.get('/search', async (req, res) => {
             }
         }
         
-        // Store in cache (IMPORTANT: store even fallback data for detail page)
+        // Store in memory cache
         if (formattedHotels.length > 0) {
-            hotelCache[cacheKey] = {
+            memoryCache[cacheKey] = {
                 hotels: formattedHotels,
                 timestamp: Date.now()
             };
-            console.log(`✅ Cached ${formattedHotels.length} hotels for ${city}`);
+            
+            // Store in Supabase for persistence
+            try {
+                await supabase
+                    .from('hotel_cache')
+                    .upsert({ 
+                        city: city.toLowerCase(), 
+                        checkin: checkin,
+                        checkout: checkout,
+                        data: formattedHotels, 
+                        created_at: new Date() 
+                    });
+            } catch (dbError) {
+                console.log('DB cache error:', dbError.message);
+            }
         }
         
+        console.log(`✅ Cached ${formattedHotels.length} hotels for ${city}`);
+        
         res.json({ 
-            source: formattedHotels.length > 0 ? (hotels.length > 0 ? 'custom-actor' : 'fallback') : 'error',
+            source: 'fresh', 
             hotels: formattedHotels,
-            count: formattedHotels.length
+            count: formattedHotels.length,
+            cached: false
         });
         
     } catch (error) {
         console.error(`❌ Error for ${city}:`, error.message);
         
-        // Use fallback data
+        // Try fallback data
         const nights = Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24));
         const fallback = FALLBACK_HOTELS[city.toLowerCase()];
         
@@ -167,17 +214,17 @@ router.get('/search', async (req, res) => {
                 booking_link: `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(hotel.name)}&checkin=${checkin}&checkout=${checkout}&group_adults=${guests}`
             }));
             
-            // Store fallback in cache so detail page works
-            hotelCache[cacheKey] = {
+            // Cache fallback data
+            memoryCache[cacheKey] = {
                 hotels: formattedHotels,
                 timestamp: Date.now()
             };
             
-            console.log(`⚠️ Using and caching fallback data for ${city}`);
             return res.json({ 
                 source: 'fallback', 
                 hotels: formattedHotels,
-                count: formattedHotels.length
+                count: formattedHotels.length,
+                cached: false
             });
         }
         
@@ -185,35 +232,27 @@ router.get('/search', async (req, res) => {
     }
 });
 
-// Get single hotel details
+// Get single hotel details (same as before)
 router.get('/:id', async (req, res) => {
     const hotelId = parseInt(req.params.id);
     const { city, checkin, checkout, guests, name } = req.query;
-    
-    console.log(`🔍 Fetching hotel ID: ${hotelId} for city: ${city}`);
     
     try {
         const searchKey = (city || '').toLowerCase();
         let hotel = null;
         
-        // Search in cache
-        for (const cacheKey in hotelCache) {
+        // Search in memory cache
+        for (const cacheKey in memoryCache) {
             if (cacheKey.startsWith(searchKey)) {
-                hotel = hotelCache[cacheKey].hotels.find(h => h.id === hotelId);
+                hotel = memoryCache[cacheKey].hotels.find(h => h.id === hotelId);
                 if (hotel) break;
             }
         }
         
         if (hotel) {
             const nights = checkin && checkout ? 
-                Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24)) : 
-                (hotel.nights || 1);
-            
+                Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24)) : 1;
             const totalPrice = hotel.price_per_night * nights;
-            const originalPrice = Math.round(totalPrice * 1.2);
-            const savings = originalPrice - totalPrice;
-            
-            console.log(`✅ Found hotel: ${hotel.name}, price: $${hotel.price_per_night}/night`);
             
             return res.json({
                 id: hotel.id,
@@ -221,77 +260,42 @@ router.get('/:id', async (req, res) => {
                 stars: hotel.stars || 4,
                 price_per_night: hotel.price_per_night,
                 total_price: totalPrice,
-                original_price: originalPrice,
-                savings: savings,
-                currency: hotel.currency || 'USD',
+                currency: 'USD',
                 city: hotel.city,
                 country: 'International',
-                description: `${hotel.name} offers great accommodation in ${hotel.city}.`,
-                amenities: ['Free WiFi', 'Air conditioning', '24/7 front desk', 'Housekeeping', 'Elevator', 'Luggage storage'],
+                description: `${hotel.name} offers great accommodation.`,
+                amenities: ['Free WiFi', 'Air conditioning', '24/7 front desk', 'Housekeeping'],
                 checkin: checkin || hotel.checkin,
                 checkout: checkout || hotel.checkout,
-                guests: parseInt(guests) || hotel.guests || 2,
+                guests: parseInt(guests) || 2,
                 nights: nights,
                 booking_link: hotel.booking_link
             });
         }
         
-        // If hotel not found but we have name parameter, create a response
-        if (name) {
-            console.log(`Hotel not in cache, using name parameter: ${name}`);
-            const nights = checkin && checkout ? 
-                Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24)) : 1;
-            
-            const decodedName = decodeURIComponent(name);
-            
-            return res.json({
-                id: hotelId,
-                name: decodedName,
-                stars: 4,
-                price_per_night: 120,
-                total_price: 120 * nights,
-                original_price: Math.round(120 * nights * 1.2),
-                savings: Math.round(120 * nights * 0.2),
-                currency: 'USD',
-                city: city || 'City',
-                country: 'International',
-                description: `${decodedName} offers great accommodation.`,
-                amenities: ['Free WiFi', 'Air conditioning', '24/7 front desk', 'Housekeeping'],
-                checkin: checkin || '2026-06-01',
-                checkout: checkout || '2026-06-04',
-                guests: parseInt(guests) || 2,
-                nights: nights,
-                booking_link: `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(decodedName)}&checkin=${checkin}&checkout=${checkout}&group_adults=${guests || 2}`
-            });
-        }
-        
-        // Final fallback
-        console.log(`⚠️ No hotel found, returning generic fallback`);
+        // Fallback response
         const nights = checkin && checkout ? 
             Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24)) : 1;
         
         res.json({
             id: hotelId,
-            name: `${city || 'Grand'} Hotel`,
+            name: name ? decodeURIComponent(name) : `${city || 'Grand'} Hotel`,
             stars: 4,
             price_per_night: 120,
             total_price: 120 * nights,
-            original_price: 144 * nights,
-            savings: 24 * nights,
             currency: 'USD',
             city: city || 'City',
             country: 'International',
-            description: `A beautiful hotel located in ${city || 'the city'}.`,
-            amenities: ['Free WiFi', 'Air conditioning', '24/7 front desk', 'Housekeeping'],
+            description: 'A beautiful hotel with great amenities.',
+            amenities: ['Free WiFi', 'Air conditioning', '24/7 front desk'],
             checkin: checkin || '2026-06-01',
             checkout: checkout || '2026-06-04',
             guests: parseInt(guests) || 2,
             nights: nights,
-            booking_link: `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(city || 'hotel')}&checkin=${checkin}&checkout=${checkout}&group_adults=${guests || 2}`
+            booking_link: `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(city || 'hotel')}`
         });
         
     } catch (error) {
-        console.error('❌ Hotel detail error:', error.message);
         res.status(500).json({ error: 'Failed to fetch hotel details' });
     }
 });
@@ -301,12 +305,10 @@ router.post('/click', async (req, res) => {
         await supabase.from('clicks').insert([{
             hotel_id: req.body.hotel_id,
             site: req.body.site,
-            room_type: req.body.room_type,
             clicked_at: new Date()
         }]);
         res.json({ success: true });
     } catch (error) {
-        console.error('Click error:', error.message);
         res.json({ success: false });
     }
 });
