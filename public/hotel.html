@@ -5,9 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hotel Details | RoomRateCompare</title>
     <link rel="stylesheet" href="/css/style.css">
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GKJZTX45SB"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-GKJZTX45SB');
+    </script>
+    
+    <!-- Travelpayouts Affiliate Script -->
+    <script nowprocket data-noptimize="1" data-cfasync="false" data-wpfc-render="false" seraph-accel-crit="1" data-no-defer="1">
+        (function () {
+            var script = document.createElement("script");
+            script.async = 1;
+            script.src = 'https://emrldtp.cc/NTMxODI2.js?t=531826';
+            document.head.appendChild(script);
+        })();
+    </script>
+    
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+        }
+
         .hotel-detail-container {
-            max-width: 1200px;
+            max-width: 1000px;
             margin: 2rem auto;
             padding: 0 1rem;
         }
@@ -130,7 +161,6 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
             gap: 1rem;
             border: 1px solid #eee;
         }
@@ -215,6 +245,27 @@
             color: white;
         }
 
+        .loader, .error-container {
+            text-align: center;
+            padding: 3rem;
+            background: white;
+            border-radius: 16px;
+        }
+
+        .loader-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f0f0f0;
+            border-top-color: #e67e22;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
         @media (max-width: 700px) {
             .room-card {
                 flex-direction: column;
@@ -232,6 +283,9 @@
             }
             .price-left {
                 justify-content: center;
+            }
+            .hotel-header h1 {
+                font-size: 1.2rem;
             }
         }
     </style>
@@ -276,6 +330,22 @@
         const checkout = urlParams.get('checkout');
         const guests = urlParams.get('guests') || 2;
         const city = urlParams.get('city');
+        const hotelName = urlParams.get('name') || '';
+        
+        // Function to generate different OTA links
+        function generateOTAlinks(searchQuery, checkin, checkout, guests) {
+            const query = encodeURIComponent(searchQuery);
+            const checkinParam = checkin || '2026-06-01';
+            const checkoutParam = checkout || '2026-06-04';
+            const guestsParam = guests || 2;
+            
+            return {
+                booking: `https://www.booking.com/searchresults.html?ss=${query}&checkin=${checkinParam}&checkout=${checkoutParam}&group_adults=${guestsParam}`,
+                agoda: `https://www.agoda.com/search?city=${query}&checkIn=${checkinParam}&checkOut=${checkoutParam}&adults=${guestsParam}`,
+                expedia: `https://www.expedia.com/search?q=${query}&startDate=${checkinParam}&endDate=${checkoutParam}&adults=${guestsParam}`,
+                hotelscom: `https://www.hotels.com/search?q=${query}&checkIn=${checkinParam}&checkOut=${checkoutParam}&adults=${guestsParam}`
+            };
+        }
         
         async function loadHotelDetails() {
             const detailDiv = document.getElementById('hotelDetail');
@@ -291,26 +361,35 @@
                 const response = await fetch(`/api/hotels/${hotelId}?city=${encodeURIComponent(city || '')}&checkin=${checkin}&checkout=${checkout}&guests=${guests}`);
                 const hotel = await response.json();
                 
-                const nights = checkin && checkout ? 
-                    Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24)) : 1;
+                if (hotel.error) {
+                    detailDiv.innerHTML = `<div class="error-container"><h3>❌ ${hotel.error}</h3><a href="/" class="book-room-btn" style="display:inline-block;margin-top:1rem;">Search Hotels</a></div>`;
+                    return;
+                }
                 
-                const totalPrice = hotel.total_price || hotel.price_per_night * nights;
-                const originalPrice = hotel.original_price || Math.round(totalPrice * 1.2);
-                const savings = hotel.savings || (originalPrice - totalPrice);
+                document.title = `${hotel.name} | RoomRateCompare`;
                 
-                // Build different links for each OTA
-                const searchQuery = encodeURIComponent(city || hotel.city || 'hotel');
-                const bookingLink = `https://www.booking.com/searchresults.html?ss=${searchQuery}&checkin=${checkin || '2026-06-01'}&checkout=${checkout || '2026-06-04'}&group_adults=${guests}`;
-                const agodaLink = `https://www.agoda.com/search?city=${searchQuery}&checkIn=${checkin || '2026-06-01'}&checkOut=${checkout || '2026-06-04'}&adults=${guests}`;
-                const expediaLink = `https://www.expedia.com/search?q=${searchQuery}&startDate=${checkin || '2026-06-01'}&endDate=${checkout || '2026-06-04'}&adults=${guests}`;
-                const hotelscomLink = `https://www.hotels.com/search?q=${searchQuery}&checkIn=${checkin || '2026-06-01'}&checkOut=${checkout || '2026-06-04'}&adults=${guests}`;
+                let nights = 1;
+                if (checkin && checkout) {
+                    nights = Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24));
+                }
+                
+                const totalPrice = hotel.total_price || (hotel.price_per_night * nights) || 199;
+                const originalPrice = Math.round(totalPrice * 1.2);
+                const savings = originalPrice - totalPrice;
+                
+                // Generate separate OTA links
+                const searchQuery = hotelName || hotel.name || city || 'hotel';
+                const otaLinks = generateOTAlinks(searchQuery, checkin, checkout, guests);
+                
+                const cityDisplay = (hotel.city || city || 'City');
+                const cityCapitalized = cityDisplay.charAt(0).toUpperCase() + cityDisplay.slice(1);
                 
                 detailDiv.innerHTML = `
                     <div class="hotel-detail-card">
                         <div class="hotel-header">
-                            <h1>${hotel.name}</h1>
+                            <h1>${escapeHtml(hotel.name)}</h1>
                             <div class="stars">${'★'.repeat(hotel.stars || 4)}${'☆'.repeat(5 - (hotel.stars || 4))}</div>
-                            <div class="address">📍 ${hotel.city || city || 'City'}, ${hotel.country || 'International'}</div>
+                            <div class="address">📍 ${cityCapitalized}, ${hotel.country || 'International'}</div>
                         </div>
                         
                         <div class="hotel-info">
@@ -324,7 +403,12 @@
                             </div>
                             
                             <div class="amenities">
-                                ${(hotel.amenities || ['Free WiFi', 'Air conditioning', '24/7 front desk', 'Housekeeping', 'Elevator', 'Luggage storage']).map(a => `<span class="amenity">✓ ${a}</span>`).join('')}
+                                <span class="amenity">✓ Free WiFi</span>
+                                <span class="amenity">✓ Air conditioning</span>
+                                <span class="amenity">✓ 24/7 front desk</span>
+                                <span class="amenity">✓ Housekeeping</span>
+                                <span class="amenity">✓ Elevator</span>
+                                <span class="amenity">✓ Luggage storage</span>
                             </div>
                             
                             <div class="room-rates-section">
@@ -339,7 +423,7 @@
                                         <div class="room-amount">$${Math.round(totalPrice * 0.9)}</div>
                                         <div class="room-nights">total for ${nights} night${nights > 1 ? 's' : ''}</div>
                                     </div>
-                                    <a href="${bookingLink}" target="_blank" rel="noopener noreferrer" onclick="trackClick('standard')">
+                                    <a href="${otaLinks.booking}" target="_blank" rel="noopener noreferrer" onclick="trackClick('standard')">
                                         <button class="book-room-btn">Book Now →</button>
                                     </a>
                                 </div>
@@ -353,7 +437,7 @@
                                         <div class="room-amount">$${Math.round(totalPrice * 1.15)}</div>
                                         <div class="room-nights">total for ${nights} night${nights > 1 ? 's' : ''}</div>
                                     </div>
-                                    <a href="${bookingLink}" target="_blank" rel="noopener noreferrer" onclick="trackClick('deluxe')">
+                                    <a href="${otaLinks.booking}" target="_blank" rel="noopener noreferrer" onclick="trackClick('deluxe')">
                                         <button class="book-room-btn">Book Now →</button>
                                     </a>
                                 </div>
@@ -367,7 +451,7 @@
                                         <div class="room-amount">$${Math.round(totalPrice * 1.4)}</div>
                                         <div class="room-nights">total for ${nights} night${nights > 1 ? 's' : ''}</div>
                                     </div>
-                                    <a href="${bookingLink}" target="_blank" rel="noopener noreferrer" onclick="trackClick('suite')">
+                                    <a href="${otaLinks.booking}" target="_blank" rel="noopener noreferrer" onclick="trackClick('suite')">
                                         <button class="book-room-btn">Book Now →</button>
                                     </a>
                                 </div>
@@ -376,10 +460,10 @@
                             <div class="compare-sites">
                                 <h4>🌐 Compare prices on these sites</h4>
                                 <div class="site-links">
-                                    <a href="${bookingLink}" target="_blank" rel="noopener noreferrer" class="site-link" onclick="trackClick('booking.com')">Booking.com</a>
-                                    <a href="${agodaLink}" target="_blank" rel="noopener noreferrer" class="site-link" onclick="trackClick('agoda')">Agoda</a>
-                                    <a href="${expediaLink}" target="_blank" rel="noopener noreferrer" class="site-link" onclick="trackClick('expedia')">Expedia</a>
-                                    <a href="${hotelscomLink}" target="_blank" rel="noopener noreferrer" class="site-link" onclick="trackClick('hotels.com')">Hotels.com</a>
+                                    <a href="${otaLinks.booking}" target="_blank" rel="noopener noreferrer" class="site-link" onclick="trackLink('Booking.com')">Booking.com</a>
+                                    <a href="${otaLinks.agoda}" target="_blank" rel="noopener noreferrer" class="site-link" onclick="trackLink('Agoda')">Agoda</a>
+                                    <a href="${otaLinks.expedia}" target="_blank" rel="noopener noreferrer" class="site-link" onclick="trackLink('Expedia')">Expedia</a>
+                                    <a href="${otaLinks.hotelscom}" target="_blank" rel="noopener noreferrer" class="site-link" onclick="trackLink('Hotels.com')">Hotels.com</a>
                                 </div>
                                 <p style="margin-top: 0.75rem; font-size: 0.7rem; color: #666;">* We redirect you to partner sites. No extra cost to you.</p>
                             </div>
@@ -393,14 +477,36 @@
             }
         }
         
-        async function trackClick(site) {
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+        
+        async function trackClick(roomType) {
+            try {
+                await fetch('/api/hotels/click', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ hotel_id: hotelId, room_type: roomType })
+                });
+            } catch(e) { 
+                console.log('Track error:', e); 
+            }
+        }
+        
+        async function trackLink(site) {
             try {
                 await fetch('/api/hotels/click', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ hotel_id: hotelId, site: site })
                 });
-                console.log(`✅ Click tracked for ${site}`);
+                console.log(`✅ Tracked click for ${site}`);
             } catch(e) { 
                 console.log('Track error:', e); 
             }
