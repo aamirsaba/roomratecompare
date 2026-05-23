@@ -112,7 +112,7 @@
                 const guests = document.getElementById('guests').value;
                 if (!city) { alert('Please enter a city'); return; }
                 sessionStorage.setItem('roomratecompare_search', JSON.stringify({city, checkin, checkout, guests}));
-                window.location.href = `/search?city=${encodeURIComponent(city)}&checkin=${checkin}&checkout=${checkout}&guests=${guests}`;
+                window.location.href = '/search?city=' + encodeURIComponent(city) + '&checkin=' + checkin + '&checkout=' + checkout + '&guests=' + guests;
             });
         }
 

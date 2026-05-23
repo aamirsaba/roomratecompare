@@ -254,34 +254,6 @@
     </footer>
 
     <script>
-        // Function to generate different OTA links
-        function generateOTAlinks(hotelName, cityName, checkin, checkout, guests) {
-            const searchQuery = encodeURIComponent(hotelName || cityName);
-            const checkinParam = checkin || '2026-06-01';
-            const checkoutParam = checkout || '2026-06-04';
-            const guestsParam = guests || 2;
-            
-            return {
-                booking: `https://www.booking.com/searchresults.html?ss=${searchQuery}&checkin=${checkinParam}&checkout=${checkoutParam}&group_adults=${guestsParam}`,
-                agoda: `https://www.agoda.com/search?city=${searchQuery}&checkIn=${checkinParam}&checkOut=${checkoutParam}&adults=${guestsParam}`,
-                expedia: `https://www.expedia.com/search?q=${searchQuery}&startDate=${checkinParam}&endDate=${checkoutParam}&adults=${guestsParam}`,
-                hotelscom: `https://www.hotels.com/search?q=${searchQuery}&checkIn=${checkinParam}&checkOut=${checkoutParam}&adults=${guestsParam}`
-            };
-        }
-        
-        async function trackClick(hotelId, site) {
-            try {
-                await fetch('/api/hotels/click', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ hotel_id: hotelId, site: site })
-                });
-                console.log(`✅ Tracked click for ${site}`);
-            } catch(e) { 
-                console.log('Track error:', e); 
-            }
-        }
-        
         function escapeHtml(str) {
             if (!str) return '';
             return str.replace(/[&<>]/g, function(m) {
@@ -292,14 +264,25 @@
             });
         }
         
-        // Get search params from URL
+        async function trackClick(hotelId, site) {
+            try {
+                await fetch('/api/hotels/click', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ hotel_id: hotelId, site: site })
+                });
+                console.log('Tracked click for ' + site);
+            } catch(e) { 
+                console.log('Track error:', e); 
+            }
+        }
+        
         const urlParams = new URLSearchParams(window.location.search);
         let city = urlParams.get('city');
         const checkin = urlParams.get('checkin');
         const checkout = urlParams.get('checkout');
         const guests = urlParams.get('guests');
         
-        // If no city in URL, try to get from sessionStorage
         if (!city) {
             const savedSearch = sessionStorage.getItem('roomratecompare_search');
             if (savedSearch) {
@@ -317,55 +300,36 @@
         async function searchHotels() {
             const resultsDiv = document.getElementById('results');
             
-            // Check if we have required parameters
             if (!city || !checkin || !checkout) {
-                resultsDiv.innerHTML = `
-                    <div class="no-results">
-                        <h3>🔍 Missing search information</h3>
-                        <p>Please go back to the homepage and enter a city and dates.</p>
-                        <div class="search-again">
-                            <a href="/">← Search for hotels</a>
-                        </div>
-                    </div>
-                `;
+                resultsDiv.innerHTML = '<div class="no-results"><h3>🔍 Missing search information</h3><a href="/">← Search for hotels</a></div>';
                 return;
             }
             
-            // Display search header
-            resultsDiv.innerHTML = `
-                <div class="results-header">
-                    <h2>🏨 ${city.charAt(0).toUpperCase() + city.slice(1)} Hotel Room Rates</h2>
-                    <p>${formatDate(checkin)} → ${formatDate(checkout)} • ${guests || 2} ${guests == 1 ? 'guest' : 'guests'} • Comparing 50+ travel sites</p>
-                </div>
-                <div class="loader">
-                    <div class="loader-spinner"></div>
-                    <p>🔍 Searching Booking.com, Agoda, Expedia...</p>
-                </div>
-            `;
+            resultsDiv.innerHTML = '<div class="loader"><div class="loader-spinner"></div><p>🔍 Searching Booking.com, Agoda, Expedia...</p></div>';
             
             try {
-                const response = await fetch(`/api/hotels/search?city=${encodeURIComponent(city)}&checkin=${checkin}&checkout=${checkout}&guests=${guests || 2}`);
+                const response = await fetch('/api/hotels/search?city=' + encodeURIComponent(city) + '&checkin=' + checkin + '&checkout=' + checkout + '&guests=' + (guests || 2));
                 const data = await response.json();
                 
                 if (data.hotels && data.hotels.length > 0) {
                     const nights = Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24));
                     
-                    resultsDiv.innerHTML = `
-                        <div class="results-header">
-                            <h2>🏨 ${city.charAt(0).toUpperCase() + city.slice(1)} Hotel Room Rates</h2>
-                            <p>${formatDate(checkin)} → ${formatDate(checkout)} • ${nights} night${nights > 1 ? 's' : ''} • ${guests || 2} ${guests == 1 ? 'guest' : 'guests'} • Found ${data.hotels.length} hotels</p>
-                        </div>
-                        ${data.hotels.map(hotel => {
-                            const totalPrice = hotel.total_price || hotel.price;
-                            const originalPrice = Math.round(totalPrice * 1.2);
-                            const savings = originalPrice - totalPrice;
-                            const otaLinks = generateOTAlinks(hotel.name, city, checkin, checkout, guests);
-                            
-                            return `
+                    let hotelsHtml = '<div class="results-header"><h2>🏨 ' + city.charAt(0).toUpperCase() + city.slice(1) + ' Hotel Room Rates</h2><p>' + formatDate(checkin) + ' → ' + formatDate(checkout) + ' • ' + nights + ' night' + (nights > 1 ? 's' : '') + ' • ' + (guests || 2) + ' guests • Found ' + data.hotels.length + ' hotels</p></div>';
+                    
+                    for (let i = 0; i < data.hotels.length; i++) {
+                        const hotel = data.hotels[i];
+                        const totalPrice = hotel.total_price || hotel.price;
+                        const originalPrice = Math.round(totalPrice * 1.2);
+                        const savings = originalPrice - totalPrice;
+                        
+                        const bookingLink = 'https://www.booking.com/searchresults.html?ss=' + encodeURIComponent(hotel.name) + '&checkin=' + checkin + '&checkout=' + checkout + '&group_adults=' + (guests || 2);
+                        const agodaLink = 'https://www.agoda.com/search?city=' + encodeURIComponent(city) + '&checkIn=' + checkin + '&checkOut=' + checkout + '&adults=' + (guests || 2);
+                        const expediaLink = 'https://www.expedia.com/search?q=' + encodeURIComponent(city) + '+hotels&startDate=' + checkin + '&endDate=' + checkout + '&adults=' + (guests || 2);
+                        const hotelscomLink = 'https://www.hotels.com/search?q=' + encodeURIComponent(city) + '+hotels&checkIn=' + checkin + '&checkOut=' + checkout + '&adults=' + (guests || 2);
+                        
+                        hotelsHtml += `
                             <div class="hotel-card">
-                                <div class="hotel-image">
-                                    🏨
-                                </div>
+                                <div class="hotel-image">🏨</div>
                                 <div class="hotel-details">
                                     <div class="hotel-name">${escapeHtml(hotel.name)}</div>
                                     <div class="stars">${'★'.repeat(hotel.stars)}${'☆'.repeat(5-hotel.stars)}</div>
@@ -375,13 +339,13 @@
                                         <div class="savings">✨ Save $${savings}</div>
                                     </div>
                                     <div class="booking-details">
-                                        📅 ${formatDate(checkin)} - ${formatDate(checkout)} • ${nights} night${nights > 1 ? 's' : ''} • ${guests || 2} ${guests == 1 ? 'guest' : 'guests'}
+                                        📅 ${formatDate(checkin)} - ${formatDate(checkout)} • ${nights} night${nights > 1 ? 's' : ''} • ${guests || 2} guests
                                     </div>
                                     <div class="ota-links">
-                                        <a href="${otaLinks.booking}" target="_blank" class="ota-link" onclick="trackClick(${hotel.id}, 'Booking.com')">🏨 Booking.com</a>
-                                        <a href="${otaLinks.agoda}" target="_blank" class="ota-link" onclick="trackClick(${hotel.id}, 'Agoda')">🌏 Agoda</a>
-                                        <a href="${otaLinks.expedia}" target="_blank" class="ota-link" onclick="trackClick(${hotel.id}, 'Expedia')">✈️ Expedia</a>
-                                        <a href="${otaLinks.hotelscom}" target="_blank" class="ota-link" onclick="trackClick(${hotel.id}, 'Hotels.com')">🏢 Hotels.com</a>
+                                        <a href="${bookingLink}" target="_blank" class="ota-link" onclick="trackClick(${hotel.id}, 'Booking.com')">🏨 Booking.com</a>
+                                        <a href="${agodaLink}" target="_blank" class="ota-link" onclick="trackClick(${hotel.id}, 'Agoda')">🌏 Agoda</a>
+                                        <a href="${expediaLink}" target="_blank" class="ota-link" onclick="trackClick(${hotel.id}, 'Expedia')">✈️ Expedia</a>
+                                        <a href="${hotelscomLink}" target="_blank" class="ota-link" onclick="trackClick(${hotel.id}, 'Hotels.com')">🏢 Hotels.com</a>
                                     </div>
                                 </div>
                                 <div>
@@ -390,48 +354,23 @@
                                     </a>
                                 </div>
                             </div>
-                        `}).join('')}
-                    `;
+                        `;
+                    }
+                    
+                    resultsDiv.innerHTML = hotelsHtml;
                 } else {
-                    resultsDiv.innerHTML = `
-                        <div class="no-results">
-                            <h3>🏨 No hotels found in ${city}</h3>
-                            <p>Try a different city or check your spelling.</p>
-                            <div class="search-again">
-                                <a href="/">← Search again</a>
-                            </div>
-                        </div>
-                    `;
+                    resultsDiv.innerHTML = '<div class="no-results"><h3>🏨 No hotels found in ' + city + '</h3><a href="/">← Search again</a></div>';
                 }
             } catch (error) {
                 console.error('Search error:', error);
-                resultsDiv.innerHTML = `
-                    <div class="no-results">
-                        <h3>⚠️ Unable to fetch room rates</h3>
-                        <p>Please try again in a moment.</p>
-                        <div class="search-again">
-                            <a href="/">← Search again</a>
-                        </div>
-                    </div>
-                `;
+                resultsDiv.innerHTML = '<div class="no-results"><h3>⚠️ Unable to fetch room rates</h3><a href="/">← Try again</a></div>';
             }
         }
         
-        // Start search if we have parameters
         if (city && checkin && checkout) {
             searchHotels();
-        } else if (city) {
-            window.location.href = '/';
         } else {
-            document.getElementById('results').innerHTML = `
-                <div class="no-results">
-                    <h3>🔍 No search criteria found</h3>
-                    <p>Please go to the homepage and search for a city and dates.</p>
-                    <div class="search-again">
-                        <a href="/">← Search for hotels</a>
-                    </div>
-                </div>
-            `;
+            document.getElementById('results').innerHTML = '<div class="no-results"><h3>🔍 No search criteria found</h3><a href="/">← Search for hotels</a></div>';
         }
     </script>
 </body>

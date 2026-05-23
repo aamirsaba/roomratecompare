@@ -211,36 +211,24 @@
             background: #d35400;
         }
 
-        .compare-sites {
-            margin-top: 1.5rem;
-            background: #f0f7ff;
-            padding: 1rem;
-            border-radius: 12px;
-        }
-
-        .compare-sites h4 {
-            font-size: 1rem;
-            margin-bottom: 0.75rem;
-        }
-
-        .site-links {
+        .ota-links {
             display: flex;
-            gap: 0.75rem;
+            gap: 0.5rem;
+            margin: 1rem 0;
             flex-wrap: wrap;
         }
 
-        .site-link {
-            background: white;
-            padding: 0.4rem 0.8rem;
-            border-radius: 6px;
+        .ota-link {
+            background: #f0f0f0;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
             text-decoration: none;
             color: #e67e22;
             font-weight: 500;
-            border: 1px solid #ddd;
-            font-size: 0.8rem;
         }
 
-        .site-link:hover {
+        .ota-link:hover {
             background: #e67e22;
             color: white;
         }
@@ -332,41 +320,32 @@
         const city = urlParams.get('city');
         const hotelName = urlParams.get('name') || '';
         
-        // Function to generate different OTA links
-        function generateOTAlinks(searchQuery, checkin, checkout, guests) {
-            const query = encodeURIComponent(searchQuery);
-            const checkinParam = checkin || '2026-06-01';
-            const checkoutParam = checkout || '2026-06-04';
-            const guestsParam = guests || 2;
-            
-            return {
-                booking: `https://www.booking.com/searchresults.html?ss=${query}&checkin=${checkinParam}&checkout=${checkoutParam}&group_adults=${guestsParam}`,
-                agoda: `https://www.agoda.com/search?city=${query}&checkIn=${checkinParam}&checkOut=${checkoutParam}&adults=${guestsParam}`,
-                expedia: `https://www.expedia.com/search?q=${query}&startDate=${checkinParam}&endDate=${checkoutParam}&adults=${guestsParam}`,
-                hotelscom: `https://www.hotels.com/search?q=${query}&checkIn=${checkinParam}&checkOut=${checkoutParam}&adults=${guestsParam}`
-            };
+        async function trackClick(site) {
+            try {
+                await fetch('/api/hotels/click', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ hotel_id: hotelId, site: site })
+                });
+                console.log('Tracked click for ' + site);
+            } catch(e) { 
+                console.log('Track error:', e); 
+            }
         }
         
         async function loadHotelDetails() {
             const detailDiv = document.getElementById('hotelDetail');
             
             if (!hotelId) {
-                detailDiv.innerHTML = `<div class="error-container"><h3>❌ No hotel selected</h3><a href="/" class="book-room-btn" style="display:inline-block;margin-top:1rem;">Search Hotels</a></div>`;
+                detailDiv.innerHTML = '<div class="error-container"><h3>❌ No hotel selected</h3><a href="/" class="book-room-btn" style="display:inline-block;margin-top:1rem;">Search Hotels</a></div>';
                 return;
             }
             
-            detailDiv.innerHTML = `<div class="loader"><div class="loader-spinner"></div><p>Loading hotel details...</p></div>`;
+            detailDiv.innerHTML = '<div class="loader"><div class="loader-spinner"></div><p>Loading hotel details...</p></div>';
             
             try {
-                const response = await fetch(`/api/hotels/${hotelId}?city=${encodeURIComponent(city || '')}&checkin=${checkin}&checkout=${checkout}&guests=${guests}`);
+                const response = await fetch('/api/hotels/' + hotelId + '?city=' + encodeURIComponent(city || '') + '&checkin=' + (checkin || '') + '&checkout=' + (checkout || '') + '&guests=' + guests + '&name=' + encodeURIComponent(hotelName));
                 const hotel = await response.json();
-                
-                if (hotel.error) {
-                    detailDiv.innerHTML = `<div class="error-container"><h3>❌ ${hotel.error}</h3><a href="/" class="book-room-btn" style="display:inline-block;margin-top:1rem;">Search Hotels</a></div>`;
-                    return;
-                }
-                
-                document.title = `${hotel.name} | RoomRateCompare`;
                 
                 let nights = 1;
                 if (checkin && checkout) {
@@ -374,14 +353,16 @@
                 }
                 
                 const totalPrice = hotel.total_price || (hotel.price_per_night * nights) || 199;
-                const originalPrice = Math.round(totalPrice * 1.2);
-                const savings = originalPrice - totalPrice;
+                const originalPrice = hotel.original_price || Math.round(totalPrice * 1.2);
+                const savings = hotel.savings || (originalPrice - totalPrice);
                 
-                // Generate separate OTA links
                 const searchQuery = hotelName || hotel.name || city || 'hotel';
-                const otaLinks = generateOTAlinks(searchQuery, checkin, checkout, guests);
+                const bookingLink = 'https://www.booking.com/searchresults.html?ss=' + encodeURIComponent(searchQuery) + '&checkin=' + (checkin || '') + '&checkout=' + (checkout || '') + '&group_adults=' + guests;
+                const agodaLink = 'https://www.agoda.com/search?city=' + encodeURIComponent(searchQuery) + '&checkIn=' + (checkin || '') + '&checkOut=' + (checkout || '') + '&adults=' + guests;
+                const expediaLink = 'https://www.expedia.com/search?q=' + encodeURIComponent(searchQuery) + '+hotels&startDate=' + (checkin || '') + '&endDate=' + (checkout || '') + '&adults=' + guests;
+                const hotelscomLink = 'https://www.hotels.com/search?q=' + encodeURIComponent(searchQuery) + '+hotels&checkIn=' + (checkin || '') + '&checkOut=' + (checkout || '') + '&adults=' + guests;
                 
-                const cityDisplay = (hotel.city || city || 'City');
+                const cityDisplay = hotel.city || city || 'City';
                 const cityCapitalized = cityDisplay.charAt(0).toUpperCase() + cityDisplay.slice(1);
                 
                 detailDiv.innerHTML = `
@@ -400,6 +381,13 @@
                                     <span class="you-save">✨ Save $${savings}</span>
                                 </div>
                                 <div class="price-right">💰 Total for ${nights} night${nights > 1 ? 's' : ''}</div>
+                            </div>
+                            
+                            <div class="ota-links">
+                                <a href="${bookingLink}" target="_blank" class="ota-link" onclick="trackClick('Booking.com')">🏨 Booking.com</a>
+                                <a href="${agodaLink}" target="_blank" class="ota-link" onclick="trackClick('Agoda')">🌏 Agoda</a>
+                                <a href="${expediaLink}" target="_blank" class="ota-link" onclick="trackClick('Expedia')">✈️ Expedia</a>
+                                <a href="${hotelscomLink}" target="_blank" class="ota-link" onclick="trackClick('Hotels.com')">🏢 Hotels.com</a>
                             </div>
                             
                             <div class="amenities">
@@ -423,9 +411,7 @@
                                         <div class="room-amount">$${Math.round(totalPrice * 0.9)}</div>
                                         <div class="room-nights">total for ${nights} night${nights > 1 ? 's' : ''}</div>
                                     </div>
-                                    <a href="${otaLinks.booking}" target="_blank" rel="noopener noreferrer" onclick="trackClick('standard')">
-                                        <button class="book-room-btn">Book Now →</button>
-                                    </a>
+                                    <a href="${bookingLink}" target="_blank" class="book-room-btn" onclick="trackClick('Booking.com')">Book Now →</a>
                                 </div>
                                 
                                 <div class="room-card">
@@ -437,9 +423,7 @@
                                         <div class="room-amount">$${Math.round(totalPrice * 1.15)}</div>
                                         <div class="room-nights">total for ${nights} night${nights > 1 ? 's' : ''}</div>
                                     </div>
-                                    <a href="${otaLinks.booking}" target="_blank" rel="noopener noreferrer" onclick="trackClick('deluxe')">
-                                        <button class="book-room-btn">Book Now →</button>
-                                    </a>
+                                    <a href="${bookingLink}" target="_blank" class="book-room-btn" onclick="trackClick('Booking.com')">Book Now →</a>
                                 </div>
                                 
                                 <div class="room-card">
@@ -451,21 +435,8 @@
                                         <div class="room-amount">$${Math.round(totalPrice * 1.4)}</div>
                                         <div class="room-nights">total for ${nights} night${nights > 1 ? 's' : ''}</div>
                                     </div>
-                                    <a href="${otaLinks.booking}" target="_blank" rel="noopener noreferrer" onclick="trackClick('suite')">
-                                        <button class="book-room-btn">Book Now →</button>
-                                    </a>
+                                    <a href="${bookingLink}" target="_blank" class="book-room-btn" onclick="trackClick('Booking.com')">Book Now →</a>
                                 </div>
-                            </div>
-                            
-                            <div class="compare-sites">
-                                <h4>🌐 Compare prices on these sites</h4>
-                                <div class="site-links">
-                                    <a href="${otaLinks.booking}" target="_blank" rel="noopener noreferrer" class="site-link" onclick="trackLink('Booking.com')">Booking.com</a>
-                                    <a href="${otaLinks.agoda}" target="_blank" rel="noopener noreferrer" class="site-link" onclick="trackLink('Agoda')">Agoda</a>
-                                    <a href="${otaLinks.expedia}" target="_blank" rel="noopener noreferrer" class="site-link" onclick="trackLink('Expedia')">Expedia</a>
-                                    <a href="${otaLinks.hotelscom}" target="_blank" rel="noopener noreferrer" class="site-link" onclick="trackLink('Hotels.com')">Hotels.com</a>
-                                </div>
-                                <p style="margin-top: 0.75rem; font-size: 0.7rem; color: #666;">* We redirect you to partner sites. No extra cost to you.</p>
                             </div>
                         </div>
                     </div>
@@ -473,7 +444,7 @@
                 
             } catch (error) {
                 console.error('Error:', error);
-                detailDiv.innerHTML = `<div class="error-container"><h3>❌ Failed to load hotel details</h3><a href="/" class="book-room-btn" style="display:inline-block;margin-top:1rem;">Search Hotels</a></div>`;
+                detailDiv.innerHTML = '<div class="error-container"><h3>❌ Failed to load hotel details</h3><a href="/" class="book-room-btn" style="display:inline-block;margin-top:1rem;">Search Hotels</a></div>';
             }
         }
         
@@ -485,31 +456,6 @@
                 if (m === '>') return '&gt;';
                 return m;
             });
-        }
-        
-        async function trackClick(roomType) {
-            try {
-                await fetch('/api/hotels/click', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ hotel_id: hotelId, room_type: roomType })
-                });
-            } catch(e) { 
-                console.log('Track error:', e); 
-            }
-        }
-        
-        async function trackLink(site) {
-            try {
-                await fetch('/api/hotels/click', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ hotel_id: hotelId, site: site })
-                });
-                console.log(`✅ Tracked click for ${site}`);
-            } catch(e) { 
-                console.log('Track error:', e); 
-            }
         }
         
         loadHotelDetails();
