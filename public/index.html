@@ -26,6 +26,129 @@
             document.head.appendChild(script);
         })();
     </script>
+    
+    <style>
+        /* Voice button and spell check styles */
+        .search-box {
+            position: relative;
+        }
+        
+        .input-wrapper {
+            position: relative;
+            width: 100%;
+        }
+        
+        .input-wrapper input {
+            width: 100%;
+            padding: 0.9rem;
+            padding-right: 45px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+        }
+        
+        .voice-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #e67e22;
+            padding: 5px;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+        
+        .voice-btn:hover {
+            background: #f0f0f0;
+            color: #d35400;
+        }
+        
+        .voice-btn.listening {
+            background: #e67e22;
+            color: white;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: translateY(-50%) scale(1); }
+            50% { transform: translateY(-50%) scale(1.1); }
+            100% { transform: translateY(-50%) scale(1); }
+        }
+        
+        .spell-suggestion {
+            font-size: 0.8rem;
+            color: #e67e22;
+            margin-top: 0.5rem;
+            text-align: left;
+        }
+        
+        .spell-suggestion button {
+            background: #e67e22;
+            color: white;
+            border: none;
+            padding: 0.2rem 0.6rem;
+            border-radius: 15px;
+            margin-left: 0.5rem;
+            cursor: pointer;
+            font-size: 0.7rem;
+        }
+        
+        .spell-suggestion button:hover {
+            background: #d35400;
+        }
+        
+        .popular-destinations {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .popular-destinations h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .destination-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 0.8rem;
+        }
+        
+        .dest-card {
+            background: white;
+            padding: 0.8rem;
+            text-align: center;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #1a1a1a;
+            font-weight: 500;
+            transition: all 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+            font-size: 0.9rem;
+        }
+        
+        .dest-card:hover {
+            transform: translateY(-3px);
+            background: #e67e22;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .destination-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.5rem;
+            }
+            .dest-card {
+                padding: 0.5rem;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -49,7 +172,19 @@
             <div class="search-box">
                 <form id="searchForm">
                     <div class="form-group">
-                        <input type="text" id="city" placeholder="City, hotel, or destination" required>
+                        <div class="input-wrapper">
+                            <input type="text" id="city" list="cities" placeholder="City, hotel, or destination" required autocomplete="off">
+                            <button type="button" id="voiceBtn" class="voice-btn" title="Search by voice">🎤</button>
+                        </div>
+                        <datalist id="cities">
+                            <option value="Dubai"><option value="London"><option value="Paris">
+                            <option value="New York"><option value="Singapore"><option value="Tokyo">
+                            <option value="Karachi"><option value="Lahore"><option value="Mumbai">
+                            <option value="Delhi"><option value="Muscat"><option value="Bangkok">
+                            <option value="Sydney"><option value="Rome"><option value="Barcelona">
+                            <option value="Istanbul"><option value="Kuala Lumpur"><option value="Hong Kong">
+                        </datalist>
+                        <div id="spellSuggestion" class="spell-suggestion"></div>
                     </div>
                     <div class="form-group">
                         <input type="date" id="checkin" required>
@@ -84,6 +219,22 @@
                 <p>Redirected to official booking partners with secure checkout</p>
             </div>
         </section>
+
+        <section class="popular-destinations">
+            <h3>🔥 Popular Destinations</h3>
+            <div class="destination-grid">
+                <a href="#" data-city="Dubai" class="dest-card">🇦🇪 Dubai</a>
+                <a href="#" data-city="London" class="dest-card">🇬🇧 London</a>
+                <a href="#" data-city="Paris" class="dest-card">🇫🇷 Paris</a>
+                <a href="#" data-city="New York" class="dest-card">🗽 New York</a>
+                <a href="#" data-city="Singapore" class="dest-card">🇸🇬 Singapore</a>
+                <a href="#" data-city="Karachi" class="dest-card">🇵🇰 Karachi</a>
+                <a href="#" data-city="Muscat" class="dest-card">🇴🇲 Muscat</a>
+                <a href="#" data-city="Bangkok" class="dest-card">🇹🇭 Bangkok</a>
+                <a href="#" data-city="Tokyo" class="dest-card">🇯🇵 Tokyo</a>
+                <a href="#" data-city="Mumbai" class="dest-card">🇮🇳 Mumbai</a>
+            </div>
+        </section>
     </main>
 
     <footer>
@@ -92,30 +243,131 @@
     </footer>
 
     <script>
+        // Spell correction dictionary
+        const cityCorrections = {
+            'londn': 'London', 'londonn': 'London', 'londin': 'London', 'lundon': 'London',
+            'parisss': 'Paris', 'parissss': 'Paris', 'paree': 'Paris',
+            'dubay': 'Dubai', 'dubia': 'Dubai', 'dubiaa': 'Dubai', 'doobai': 'Dubai',
+            'karachii': 'Karachi', 'karaci': 'Karachi', 'karatchi': 'Karachi',
+            'lahor': 'Lahore', 'lahoree': 'Lahore', 'lahoor': 'Lahore',
+            'mumbaii': 'Mumbai', 'bombay': 'Mumbai', 'mumbay': 'Mumbai',
+            'delhii': 'Delhi', 'dilli': 'Delhi',
+            'nyc': 'New York', 'newyork': 'New York', 'new york city': 'New York',
+            'tokoyo': 'Tokyo', 'tokio': 'Tokyo', 'toukyo': 'Tokyo',
+            'singapor': 'Singapore', 'singapoor': 'Singapore', 'singapura': 'Singapore',
+            'bangkokkk': 'Bangkok', 'bangkook': 'Bangkok', 'krungthep': 'Bangkok',
+            'muscattt': 'Muscat', 'maskat': 'Muscat',
+            'istanbu': 'Istanbul', 'constantinople': 'Istanbul',
+            'kualalumpur': 'Kuala Lumpur', 'kl': 'Kuala Lumpur'
+        };
+        
+        // Set default dates
         const today = new Date();
         const tomorrow = new Date(today);
         tomorrow.setDate(tomorrow.getDate() + 1);
-
+        
         const checkinInput = document.getElementById('checkin');
         const checkoutInput = document.getElementById('checkout');
-
+        
         if (checkinInput) checkinInput.value = today.toISOString().split('T')[0];
         if (checkoutInput) checkoutInput.value = tomorrow.toISOString().split('T')[0];
-
+        
+        // Spell correction on input
+        const cityInput = document.getElementById('city');
+        const spellDiv = document.getElementById('spellSuggestion');
+        
+        if (cityInput) {
+            cityInput.addEventListener('input', function() {
+                const input = this.value.toLowerCase().trim();
+                if (cityCorrections[input] && cityCorrections[input].toLowerCase() !== this.value.toLowerCase()) {
+                    spellDiv.innerHTML = `🔍 Did you mean <strong>${cityCorrections[input]}</strong>? <button type="button" onclick="applyCorrection('${cityCorrections[input]}')">Fix it</button>`;
+                } else {
+                    spellDiv.innerHTML = '';
+                }
+            });
+        }
+        
+        function applyCorrection(corrected) {
+            cityInput.value = corrected;
+            spellDiv.innerHTML = '';
+            cityInput.focus();
+        }
+        
+        // Voice search
+        const voiceBtn = document.getElementById('voiceBtn');
+        if (voiceBtn && 'webkitSpeechRecognition' in window) {
+            const recognition = new webkitSpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            
+            voiceBtn.addEventListener('click', function() {
+                voiceBtn.textContent = '⏺';
+                voiceBtn.classList.add('listening');
+                recognition.start();
+            });
+            
+            recognition.onresult = function(event) {
+                const spokenText = event.results[0][0].transcript;
+                cityInput.value = spokenText;
+                voiceBtn.textContent = '🎤';
+                voiceBtn.classList.remove('listening');
+                spellDiv.innerHTML = '';
+                // Auto submit after voice
+                setTimeout(() => {
+                    document.getElementById('searchForm').dispatchEvent(new Event('submit'));
+                }, 500);
+            };
+            
+            recognition.onerror = function() {
+                voiceBtn.textContent = '🎤';
+                voiceBtn.classList.remove('listening');
+                alert('Please speak clearly or type your destination');
+            };
+            
+            recognition.onend = function() {
+                voiceBtn.textContent = '🎤';
+                voiceBtn.classList.remove('listening');
+            };
+        } else if (voiceBtn) {
+            voiceBtn.style.display = 'none';
+        }
+        
+        // Popular destinations click
+        document.querySelectorAll('.dest-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                e.preventDefault();
+                const city = this.getAttribute('data-city');
+                if (cityInput) cityInput.value = city;
+                spellDiv.innerHTML = '';
+                // Submit the form
+                document.getElementById('searchForm').dispatchEvent(new Event('submit'));
+            });
+        });
+        
+        // Search form submit
         const searchForm = document.getElementById('searchForm');
         if (searchForm) {
             searchForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                const city = document.getElementById('city').value;
+                let city = document.getElementById('city').value;
                 const checkin = document.getElementById('checkin').value;
                 const checkout = document.getElementById('checkout').value;
                 const guests = document.getElementById('guests').value;
+                
+                // Apply spell correction before submitting
+                const lowerCity = city.toLowerCase().trim();
+                if (cityCorrections[lowerCity]) {
+                    city = cityCorrections[lowerCity];
+                }
+                
                 if (!city) { alert('Please enter a city'); return; }
                 sessionStorage.setItem('roomratecompare_search', JSON.stringify({city, checkin, checkout, guests}));
-                window.location.href = '/search?city=' + encodeURIComponent(city) + '&checkin=' + checkin + '&checkout=' + checkout + '&guests=' + guests;
+                window.location.href = `/search?city=${encodeURIComponent(city)}&checkin=${checkin}&checkout=${checkout}&guests=${guests}`;
             });
         }
-
+        
+        // Search nav link
         const searchNavLink = document.getElementById('searchNavLink');
         if (searchNavLink) {
             searchNavLink.addEventListener('click', function(e) {
