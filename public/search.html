@@ -26,45 +26,6 @@
         })();
     </script>
     
-
-// Detect user's currency from browser
-function getUserCurrency() {
-    // Try to get from localStorage first
-    const saved = localStorage.getItem('user_currency');
-    if (saved) {
-        const parsed = JSON.parse(saved);
-        const hoursSince = (Date.now() - parsed.timestamp) / (1000 * 60 * 60);
-        if (hoursSince < 24) {
-            return parsed;
-        }
-    }
-    
-    // Detect from browser language
-    const locale = navigator.language || 'en-US';
-    const currencyMap = {
-        'en-US': { code: 'USD', symbol: '$' },
-        'en-GB': { code: 'GBP', symbol: '£' },
-        'en-IN': { code: 'INR', symbol: '₹' },
-        'en-PK': { code: 'PKR', symbol: '₨' },
-        'ar-OM': { code: 'OMR', symbol: '﷼' },
-        'ar-AE': { code: 'AED', symbol: 'د.إ' },
-        'ar-SA': { code: 'SAR', symbol: '﷼' },
-        'fr-FR': { code: 'EUR', symbol: '€' },
-        'de-DE': { code: 'EUR', symbol: '€' },
-        'ja-JP': { code: 'JPY', symbol: '¥' },
-        'zh-CN': { code: 'CNY', symbol: '¥' }
-    };
-    
-    const currency = currencyMap[locale] || { code: 'USD', symbol: '$' };
-    
-    // Save to localStorage
-    localStorage.setItem('user_currency', JSON.stringify({
-        ...currency,
-        timestamp: Date.now()
-    }));
-    
-    return currency;
-}
     <style>
         .results-container {
             max-width: 1200px;
@@ -373,10 +334,10 @@ function getUserCurrency() {
                     
                     for (let i = 0; i < data.hotels.length; i++) {
                         const hotel = data.hotels[i];
-                        const totalPrice = hotel.total_price || hotel.price;
+                        const totalPrice = hotel.price;
                         const originalPrice = Math.round(totalPrice * 1.2);
                         const savings = originalPrice - totalPrice;
-const currencySymbol = hotel.currencySymbol || '$';
+                        const currencySymbol = hotel.currencySymbol || '$';
                         
                         const bookingLink = 'https://www.booking.com/searchresults.html?ss=' + encodeURIComponent(hotel.name) + '&checkin=' + checkin + '&checkout=' + checkout + '&group_adults=' + (guests || 2);
                         const agodaLink = 'https://www.agoda.com/search?city=' + encodeURIComponent(city) + '&checkIn=' + checkin + '&checkOut=' + checkout + '&adults=' + (guests || 2);
@@ -394,7 +355,6 @@ const currencySymbol = hotel.currencySymbol || '$';
                                     </div>
                                     <div class="price-section">
                                         <span class="price">${currencySymbol}${totalPrice}</span>
-
                                         <span class="original-price">${currencySymbol}${originalPrice}</span>
                                         <div class="savings">✨ Save ${currencySymbol}${savings}</div>
                                     </div>
