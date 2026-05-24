@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Compare Room Rates | RoomRateCompare</title>
+    <meta name="description" content="Compare hotel room rates across Booking.com, Agoda, Expedia. Find the best price for your stay.">
     <link rel="stylesheet" href="/css/style.css">
     
+    <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-GKJZTX45SB"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -14,272 +16,351 @@
         gtag('config', 'G-GKJZTX45SB');
     </script>
     
+    <!-- Travelpayouts Affiliate Script -->
+    <script nowprocket data-noptimize="1" data-cfasync="false" data-wpfc-render="false" seraph-accel-crit="1" data-no-defer="1">
+        (function () {
+            var script = document.createElement("script");
+            script.async = 1;
+            script.src = 'https://emrldtp.cc/NTMxODI2.js?t=531826';
+            document.head.appendChild(script);
+        })();
+    </script>
+    
     <style>
-        .results-container { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; }
-        .results-header { margin-bottom: 2rem; }
-        .results-header h2 { font-size: 1.5rem; color: #1a1a1a; }
-        .results-header p { color: #666; margin-top: 0.5rem; }
-        .hotel-card { background: white; border-radius: 16px; padding: 1.5rem; margin-bottom: 1.25rem; display: flex; gap: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #eee; }
-        .hotel-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
-        .hotel-image { width: 200px; height: 150px; background: linear-gradient(135deg, #e0e0e0, #f0f0f0); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 3rem; }
-        .hotel-details { flex: 1; }
-        .hotel-name { font-size: 1.3rem; font-weight: 700; color: #1a1a1a; }
-        .stars { color: #f39c12; margin: 0.5rem 0; font-size: 0.9rem; }
-        .price { font-size: 1.8rem; font-weight: 700; color: #e67e22; }
-        .original-price { text-decoration: line-through; color: #999; font-size: 0.9rem; margin-left: 0.5rem; }
-        .savings { color: #27ae60; font-size: 0.8rem; margin-top: 0.25rem; }
-        .booking-details { color: #666; font-size: 0.85rem; margin: 0.5rem 0; }
-        .ota-links { display: flex; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap; }
-        .ota-link { background: #f0f0f0; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.7rem; text-decoration: none; color: #e67e22; font-weight: 500; }
-        .ota-link:hover { background: #e67e22; color: white; }
-        .view-details-btn { background: #e67e22; color: white; border: none; padding: 0.8rem 2rem; border-radius: 40px; cursor: pointer; font-weight: 600; font-size: 1rem; text-decoration: none; display: inline-block; }
-        .view-details-btn:hover { background: #d35400; }
-        .loader { text-align: center; padding: 4rem; }
-        .loader-spinner { width: 50px; height: 50px; border: 4px solid #f0f0f0; border-top-color: #e67e22; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .no-results { text-align: center; padding: 4rem; background: white; border-radius: 16px; }
-        .search-again { margin-top: 2rem; text-align: center; }
-        @media (max-width: 768px) { .hotel-card { flex-direction: column; } .hotel-image { width: 100%; height: 120px; } .view-details-btn { width: 100%; text-align: center; } }
+        .results-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .results-header {
+            margin-bottom: 2rem;
+        }
+        
+        .results-header h2 {
+            font-size: 1.5rem;
+            color: #1a1a1a;
+        }
+        
+        .results-header p {
+            color: #666;
+            margin-top: 0.5rem;
+        }
+        
+        .hotel-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.25rem;
+            display: flex;
+            gap: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.2s;
+            border: 1px solid #eee;
+        }
+        
+        .hotel-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+        
+        .hotel-image {
+            width: 200px;
+            height: 150px;
+            background: linear-gradient(135deg, #e0e0e0, #f0f0f0);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 3rem;
+        }
+        
+        .hotel-details {
+            flex: 1;
+        }
+        
+        .hotel-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+        
+        .stars {
+            color: #f39c12;
+            margin: 0.5rem 0;
+            font-size: 0.9rem;
+        }
+        
+        .price-section {
+            margin: 0.75rem 0;
+        }
+        
+        .price {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #e67e22;
+        }
+        
+        .original-price {
+            text-decoration: line-through;
+            color: #999;
+            font-size: 0.9rem;
+            margin-left: 0.5rem;
+        }
+        
+        .savings {
+            color: #27ae60;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            font-weight: 500;
+        }
+        
+        .booking-details {
+            color: #666;
+            font-size: 0.85rem;
+            margin: 0.5rem 0;
+        }
+        
+        .ota-links {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            flex-wrap: wrap;
+        }
+        
+        .ota-link {
+            background: #f0f0f0;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            text-decoration: none;
+            color: #e67e22;
+            font-weight: 500;
+        }
+        
+        .ota-link:hover {
+            background: #e67e22;
+            color: white;
+        }
+        
+        .view-details-btn {
+            background: #e67e22;
+            color: white;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: inline-block;
+            text-decoration: none;
+        }
+        
+        .view-details-btn:hover {
+            background: #d35400;
+        }
+        
+        .loader {
+            text-align: center;
+            padding: 3rem;
+        }
+        
+        .loader-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f0f0f0;
+            border-top-color: #e67e22;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            background: white;
+            border-radius: 16px;
+        }
+        
+        .search-again {
+            margin-top: 2rem;
+            text-align: center;
+        }
+        
+        .search-again a {
+            color: #e67e22;
+            text-decoration: none;
+        }
+        
+        @media (max-width: 768px) {
+            .hotel-card {
+                flex-direction: column;
+            }
+            .hotel-image {
+                width: 100%;
+                height: 120px;
+            }
+            .ota-links {
+                justify-content: center;
+            }
+            .view-details-btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
     </style>
 </head>
 <body>
     <header>
         <nav>
-            <div class="logo"><h1>Room<span>Rate</span>Compare</h1></div>
-            <div class="nav-links"><a href="/">Home</a><a href="/search">Search</a></div>
+            <div class="logo">
+                <h1>Room<span>Rate</span>Compare</h1>
+            </div>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/search">Search</a>
+            </div>
         </nav>
     </header>
 
     <main>
         <div class="results-container">
             <div id="results"></div>
-            <div class="search-again"><a href="/">← Search again</a></div>
+            <div class="search-again">
+                <a href="/">← Search again</a>
+            </div>
         </div>
     </main>
 
-    <footer><p>&copy; 2026 RoomRateCompare.com - Compare hotel room rates instantly</p></footer>
+    <footer>
+        <p>&copy; 2026 RoomRateCompare.com - Compare hotel room rates instantly from 50+ sites</p>
+    </footer>
 
     <script>
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+        
+        async function trackClick(hotelId, site) {
+            try {
+                await fetch('/api/hotels/click', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ hotel_id: hotelId, site: site })
+                });
+            } catch(e) { 
+                console.log('Track error:', e); 
+            }
+        }
+        
         const urlParams = new URLSearchParams(window.location.search);
         let city = urlParams.get('city');
         const checkin = urlParams.get('checkin');
         const checkout = urlParams.get('checkout');
-        const guests = urlParams.get('guests') || 2;
+        const guests = urlParams.get('guests');
         
-        function formatDate(d) { if (!d) return ''; const date = new Date(d); return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
-        function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, function(m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; }); }
+        if (!city) {
+            const savedSearch = sessionStorage.getItem('roomratecompare_search');
+            if (savedSearch) {
+                const search = JSON.parse(savedSearch);
+                city = search.city;
+            }
+        }
         
         async function searchHotels() {
             const resultsDiv = document.getElementById('results');
+            
             if (!city || !checkin || !checkout) {
-                resultsDiv.innerHTML = '<div class="no-results">Missing search information. <a href="/">Go back</a></div>';
+                resultsDiv.innerHTML = '<div class="no-results"><h3>🔍 Missing search information</h3><a href="/">← Search for hotels</a></div>';
                 return;
             }
             
-            resultsDiv.innerHTML = '<div class="loader"><div class="loader-spinner"></div><p>🔍 Searching hotels in ' + escapeHtml(city) + '...</p></div>';
+            resultsDiv.innerHTML = '<div class="loader"><div class="loader-spinner"></div><p>🔍 Searching Booking.com, Agoda, Expedia...</p></div>';
             
             try {
-                const response = await fetch(`/api/hotels/search?city=${encodeURIComponent(city)}&checkin=${checkin}&checkout=${checkout}&guests=${guests}`);
+                const response = await fetch('/api/hotels/search?city=' + encodeURIComponent(city) + '&checkin=' + checkin + '&checkout=' + checkout + '&guests=' + (guests || 2));
                 const data = await response.json();
-                console.log('API Response:', data.hotels?.length + ' hotels');
                 
                 if (data.hotels && data.hotels.length > 0) {
                     const nights = Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24));
-                    let html = `<div class="results-header"><h2>🏨 ${city.charAt(0).toUpperCase() + city.slice(1)} Hotels</h2><p>${formatDate(checkin)} → ${formatDate(checkout)} • ${nights} nights • ${guests} guests • ${data.hotels.length} hotels found</p></div>`;
                     
-                    for (const hotel of data.hotels) {
-                        const price = hotel.price;
-                        const original = Math.round(price * 1.2);
-                        const save = original - price;
-                        const symbol = hotel.currencySymbol || '$';
-                        const bookingLink = `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(hotel.name)}&checkin=${checkin}&checkout=${checkout}&group_adults=${guests}`;
-                        const agodaLink = `https://www.agoda.com/search?city=${encodeURIComponent(city)}&checkIn=${checkin}&checkOut=${checkout}&adults=${guests}`;
-                        const expediaLink = `https://www.expedia.com/search?q=${encodeURIComponent(city)}+hotels&startDate=${checkin}&endDate=${checkout}&adults=${guests}`;
-                        const hotelscomLink = `https://www.hotels.com/search?q=${encodeURIComponent(city)}+hotels&checkIn=${checkin}&checkOut=${checkout}&adults=${guests}`;
+                    let hotelsHtml = '<div class="results-header"><h2>🏨 ' + city.charAt(0).toUpperCase() + city.slice(1) + ' Hotel Room Rates</h2><p>' + formatDate(checkin) + ' → ' + formatDate(checkout) + ' • ' + nights + ' night' + (nights > 1 ? 's' : '') + ' • ' + (guests || 2) + ' guests • Found ' + data.hotels.length + ' hotels</p></div>';
+                    
+                    for (let i = 0; i < data.hotels.length; i++) {
+                        const hotel = data.hotels[i];
+                        const totalPrice = hotel.price;
+                        const originalPrice = Math.round(totalPrice * 1.2);
+                        const savings = originalPrice - totalPrice;
+                        const currencySymbol = hotel.currencySymbol || '$';
                         
-                        html += `
+                        const bookingLink = 'https://www.booking.com/searchresults.html?ss=' + encodeURIComponent(hotel.name) + '&checkin=' + checkin + '&checkout=' + checkout + '&group_adults=' + (guests || 2);
+                        const agodaLink = 'https://www.agoda.com/search?city=' + encodeURIComponent(city) + '&checkIn=' + checkin + '&checkOut=' + checkout + '&adults=' + (guests || 2);
+                        const expediaLink = 'https://www.expedia.com/search?q=' + encodeURIComponent(city) + '+hotels&startDate=' + checkin + '&endDate=' + checkout + '&adults=' + (guests || 2);
+                        const hotelscomLink = 'https://www.hotels.com/search?q=' + encodeURIComponent(city) + '+hotels&checkIn=' + checkin + '&checkOut=' + checkout + '&adults=' + (guests || 2);
+                        
+                        hotelsHtml += `
                             <div class="hotel-card">
                                 <div class="hotel-image">🏨</div>
                                 <div class="hotel-details">
                                     <div class="hotel-name">${escapeHtml(hotel.name)}</div>
-                                    <div class="stars">${'★'.repeat(hotel.stars)}${'☆'.repeat(5-hotel.stars)} <span style="font-size:0.6rem;color:#999;">(illustrative)</span></div>
-                                    <div><span class="price">${symbol}${price}</span> <span class="original-price">${symbol}${original}</span> <span class="savings">✨ Save ${symbol}${save}</span></div>
-                                    <div class="booking-details">📅 ${formatDate(checkin)} - ${formatDate(checkout)} • ${nights} nights • ${guests} guests</div>
+                                    <div class="stars">${'★'.repeat(hotel.stars)}${'☆'.repeat(5-hotel.stars)}</div>
+                                    <div class="price-section">
+                                        <span class="price">${currencySymbol}${totalPrice}</span>
+                                        <span class="original-price">${currencySymbol}${originalPrice}</span>
+                                        <div class="savings">✨ Save ${currencySymbol}${savings}</div>
+                                    </div>
+                                    <div class="booking-details">
+                                        📅 ${formatDate(checkin)} - ${formatDate(checkout)} • ${nights} night${nights > 1 ? 's' : ''} • ${guests || 2} guests
+                                    </div>
                                     <div class="ota-links">
-                                        <a href="${bookingLink}" target="_blank" class="ota-link">🏨 Booking.com</a>
-                                        <a href="${agodaLink}" target="_blank" class="ota-link">🌏 Agoda</a>
-                                        <a href="${expediaLink}" target="_blank" class="ota-link">✈️ Expedia</a>
-                                        <a href="${hotelscomLink}" target="_blank" class="ota-link">🏢 Hotels.com</a>
+                                        <a href="${bookingLink}" target="_blank" class="ota-link" onclick="trackClick(${hotel.id}, 'Booking.com')">🏨 Booking.com</a>
+                                        <a href="${agodaLink}" target="_blank" class="ota-link" onclick="trackClick(${hotel.id}, 'Agoda')">🌏 Agoda</a>
+                                        <a href="${expediaLink}" target="_blank" class="ota-link" onclick="trackClick(${hotel.id}, 'Expedia')">✈️ Expedia</a>
+                                        <a href="${hotelscomLink}" target="_blank" class="ota-link" onclick="trackClick(${hotel.id}, 'Hotels.com')">🏢 Hotels.com</a>
                                     </div>
                                 </div>
-                                <div><a href="/hotel.html?id=${hotel.id}&checkin=${checkin}&checkout=${checkout}&guests=${guests}&city=${encodeURIComponent(city)}&name=${encodeURIComponent(hotel.name)}"><button class="view-details-btn">View Details →</button></a></div>
+                                <div>
+                                    <a href="/hotel.html?id=${hotel.id}&checkin=${checkin}&checkout=${checkout}&guests=${guests || 2}&city=${encodeURIComponent(city)}&name=${encodeURIComponent(hotel.name)}">
+                                        <button class="view-details-btn">View Details →</button>
+                                    </a>
+                                </div>
                             </div>
                         `;
                     }
-                    resultsDiv.innerHTML = html;
+                    
+                    resultsDiv.innerHTML = hotelsHtml;
                 } else {
-                    resultsDiv.innerHTML = `<div class="no-results">🏨 No hotels found in ${escapeHtml(city)}. <a href="/">Try another city</a></div>`;
+                    resultsDiv.innerHTML = '<div class="no-results"><h3>🏨 No hotels found in ' + city + '</h3><a href="/">← Search again</a></div>';
                 }
             } catch (error) {
-                console.error('Error:', error);
-                resultsDiv.innerHTML = '<div class="no-results">⚠️ Unable to fetch hotels. Please try again.</div>';
+                console.error('Search error:', error);
+                resultsDiv.innerHTML = '<div class="no-results"><h3>⚠️ Unable to fetch room rates</h3><a href="/">← Try again</a></div>';
             }
         }
         
-        if (city && checkin && checkout) { searchHotels(); } 
-        else { document.getElementById('results').innerHTML = '<div class="no-results">No search criteria found. <a href="/">Search for hotels</a></div>'; }
-    </script>
-
-<!-- AI Travel Assistant Button -->
-<div style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
-    <div id="assistantBtn" style="width: 60px; height: 60px; background: linear-gradient(135deg, #e67e22, #d35400); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: transform 0.2s;">
-        <span style="font-size: 32px;">👩‍✈️</span>
-    </div>
-</div>
-
-<!-- AI Assistant Window (Hidden by default) -->
-<div id="assistantWindow" style="position: fixed; bottom: 90px; right: 20px; width: 350px; height: 450px; background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); display: none; flex-direction: column; overflow: hidden; z-index: 1001;">
-    <div style="background: linear-gradient(135deg, #e67e22, #d35400); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center;">
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <span style="font-size: 28px;">👩‍✈️</span>
-            <div><strong style="font-size: 16px;">Sarah</strong><br><small style="font-size: 10px; opacity: 0.9;">Your Travel Assistant</small></div>
-        </div>
-        <button id="closeAssistant" style="background: none; border: none; color: white; font-size: 24px; cursor: pointer; width: 30px; height: 30px;">×</button>
-    </div>
-    
-    <div id="assistantMessages" style="flex: 1; padding: 15px; overflow-y: auto; background: #f8f9fa;">
-        <div style="margin-bottom: 12px; display: flex; gap: 8px;">
-            <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #e67e22, #d35400); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px;">👩‍✈️</div>
-            <div style="background: white; padding: 10px 14px; border-radius: 18px; max-width: 75%; font-size: 13px; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
-                Hello! I'm Sarah! ✨<br><br>
-                Ask me about:<br>
-                🏛️ Attractions &nbsp; 🍽️ Food<br>
-                🌤️ Weather &nbsp; 💡 Travel Tips
-            </div>
-        </div>
-    </div>
-    
-    <div style="display: flex; padding: 12px; border-top: 1px solid #eee; background: white; gap: 8px;">
-        <input type="text" id="assistantInput" placeholder="Ask me about your destination..." style="flex: 1; padding: 10px 15px; border: 1px solid #ddd; border-radius: 25px; outline: none; font-size: 13px;">
-        <button id="assistantSend" style="background: #e67e22; border: none; width: 40px; height: 40px; border-radius: 50%; color: white; cursor: pointer; font-size: 18px;">➤</button>
-    </div>
-</div>
-
-<script>
-    // City information database
-    const travelDB = {
-        karachi: { attractions: '🏛️ Quaid-e-Azam Mausoleum, Clifton Beach, Port Grand, Tariq Road', food: '🍛 Biryani, Bun Kebab, Fresh Seafood, Kulfi', weather: 'Best from Nov-Feb (15-25°C)', tips: 'Try Burns Road food, use ride-hailing apps' },
-        dubai: { attractions: '🗼 Burj Khalifa, Dubai Mall, Palm Jumeirah, Desert Safari', food: '🍢 Shawarma, Al Harees, Luqaimat', weather: 'Best from Nov-Mar (20-30°C)', tips: 'Visit weekdays for cheaper hotels' },
-        london: { attractions: '🎡 London Eye, Buckingham Palace, British Museum', food: '🐟 Fish and Chips, Afternoon Tea', weather: 'Best from May-Sep (15-25°C)', tips: 'Get Oyster card, many museums free' },
-        muscat: { attractions: '🕌 Grand Mosque, Mutrah Souq, Royal Opera House', food: '🍖 Shuwa, Mashuai, Halwa', weather: 'Best from Oct-Mar (20-30°C)', tips: 'Dress modestly, respect local customs' }
-    };
-    
-    function getCityInfo(city, type) {
-        const info = travelDB[city?.toLowerCase()] || travelDB.dubai;
-        if (type === 'attractions') return info.attractions;
-        if (type === 'food') return info.food;
-        if (type === 'weather') return info.weather;
-        if (type === 'tips') return info.tips;
-        return '';
-    }
-    
-    // Get current city from URL
-    const currentCity = new URLSearchParams(window.location.search).get('city') || '';
-    
-    // DOM elements
-    const assistantBtn = document.getElementById('assistantBtn');
-    const assistantWindow = document.getElementById('assistantWindow');
-    const closeAssistant = document.getElementById('closeAssistant');
-    const assistantInput = document.getElementById('assistantInput');
-    const assistantSend = document.getElementById('assistantSend');
-    const messagesDiv = document.getElementById('assistantMessages');
-    
-    function addMessage(text, isUser = false) {
-        const msgDiv = document.createElement('div');
-        msgDiv.style.marginBottom = '12px';
-        msgDiv.style.display = 'flex';
-        msgDiv.style.gap = '8px';
-        msgDiv.style.justifyContent = isUser ? 'flex-end' : 'flex-start';
-        
-        if (isUser) {
-            msgDiv.innerHTML = `<div style="background: #e67e22; color: white; padding: 10px 14px; border-radius: 18px; max-width: 75%; font-size: 13px;">${text}</div>`;
+        if (city && checkin && checkout) {
+            searchHotels();
         } else {
-            msgDiv.innerHTML = `
-                <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #e67e22, #d35400); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px;">👩‍✈️</div>
-                <div style="background: white; padding: 10px 14px; border-radius: 18px; max-width: 75%; font-size: 13px; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">${text}</div>
-            `;
+            document.getElementById('results').innerHTML = '<div class="no-results"><h3>🔍 No search criteria found</h3><a href="/">← Search for hotels</a></div>';
         }
-        messagesDiv.appendChild(msgDiv);
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    }
-    
-    function showTyping() {
-        const typingDiv = document.createElement('div');
-        typingDiv.id = 'typingIndicator';
-        typingDiv.style.marginBottom = '12px';
-        typingDiv.style.display = 'flex';
-        typingDiv.style.gap = '8px';
-        typingDiv.innerHTML = `
-            <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #e67e22, #d35400); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px;">👩‍✈️</div>
-            <div style="background: white; padding: 10px 14px; border-radius: 18px;">
-                <span style="display: inline-block; width: 6px; height: 6px; background: #999; border-radius: 50%; margin: 0 2px; animation: blink 1.4s infinite;"></span>
-                <span style="display: inline-block; width: 6px; height: 6px; background: #999; border-radius: 50%; margin: 0 2px; animation: blink 1.4s 0.2s infinite;"></span>
-                <span style="display: inline-block; width: 6px; height: 6px; background: #999; border-radius: 50%; margin: 0 2px; animation: blink 1.4s 0.4s infinite;"></span>
-            </div>
-        `;
-        messagesDiv.appendChild(typingDiv);
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    }
-    
-    function hideTyping() {
-        const typing = document.getElementById('typingIndicator');
-        if (typing) typing.remove();
-    }
-    
-    async function sendMessage() {
-        const msg = assistantInput.value.trim();
-        if (!msg) return;
-        addMessage(msg, true);
-        assistantInput.value = '';
-        showTyping();
-        
-        const lower = msg.toLowerCase();
-        let response = '';
-        
-        setTimeout(() => {
-            hideTyping();
-            if (lower.includes('attraction') || lower.includes('see') || lower.includes('visit')) {
-                response = `🏛️ Top attractions in ${currentCity.toUpperCase()}:\n${getCityInfo(currentCity, 'attractions')}\n\nEnjoy exploring! ✨`;
-            } else if (lower.includes('food') || lower.includes('eat')) {
-                response = `🍽️ Must-try foods in ${currentCity.toUpperCase()}:\n${getCityInfo(currentCity, 'food')}\n\nHungry yet? 😋`;
-            } else if (lower.includes('weather')) {
-                response = `🌤️ Best time to visit ${currentCity.toUpperCase()}:\n${getCityInfo(currentCity, 'weather')}`;
-            } else if (lower.includes('tip') || lower.includes('advice')) {
-                response = `💡 Travel tips for ${currentCity.toUpperCase()}:\n${getCityInfo(currentCity, 'tips')}`;
-            } else {
-                response = `✨ I can help you with:\n• 🏛️ Attractions\n• 🍽️ Local Food\n• 🌤️ Weather\n• 💡 Travel tips\n\nWhat would you like to know about ${currentCity.toUpperCase()}?`;
-            }
-            addMessage(response);
-        }, 800);
-    }
-    
-    // Event listeners
-    assistantBtn?.addEventListener('click', () => {
-        assistantWindow.style.display = assistantWindow.style.display === 'none' ? 'flex' : 'none';
-        if (assistantWindow.style.display === 'flex' && currentCity && messagesDiv.children.length === 1) {
-            addMessage(`✨ Welcome to ${currentCity.toUpperCase()}! 🎉\n\nAsk me about attractions, food, weather, or travel tips!`);
-        }
-    });
-    
-    closeAssistant?.addEventListener('click', () => assistantWindow.style.display = 'none');
-    assistantSend?.addEventListener('click', sendMessage);
-    assistantInput?.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
-    
-    // Add animation keyframes
-    const style = document.createElement('style');
-    style.textContent = `@keyframes blink { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }`;
-    document.head.appendChild(style);
-</script>
-
+    </script>
 </body>
 </html>
