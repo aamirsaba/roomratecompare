@@ -21,7 +21,7 @@ function getCacheKey(city, checkin, checkout, guests) {
     return `${city.toLowerCase()}_${checkin}_${checkout}_${guests}`;
 }
 
-// Helper: Get exchange rate from USD to target currency (USING WORKING API)
+// Helper: Get exchange rate
 async function getExchangeRate(targetCurrency) {
     if (targetCurrency === 'USD') return 1;
     
@@ -31,18 +31,13 @@ async function getExchangeRate(targetCurrency) {
     }
     
     try {
-        // Using exchangerate-api.com (free, no key, reliable)
-        const response = await axios.get(`https://api.exchangerate-api.com/v4/latest/USD`, { timeout: 10000 });
+        const response = await axios.get(`https://api.exchangerate-api.com/v4/latest/USD`);
         const rates = response.data.rates;
-        
         if (rates && rates[targetCurrency]) {
             exchangeRatesCache = { date: today, rates: rates };
-            console.log(`✅ Exchange rate: 1 USD = ${rates[targetCurrency]} ${targetCurrency}`);
             return rates[targetCurrency];
-        } else {
-            console.log(`⚠️ Currency ${targetCurrency} not found, using USD`);
-            return 1;
         }
+        return 1;
     } catch (error) {
         console.error("Exchange rate error:", error.message);
         return 1;
@@ -256,7 +251,7 @@ router.get('/search', async (req, res) => {
     }
 });
 
-// Get single hotel details
+// Get single hotel details - FIXED for price match
 router.get('/:id', async (req, res) => {
     const hotelId = parseInt(req.params.id);
     const { city, checkin, checkout, guests, name } = req.query;
@@ -271,10 +266,15 @@ router.get('/:id', async (req, res) => {
         const cacheKey = getCacheKey(city, checkin, checkout, guests);
         let hotel = null;
         
+        // Search in memory cache
         if (memoryCache[cacheKey]) {
             hotel = memoryCache[cacheKey].hotels.find(h => h.id === hotelId);
+            if (hotel) {
+                console.log(`✅ Found hotel in memory cache: ${hotel.name}, price: $${hotel.price_per_night}/night`);
+            }
         }
         
+        // If not in memory, check database
         if (!hotel) {
             const { data: cached } = await supabase
                 .from('hotel_cache')
@@ -285,6 +285,9 @@ router.get('/:id', async (req, res) => {
             
             if (cached && cached.length > 0 && cached[0].data) {
                 hotel = cached[0].data.find(h => h.id === hotelId);
+                if (hotel) {
+                    console.log(`✅ Found hotel in DATABASE: ${hotel.name}, price: $${hotel.price_per_night}/night`);
+                }
             }
         }
         
@@ -293,6 +296,7 @@ router.get('/:id', async (req, res) => {
                 Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24)) : 
                 (hotel.nights || 1);
             
+            // Use the actual price from the hotel object
             const totalPrice = hotel.price_per_night * nights;
             const originalPrice = Math.round(totalPrice * 1.2);
             const savings = originalPrice - totalPrice;
@@ -310,7 +314,7 @@ router.get('/:id', async (req, res) => {
                 currencySymbol: currencySymbol,
                 city: hotel.city,
                 country: 'International',
-                description: `${hotel.name} offers comfortable accommodation.`,
+                description: `${hotel.name} offers comfortable accommodation in ${hotel.city}.`,
                 amenities: hotel.amenities || getAmenitiesForHotel(hotel.name, hotel.stars || 4),
                 checkin: checkin || hotel.checkin,
                 checkout: checkout || hotel.checkout,
@@ -320,13 +324,41 @@ router.get('/:id', async (req, res) => {
             });
         }
         
-        // Fallback
+        // Fallback using name parameter
+        if (name) {
+            const nights = checkin && checkout ? 
+                Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24)) : 1;
+            const decodedName = decodeURIComponent(name);
+            
+            return res.json({
+                id: hotelId,
+                name: decodedName,
+                stars: 4,
+                price_per_night: 150,
+                total_price: 150 * nights,
+                original_price: 180 * nights,
+                savings: 30 * nights,
+                currency: 'USD',
+                currencySymbol: '$',
+                city: city,
+                country: 'International',
+                description: `${decodedName} offers great accommodation.`,
+                amenities: ['Free WiFi', 'Air conditioning', '24/7 front desk', 'Housekeeping'],
+                checkin: checkin || '2026-06-01',
+                checkout: checkout || '2026-06-04',
+                guests: parseInt(guests) || 2,
+                nights: nights,
+                booking_link: `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(decodedName)}`
+            });
+        }
+        
+        // Final fallback
         const nights = checkin && checkout ? 
             Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24)) : 1;
         
         res.json({
             id: hotelId,
-            name: name ? decodeURIComponent(name) : `${city} Hotel`,
+            name: `${city} Hotel`,
             stars: 4,
             price_per_night: 150,
             total_price: 150 * nights,
@@ -337,7 +369,7 @@ router.get('/:id', async (req, res) => {
             city: city,
             country: 'International',
             description: `A beautiful hotel located in ${city}.`,
-            amenities: getAmenitiesForHotel(city, 4),
+            amenities: ['Free WiFi', 'Air conditioning', '24/7 front desk', 'Housekeeping'],
             checkin: checkin || '2026-06-01',
             checkout: checkout || '2026-06-04',
             guests: parseInt(guests) || 2,

@@ -67,6 +67,7 @@
         const guests = urlParams.get('guests') || 2;
         
         function formatDate(d) { if (!d) return ''; const date = new Date(d); return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
+        function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, function(m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; }); }
         
         async function searchHotels() {
             const resultsDiv = document.getElementById('results');
@@ -75,12 +76,12 @@
                 return;
             }
             
-            resultsDiv.innerHTML = '<div class="loader"><div class="loader-spinner"></div><p>Searching hotels...</p></div>';
+            resultsDiv.innerHTML = '<div class="loader"><div class="loader-spinner"></div><p>🔍 Searching hotels in ' + escapeHtml(city) + '...</p></div>';
             
             try {
                 const response = await fetch(`/api/hotels/search?city=${encodeURIComponent(city)}&checkin=${checkin}&checkout=${checkout}&guests=${guests}`);
                 const data = await response.json();
-                console.log('API Response:', data);
+                console.log('API Response:', data.hotels?.length + ' hotels');
                 
                 if (data.hotels && data.hotels.length > 0) {
                     const nights = Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24));
@@ -92,19 +93,23 @@
                         const save = original - price;
                         const symbol = hotel.currencySymbol || '$';
                         const bookingLink = `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(hotel.name)}&checkin=${checkin}&checkout=${checkout}&group_adults=${guests}`;
+                        const agodaLink = `https://www.agoda.com/search?city=${encodeURIComponent(city)}&checkIn=${checkin}&checkOut=${checkout}&adults=${guests}`;
+                        const expediaLink = `https://www.expedia.com/search?q=${encodeURIComponent(city)}+hotels&startDate=${checkin}&endDate=${checkout}&adults=${guests}`;
+                        const hotelscomLink = `https://www.hotels.com/search?q=${encodeURIComponent(city)}+hotels&checkIn=${checkin}&checkOut=${checkout}&adults=${guests}`;
                         
                         html += `
                             <div class="hotel-card">
                                 <div class="hotel-image">🏨</div>
                                 <div class="hotel-details">
                                     <div class="hotel-name">${escapeHtml(hotel.name)}</div>
-                                    <div class="stars">${'★'.repeat(hotel.stars || 4)}${'☆'.repeat(5-(hotel.stars || 4))}</div>
+                                    <div class="stars">${'★'.repeat(hotel.stars)}${'☆'.repeat(5-hotel.stars)} <span style="font-size:0.6rem;color:#999;">(illustrative)</span></div>
                                     <div><span class="price">${symbol}${price}</span> <span class="original-price">${symbol}${original}</span> <span class="savings">✨ Save ${symbol}${save}</span></div>
                                     <div class="booking-details">📅 ${formatDate(checkin)} - ${formatDate(checkout)} • ${nights} nights • ${guests} guests</div>
                                     <div class="ota-links">
                                         <a href="${bookingLink}" target="_blank" class="ota-link">🏨 Booking.com</a>
-                                        <a href="https://www.agoda.com/search?city=${encodeURIComponent(city)}&checkIn=${checkin}&checkOut=${checkout}&adults=${guests}" target="_blank" class="ota-link">🌏 Agoda</a>
-                                        <a href="https://www.expedia.com/search?q=${encodeURIComponent(city)}+hotels&startDate=${checkin}&endDate=${checkout}&adults=${guests}" target="_blank" class="ota-link">✈️ Expedia</a>
+                                        <a href="${agodaLink}" target="_blank" class="ota-link">🌏 Agoda</a>
+                                        <a href="${expediaLink}" target="_blank" class="ota-link">✈️ Expedia</a>
+                                        <a href="${hotelscomLink}" target="_blank" class="ota-link">🏢 Hotels.com</a>
                                     </div>
                                 </div>
                                 <div><a href="/hotel.html?id=${hotel.id}&checkin=${checkin}&checkout=${checkout}&guests=${guests}&city=${encodeURIComponent(city)}&name=${encodeURIComponent(hotel.name)}"><button class="view-details-btn">View Details →</button></a></div>
@@ -113,15 +118,13 @@
                     }
                     resultsDiv.innerHTML = html;
                 } else {
-                    resultsDiv.innerHTML = `<div class="no-results">🏨 No hotels found in ${city}. <a href="/">Try another city</a></div>`;
+                    resultsDiv.innerHTML = `<div class="no-results">🏨 No hotels found in ${escapeHtml(city)}. <a href="/">Try another city</a></div>`;
                 }
             } catch (error) {
                 console.error('Error:', error);
                 resultsDiv.innerHTML = '<div class="no-results">⚠️ Unable to fetch hotels. Please try again.</div>';
             }
         }
-        
-        function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, function(m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; }); }
         
         if (city && checkin && checkout) { searchHotels(); } 
         else { document.getElementById('results').innerHTML = '<div class="no-results">No search criteria found. <a href="/">Search for hotels</a></div>'; }
