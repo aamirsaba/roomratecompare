@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const { ApifyClient } = require('apify-client');
 const supabase = require('../db/supabase');
+const axios = require('axios');
+const { getUserLocation } = require('../utils/geoLocation');
 
 const apifyClient = new ApifyClient({
     token: process.env.APIFY_API_TOKEN,
@@ -11,17 +13,50 @@ const apifyClient = new ApifyClient({
 let memoryCache = {};
 const MEMORY_CACHE_DURATION = 24 * 60 * 60 * 1000;
 
+// Currency rates cache
+let exchangeRatesCache = {};
+
 // Helper: Get cache key
 function getCacheKey(city, checkin, checkout, guests) {
     return `${city.toLowerCase()}_${checkin}_${checkout}_${guests}`;
 }
 
-// Helper: Dynamic amenities based on hotel name and stars
+
+// Helper: Get exchange rate from USD to target currency
+async function getExchangeRate(targetCurrency) {
+    if (targetCurrency === 'USD') return 1;
+    
+    const today = new Date().toISOString().split('T')[0];
+    if (exchangeRatesCache.date === today && exchangeRatesCache.rates?.[targetCurrency]) {
+        return exchangeRatesCache.rates[targetCurrency];
+    }
+    
+    try {
+        const response = await axios.get(`https://api.frankfurter.dev/v1/latest?from=USD&to=${targetCurrency}`);
+        const rate = response.data.rates[targetCurrency];
+        if (rate) {
+            exchangeRatesCache = { date: today, rates: response.data.rates };
+            return rate;
+        }
+    } catch (error) {
+        console.error("Exchange rate error:", error.message);
+    }
+    return null;
+}
+
+// Helper: Convert price
+async function convertPrice(usdAmount, targetCurrency) {
+    if (!targetCurrency || targetCurrency === 'USD') return usdAmount;
+    const rate = await getExchangeRate(targetCurrency);
+    if (!rate) return usdAmount;
+    return Math.round(usdAmount * rate * 100) / 100;
+}
+
+// Helper: Dynamic amenities
 function getAmenitiesForHotel(hotelName, stars) {
     const name = (hotelName || '').toLowerCase();
     const amenities = ['Free WiFi'];
     
-    // Star-based amenities
     if (stars >= 4) {
         amenities.push('Air conditioning', '24/7 front desk', 'Room service');
     } else if (stars >= 3) {
@@ -30,7 +65,6 @@ function getAmenitiesForHotel(hotelName, stars) {
         amenities.push('Front desk (limited hours)');
     }
     
-    // Name-based amenities
     if (name.includes('resort') || name.includes('spa')) {
         amenities.push('Spa', 'Swimming pool', 'Fitness center');
     }
@@ -128,22 +162,39 @@ router.get('/search', async (req, res) => {
         
         const nights = Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24));
         
-        const formattedHotels = hotels.slice(0, 30).map((hotel, idx) => ({
-            id: idx + 1,
-            name: hotel.name,
-            stars: hotel.stars || 4,
-            price: (hotel.pricePerNight || 99) * nights,
-            price_per_night: hotel.pricePerNight || 99,
-            currency: hotel.currency || 'USD',
-            rating: hotel.rating || 0,
-            nights: nights,
-            city: city,
-            checkin: checkin,
-            checkout: checkout,
-            guests: parseInt(guests),
-            amenities: getAmenitiesForHotel(hotel.name, hotel.stars || 4),
-            booking_link: `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(hotel.name)}&checkin=${checkin}&checkout=${checkout}&group_adults=${guests}`
-        }));
+        // Get user location and currency
+        const userLocation = await getUserLocation(req.ip);
+        const targetCurrency = userLocation?.currencyCode || 'USD';
+        const currencySymbol = userLocation?.currencySymbol || '$';
+        console.log(`🪙 User's currency: ${targetCurrency} (${currencySymbol})`);
+        
+        // Convert prices for each hotel
+        const formattedHotelsPromises = hotels.slice(0, 30).map(async (hotel, idx) => {
+            const usdPricePerNight = hotel.pricePerNight || 99;
+            const usdTotalPrice = usdPricePerNight * nights;
+            
+            const convertedPricePerNight = await convertPrice(usdPricePerNight, targetCurrency);
+            const convertedTotalPrice = await convertPrice(usdTotalPrice, targetCurrency);
+            
+            return {
+                id: idx + 1,
+                name: hotel.name,
+                stars: hotel.stars || 4,
+                price_per_night: convertedPricePerNight,
+                price: convertedTotalPrice,
+                currency: targetCurrency,
+                currencySymbol: currencySymbol,
+                nights: nights,
+                city: city,
+                checkin: checkin,
+                checkout: checkout,
+                guests: parseInt(guests),
+                amenities: getAmenitiesForHotel(hotel.name, hotel.stars || 4),
+                booking_link: `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(hotel.name)}&checkin=${checkin}&checkout=${checkout}&group_adults=${guests}`
+            };
+        });
+        
+        const formattedHotels = await Promise.all(formattedHotelsPromises);
         
         if (formattedHotels.length > 0) {
             memoryCache[cacheKey] = {
@@ -189,12 +240,10 @@ router.get('/:id', async (req, res) => {
         const cacheKey = getCacheKey(city, checkin, checkout, guests);
         let hotel = null;
         
-        // Check memory cache
         if (memoryCache[cacheKey]) {
             hotel = memoryCache[cacheKey].hotels.find(h => h.id === hotelId);
         }
         
-        // Check database
         if (!hotel) {
             const { data: cached } = await supabase
                 .from('hotel_cache')
@@ -226,6 +275,7 @@ router.get('/:id', async (req, res) => {
                 original_price: originalPrice,
                 savings: savings,
                 currency: hotel.currency || 'USD',
+                currencySymbol: hotel.currencySymbol || '$',
                 city: hotel.city,
                 country: 'International',
                 description: `${hotel.name} offers comfortable accommodation in ${hotel.city}.`,
@@ -238,46 +288,20 @@ router.get('/:id', async (req, res) => {
             });
         }
         
-        // Fallback using name parameter
-        if (name) {
-            const nights = checkin && checkout ? 
-                Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24)) : 1;
-            const decodedName = decodeURIComponent(name);
-            
-            return res.json({
-                id: hotelId,
-                name: decodedName,
-                stars: 4,
-                price_per_night: 150,
-                total_price: 150 * nights,
-                original_price: 180 * nights,
-                savings: 30 * nights,
-                currency: 'USD',
-                city: city,
-                country: 'International',
-                description: `${decodedName} offers great accommodation.`,
-                amenities: getAmenitiesForHotel(decodedName, 4),
-                checkin: checkin || '2026-06-01',
-                checkout: checkout || '2026-06-04',
-                guests: parseInt(guests) || 2,
-                nights: nights,
-                booking_link: `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(decodedName)}`
-            });
-        }
-        
-        // Final fallback
+        // Fallback
         const nights = checkin && checkout ? 
             Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24)) : 1;
         
         res.json({
             id: hotelId,
-            name: `${city} Hotel`,
+            name: name ? decodeURIComponent(name) : `${city} Hotel`,
             stars: 4,
             price_per_night: 150,
             total_price: 150 * nights,
             original_price: 180 * nights,
             savings: 30 * nights,
             currency: 'USD',
+            currencySymbol: '$',
             city: city,
             country: 'International',
             description: `A beautiful hotel located in ${city}.`,
