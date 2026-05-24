@@ -49,6 +49,14 @@
             color: #e67e22;
             text-decoration: none;
             font-weight: 500;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
         }
 
         .hotel-detail-card {
@@ -286,14 +294,14 @@
             </div>
             <div class="nav-links">
                 <a href="/">Home</a>
-                <a href="#" id="searchNavLink">Search</a>
+                <a href="/" id="searchNavLink">Search</a>
             </div>
         </nav>
     </header>
 
     <main>
         <div class="hotel-detail-container">
-            <a href="javascript:history.back()" class="back-link">← Back to search results</a>
+            <button onclick="goBack()" class="back-link">← Back to search results</button>
             <div id="hotelDetail"></div>
         </div>
     </main>
@@ -303,13 +311,22 @@
     </footer>
 
     <script>
+        // Fix Search button - go to homepage
         const searchNavLink = document.getElementById('searchNavLink');
         if (searchNavLink) {
             searchNavLink.addEventListener('click', function(e) {
                 e.preventDefault();
-                sessionStorage.removeItem('roomratecompare_search');
                 window.location.href = '/';
             });
+        }
+        
+        // Fix Back button
+        function goBack() {
+            if (document.referrer && document.referrer.includes(window.location.hostname)) {
+                window.location.href = document.referrer;
+            } else {
+                window.location.href = '/';
+            }
         }
         
         const urlParams = new URLSearchParams(window.location.search);
