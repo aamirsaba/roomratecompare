@@ -21,7 +21,7 @@ function getCacheKey(city, checkin, checkout, guests) {
     return `${city.toLowerCase()}_${checkin}_${checkout}_${guests}`;
 }
 
-// Helper: Get exchange rate
+// Helper: Get exchange rate from USD to target currency (USING WORKING API)
 async function getExchangeRate(targetCurrency) {
     if (targetCurrency === 'USD') return 1;
     
@@ -31,23 +31,29 @@ async function getExchangeRate(targetCurrency) {
     }
     
     try {
-        const response = await axios.get(`https://api.frankfurter.dev/v1/latest?from=USD&to=${targetCurrency}`);
-        const rate = response.data.rates[targetCurrency];
-        if (rate) {
-            exchangeRatesCache = { date: today, rates: response.data.rates };
-            return rate;
+        // Using exchangerate-api.com (free, no key, reliable)
+        const response = await axios.get(`https://api.exchangerate-api.com/v4/latest/USD`, { timeout: 10000 });
+        const rates = response.data.rates;
+        
+        if (rates && rates[targetCurrency]) {
+            exchangeRatesCache = { date: today, rates: rates };
+            console.log(`✅ Exchange rate: 1 USD = ${rates[targetCurrency]} ${targetCurrency}`);
+            return rates[targetCurrency];
+        } else {
+            console.log(`⚠️ Currency ${targetCurrency} not found, using USD`);
+            return 1;
         }
     } catch (error) {
         console.error("Exchange rate error:", error.message);
+        return 1;
     }
-    return null;
 }
 
 // Helper: Convert price
 async function convertPrice(usdAmount, targetCurrency) {
     if (!targetCurrency || targetCurrency === 'USD') return usdAmount;
     const rate = await getExchangeRate(targetCurrency);
-    if (!rate) return usdAmount;
+    if (!rate || rate === 1) return usdAmount;
     return Math.round(usdAmount * rate * 100) / 100;
 }
 
@@ -179,13 +185,22 @@ router.get('/search', async (req, res) => {
         // Convert prices for each hotel
         const formattedHotels = [];
         
-        for (let idx = 0; idx < hotels.slice(0, 30).length; idx++) {
+        for (let idx = 0; idx < Math.min(hotels.length, 30); idx++) {
             const hotel = hotels[idx];
             const usdPricePerNight = hotel.pricePerNight || 99;
             const usdTotalPrice = usdPricePerNight * nights;
             
-            const convertedPricePerNight = await convertPrice(usdPricePerNight, targetCurrency);
-            const convertedTotalPrice = await convertPrice(usdTotalPrice, targetCurrency);
+            let convertedPricePerNight = usdPricePerNight;
+            let convertedTotalPrice = usdTotalPrice;
+            
+            if (targetCurrency !== 'USD') {
+                const rate = await getExchangeRate(targetCurrency);
+                if (rate && rate !== 1) {
+                    convertedPricePerNight = Math.round(usdPricePerNight * rate * 100) / 100;
+                    convertedTotalPrice = Math.round(usdTotalPrice * rate * 100) / 100;
+                }
+            }
+            
             const illustrativeStars = getIllustrativeStars(usdPricePerNight);
             
             formattedHotels.push({
