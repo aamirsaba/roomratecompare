@@ -21,8 +21,7 @@ function getCacheKey(city, checkin, checkout, guests) {
     return `${city.toLowerCase()}_${checkin}_${checkout}_${guests}`;
 }
 
-
-// Helper: Get exchange rate from USD to target currency
+// Helper: Get exchange rate
 async function getExchangeRate(targetCurrency) {
     if (targetCurrency === 'USD') return 1;
     
@@ -50,6 +49,15 @@ async function convertPrice(usdAmount, targetCurrency) {
     const rate = await getExchangeRate(targetCurrency);
     if (!rate) return usdAmount;
     return Math.round(usdAmount * rate * 100) / 100;
+}
+
+// Helper: Illustrative stars based on price
+function getIllustrativeStars(pricePerNight) {
+    if (pricePerNight >= 150) return 5;
+    if (pricePerNight >= 100) return 4;
+    if (pricePerNight >= 60) return 3;
+    if (pricePerNight >= 35) return 2;
+    return 1;
 }
 
 // Helper: Dynamic amenities
@@ -169,17 +177,21 @@ router.get('/search', async (req, res) => {
         console.log(`🪙 User's currency: ${targetCurrency} (${currencySymbol})`);
         
         // Convert prices for each hotel
-        const formattedHotelsPromises = hotels.slice(0, 30).map(async (hotel, idx) => {
+        const formattedHotels = [];
+        
+        for (let idx = 0; idx < hotels.slice(0, 30).length; idx++) {
+            const hotel = hotels[idx];
             const usdPricePerNight = hotel.pricePerNight || 99;
             const usdTotalPrice = usdPricePerNight * nights;
             
             const convertedPricePerNight = await convertPrice(usdPricePerNight, targetCurrency);
             const convertedTotalPrice = await convertPrice(usdTotalPrice, targetCurrency);
+            const illustrativeStars = getIllustrativeStars(usdPricePerNight);
             
-            return {
+            formattedHotels.push({
                 id: idx + 1,
                 name: hotel.name,
-                stars: hotel.stars || 4,
+                stars: illustrativeStars,
                 price_per_night: convertedPricePerNight,
                 price: convertedTotalPrice,
                 currency: targetCurrency,
@@ -189,12 +201,10 @@ router.get('/search', async (req, res) => {
                 checkin: checkin,
                 checkout: checkout,
                 guests: parseInt(guests),
-                amenities: getAmenitiesForHotel(hotel.name, hotel.stars || 4),
+                amenities: getAmenitiesForHotel(hotel.name, illustrativeStars),
                 booking_link: `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(hotel.name)}&checkin=${checkin}&checkout=${checkout}&group_adults=${guests}`
-            };
-        });
-        
-        const formattedHotels = await Promise.all(formattedHotelsPromises);
+            });
+        }
         
         if (formattedHotels.length > 0) {
             memoryCache[cacheKey] = {
@@ -217,7 +227,13 @@ router.get('/search', async (req, res) => {
             return res.json({ source: 'error', hotels: [], count: 0 });
         }
         
-        res.json({ source: 'apify', hotels: formattedHotels, count: formattedHotels.length });
+        res.json({ 
+            source: 'apify', 
+            hotels: formattedHotels,
+            count: formattedHotels.length,
+            userCurrency: targetCurrency,
+            userCurrencySymbol: currencySymbol
+        });
         
     } catch (error) {
         console.error(`❌ Error for ${city}:`, error.message);
@@ -265,6 +281,7 @@ router.get('/:id', async (req, res) => {
             const totalPrice = hotel.price_per_night * nights;
             const originalPrice = Math.round(totalPrice * 1.2);
             const savings = originalPrice - totalPrice;
+            const currencySymbol = hotel.currencySymbol || '$';
             
             return res.json({
                 id: hotel.id,
@@ -275,10 +292,10 @@ router.get('/:id', async (req, res) => {
                 original_price: originalPrice,
                 savings: savings,
                 currency: hotel.currency || 'USD',
-                currencySymbol: hotel.currencySymbol || '$',
+                currencySymbol: currencySymbol,
                 city: hotel.city,
                 country: 'International',
-                description: `${hotel.name} offers comfortable accommodation in ${hotel.city}.`,
+                description: `${hotel.name} offers comfortable accommodation.`,
                 amenities: hotel.amenities || getAmenitiesForHotel(hotel.name, hotel.stars || 4),
                 checkin: checkin || hotel.checkin,
                 checkout: checkout || hotel.checkout,
