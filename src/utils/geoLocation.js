@@ -1,44 +1,51 @@
-const axios = require('axios');
-
-// Currency mapping based on country code
-const currencyMap = {
-    'GB': { code: 'GBP', symbol: '£', name: 'British Pound' },
-    'EU': { code: 'EUR', symbol: '€', name: 'Euro' },
-    'FR': { code: 'EUR', symbol: '€', name: 'Euro' },
-    'DE': { code: 'EUR', symbol: '€', name: 'Euro' },
-    'IT': { code: 'EUR', symbol: '€', name: 'Euro' },
-    'ES': { code: 'EUR', symbol: '€', name: 'Euro' },
-    'AE': { code: 'AED', symbol: 'د.إ', name: 'UAE Dirham' },
-    'SA': { code: 'SAR', symbol: '﷼', name: 'Saudi Riyal' },
-    'PK': { code: 'PKR', symbol: '₨', name: 'Pakistani Rupee' },
-    'IN': { code: 'INR', symbol: '₹', name: 'Indian Rupee' },
-    'JP': { code: 'JPY', symbol: '¥', name: 'Japanese Yen' },
-    'CN': { code: 'CNY', symbol: '¥', name: 'Chinese Yuan' },
-    'AU': { code: 'AUD', symbol: 'A$', name: 'Australian Dollar' },
-    'CA': { code: 'CAD', symbol: 'C$', name: 'Canadian Dollar' },
-    'CH': { code: 'CHF', symbol: 'CHF', name: 'Swiss Franc' },
-    'OM': { code: 'OMR', symbol: '﷼', name: 'Omani Rial' },
-    'US': { code: 'USD', symbol: '$', name: 'US Dollar' }
-};
-
-async function getUserLocation(ip = null) {
+// Simple country detection based on timezone and language
+function getUserLocation() {
     try {
-        // Use free geo IP service (no API key required)
-        const response = await axios.get('https://get.geojs.io/v1/ip/country.json');
-        const countryCode = response.data.country_code;
+        // Get user's timezone (e.g., "Europe/London", "Asia/Dubai")
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        console.log(`🕐 Timezone: ${timezone}`);
         
-        const currency = currencyMap[countryCode] || { code: 'USD', symbol: '$', name: 'US Dollar' };
+        // Map timezone to currency
+        const currencyMap = {
+            'London': { code: 'GBP', symbol: '£', country: 'GB' },
+            'United Kingdom': { code: 'GBP', symbol: '£', country: 'GB' },
+            'Dubai': { code: 'AED', symbol: 'د.إ', country: 'AE' },
+            'Abu Dhabi': { code: 'AED', symbol: 'د.إ', country: 'AE' },
+            'Riyadh': { code: 'SAR', symbol: '﷼', country: 'SA' },
+            'Karachi': { code: 'PKR', symbol: '₨', country: 'PK' },
+            'Mumbai': { code: 'INR', symbol: '₹', country: 'IN' },
+            'Delhi': { code: 'INR', symbol: '₹', country: 'IN' },
+            'Paris': { code: 'EUR', symbol: '€', country: 'FR' },
+            'Berlin': { code: 'EUR', symbol: '€', country: 'DE' },
+            'Rome': { code: 'EUR', symbol: '€', country: 'IT' },
+            'Madrid': { code: 'EUR', symbol: '€', country: 'ES' },
+            'Muscat': { code: 'OMR', symbol: '﷼', country: 'OM' },
+            'Tokyo': { code: 'JPY', symbol: '¥', country: 'JP' },
+            'Singapore': { code: 'SGD', symbol: 'S$', country: 'SG' },
+            'Sydney': { code: 'AUD', symbol: 'A$', country: 'AU' },
+            'New York': { code: 'USD', symbol: '$', country: 'US' },
+            'Los Angeles': { code: 'USD', symbol: '$', country: 'US' }
+        };
         
-        console.log(`📍 Detected country: ${countryCode}, Currency: ${currency.code} (${currency.symbol})`);
+        // Find matching currency
+        let currency = { code: 'USD', symbol: '$', country: 'US' };
+        
+        for (const [key, value] of Object.entries(currencyMap)) {
+            if (timezone.includes(key)) {
+                currency = value;
+                break;
+            }
+        }
+        
+        console.log(`📍 Detected: ${currency.country}, Currency: ${currency.code} (${currency.symbol})`);
         
         return {
-            countryCode: countryCode,
+            countryCode: currency.country,
             currencyCode: currency.code,
-            currencySymbol: currency.symbol,
-            currencyName: currency.name
+            currencySymbol: currency.symbol
         };
     } catch (error) {
-        console.error('Geo location error:', error.message);
+        console.error('Geo detection error:', error.message);
         return { currencyCode: 'USD', currencySymbol: '$', countryCode: 'US' };
     }
 }

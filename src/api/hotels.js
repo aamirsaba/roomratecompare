@@ -51,18 +51,33 @@ function getCacheKey(city, checkin, checkout, guests) {
     return `${city.toLowerCase()}_${checkin}_${checkout}_${guests}`;
 }
 
+// Search hotels endpoint
 router.get('/search', async (req, res) => {
-    const { city, checkin, checkout, guests = 2 } = req.query;
+    const { city, checkin, checkout, guests = 2, currency } = req.query;
     
     if (!city || !checkin || !checkout) {
         return res.status(400).json({ error: 'Missing required fields' });
     }
     
-    // Get user's location for currency
-    const userLocation = await getUserLocation();
-    const targetCurrency = userLocation?.currencyCode || 'USD';
-    const currencySymbol = currencySymbols[targetCurrency] || '$';
-    console.log(`🪙 User: ${userLocation?.countryCode || 'Unknown'}, Currency: ${targetCurrency} (${currencySymbol})`);
+    // Use currency from query parameter or detect from location
+    let targetCurrency = currency || 'USD';
+    let currencySymbol = currencySymbols[targetCurrency] || '$';
+    
+    // If no currency provided, try to detect from location
+    if (!currency) {
+        try {
+            const userLocation = await getUserLocation();
+            if (userLocation && userLocation.currencyCode) {
+                targetCurrency = userLocation.currencyCode;
+                currencySymbol = currencySymbols[targetCurrency] || '$';
+                console.log(`🪙 Detected currency: ${targetCurrency} (${currencySymbol})`);
+            }
+        } catch (err) {
+            console.log('Currency detection failed, using USD');
+        }
+    }
+    
+    console.log(`🔍 Searching for: ${city}, Currency: ${targetCurrency}`);
     
     const cacheKey = getCacheKey(city, checkin, checkout, guests);
     
@@ -70,7 +85,6 @@ router.get('/search', async (req, res) => {
     if (memoryCache[cacheKey]) {
         let hotels = memoryCache[cacheKey].hotels;
         
-        // Convert prices if needed
         if (targetCurrency !== 'USD') {
             hotels = await Promise.all(hotels.map(async (hotel) => ({
                 ...hotel,
@@ -99,7 +113,6 @@ router.get('/search', async (req, res) => {
             
             memoryCache[cacheKey] = { hotels, timestamp: Date.now() };
             
-            // Convert prices if needed
             if (targetCurrency !== 'USD') {
                 hotels = await Promise.all(hotels.map(async (hotel) => ({
                     ...hotel,
@@ -130,7 +143,7 @@ router.get('/search', async (req, res) => {
         let hotels = hotelsFromActor.slice(0, 30).map((hotel, idx) => ({
             id: idx + 1,
             name: hotel.name,
-            stars: hotel.stars || Math.floor(Math.random() * 3) + 3,
+            stars: hotel.stars || 4,
             price: (hotel.pricePerNight || 99) * nights,
             price_per_night: hotel.pricePerNight || 99,
             currency: 'USD',
@@ -155,7 +168,6 @@ router.get('/search', async (req, res) => {
             });
         }
         
-        // Convert prices if needed
         if (targetCurrency !== 'USD') {
             hotels = await Promise.all(hotels.map(async (hotel) => ({
                 ...hotel,
@@ -177,14 +189,21 @@ router.get('/search', async (req, res) => {
 // Hotel details endpoint
 router.get('/:id', async (req, res) => {
     const hotelId = parseInt(req.params.id);
-    const { city, checkin, checkout, guests, name } = req.query;
+    const { city, checkin, checkout, guests, name, currency } = req.query;
     
     if (!city) return res.status(400).json({ error: 'City required' });
     
     try {
-        const userLocation = await getUserLocation();
-        const targetCurrency = userLocation?.currencyCode || 'USD';
-        const currencySymbol = currencySymbols[targetCurrency] || '$';
+        let targetCurrency = currency || 'USD';
+        let currencySymbol = currencySymbols[targetCurrency] || '$';
+        
+        if (!currency) {
+            const userLocation = await getUserLocation();
+            if (userLocation && userLocation.currencyCode) {
+                targetCurrency = userLocation.currencyCode;
+                currencySymbol = currencySymbols[targetCurrency] || '$';
+            }
+        }
         
         const cacheKey = getCacheKey(city, checkin, checkout, guests);
         let hotel = null;
@@ -236,7 +255,6 @@ router.get('/:id', async (req, res) => {
             });
         }
         
-        // Fallback
         const nights = 1;
         res.json({
             id: hotelId,
