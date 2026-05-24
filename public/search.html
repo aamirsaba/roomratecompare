@@ -188,6 +188,16 @@
             border-radius: 16px;
         }
         
+        .debug-info {
+            background: #f0f0f0;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: #666;
+            display: none;
+        }
+        
         .search-again {
             margin-top: 2rem;
             text-align: center;
@@ -232,6 +242,7 @@
     <main>
         <div class="results-container">
             <div id="results"></div>
+            <div id="debugInfo" class="debug-info"></div>
             <div class="search-again">
                 <a href="/">← Search again</a>
             </div>
@@ -287,6 +298,7 @@
         
         async function searchHotels() {
             const resultsDiv = document.getElementById('results');
+            const debugDiv = document.getElementById('debugInfo');
             
             if (!city || !checkin || !checkout) {
                 resultsDiv.innerHTML = '<div class="no-results"><h3>🔍 Missing search information</h3><a href="/">← Search for hotels</a></div>';
@@ -294,28 +306,45 @@
             }
             
             resultsDiv.innerHTML = '<div class="loader"><div class="loader-spinner"></div><p>🔍 Searching Booking.com, Agoda, Expedia...</p></div>';
+            debugDiv.style.display = 'none';
             
             try {
                 const response = await fetch('/api/hotels/search?city=' + encodeURIComponent(city) + '&checkin=' + checkin + '&checkout=' + checkout + '&guests=' + (guests || 2));
                 const data = await response.json();
+                
+                // Debug info
+                console.log('API Response:', data);
+                debugDiv.innerHTML = '<strong>Debug Info:</strong><br>';
+                debugDiv.innerHTML += 'Source: ' + (data.source || 'unknown') + '<br>';
+                debugDiv.innerHTML += 'Hotels count: ' + (data.hotels ? data.hotels.length : 0) + '<br>';
+                debugDiv.innerHTML += 'Currency: ' + (data.currency || 'USD') + ' (' + (data.currencySymbol || '$') + ')<br>';
+                if (data.hotels && data.hotels.length > 0) {
+                    debugDiv.innerHTML += 'First hotel: ' + escapeHtml(data.hotels[0].name) + ' - ' + (data.hotels[0].price || 'N/A') + '<br>';
+                }
+                debugDiv.style.display = 'block';
                 
                 if (data.hotels && data.hotels.length > 0) {
                     const nights = Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24));
                     
                     let hotelsHtml = '<div class="results-header"><h2>🏨 ' + city.charAt(0).toUpperCase() + city.slice(1) + ' Hotel Room Rates</h2><p>' + formatDate(checkin) + ' → ' + formatDate(checkout) + ' • ' + nights + ' night' + (nights > 1 ? 's' : '') + ' • ' + (guests || 2) + ' guests • Found ' + data.hotels.length + ' hotels</p></div>';
                     
+                    let displayedCount = 0;
+                    
                     for (let i = 0; i < data.hotels.length; i++) {
                         const hotel = data.hotels[i];
                         
-                        // FIX: Add fallback values to prevent undefined/NaN
-                        const totalPrice = hotel.price || 0;
+                        // FIX: Add fallback values
+                        let totalPrice = hotel.price || hotel.price_per_night || 0;
                         if (totalPrice === 0 || isNaN(totalPrice)) {
-                            continue; // Skip hotels with invalid prices
+                            console.log('Skipping hotel with invalid price:', hotel.name, hotel.price);
+                            continue;
                         }
+                        
+                        displayedCount++;
                         
                         const originalPrice = hotel.original_price || Math.round(totalPrice * 1.2);
                         const savings = originalPrice - totalPrice;
-                        const currencySymbol = hotel.currencySymbol || '$';
+                        const currencySymbol = hotel.currencySymbol || data.currencySymbol || '$';
                         
                         const bookingLink = 'https://www.booking.com/searchresults.html?ss=' + encodeURIComponent(hotel.name) + '&checkin=' + checkin + '&checkout=' + checkout + '&group_adults=' + (guests || 2);
                         const agodaLink = 'https://www.agoda.com/search?city=' + encodeURIComponent(city) + '&checkIn=' + checkin + '&checkOut=' + checkout + '&adults=' + (guests || 2);
@@ -352,17 +381,17 @@
                         `;
                     }
                     
-                    if (hotelsHtml === '<div class="results-header">...') {
-                        hotelsHtml = '<div class="no-results"><h3>🏨 No valid hotels found in ' + city + '</h3><a href="/">← Search again</a></div>';
+                    if (displayedCount === 0) {
+                        hotelsHtml = '<div class="no-results"><h3>🏨 No valid hotels found in ' + city + '</h3><p>All hotels had invalid prices. Please try again later.</p><a href="/">← Search again</a></div>';
                     }
                     
                     resultsDiv.innerHTML = hotelsHtml;
                 } else {
-                    resultsDiv.innerHTML = '<div class="no-results"><h3>🏨 No hotels found in ' + city + '</h3><a href="/">← Search again</a></div>';
+                    resultsDiv.innerHTML = '<div class="no-results"><h3>🏨 No hotels found in ' + city + '</h3><p>Try a different city or check your spelling.</p><a href="/">← Search again</a></div>';
                 }
             } catch (error) {
                 console.error('Search error:', error);
-                resultsDiv.innerHTML = '<div class="no-results"><h3>⚠️ Unable to fetch room rates</h3><a href="/">← Try again</a></div>';
+                resultsDiv.innerHTML = '<div class="no-results"><h3>⚠️ Unable to fetch room rates</h3><p>' + error.message + '</p><a href="/">← Try again</a></div>';
             }
         }
         
