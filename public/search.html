@@ -306,8 +306,14 @@
                     
                     for (let i = 0; i < data.hotels.length; i++) {
                         const hotel = data.hotels[i];
-                        const totalPrice = hotel.price;
-                        const originalPrice = Math.round(totalPrice * 1.2);
+                        
+                        // FIX: Add fallback values to prevent undefined/NaN
+                        const totalPrice = hotel.price || 0;
+                        if (totalPrice === 0 || isNaN(totalPrice)) {
+                            continue; // Skip hotels with invalid prices
+                        }
+                        
+                        const originalPrice = hotel.original_price || Math.round(totalPrice * 1.2);
                         const savings = originalPrice - totalPrice;
                         const currencySymbol = hotel.currencySymbol || '$';
                         
@@ -344,6 +350,10 @@
                                 </div>
                             </div>
                         `;
+                    }
+                    
+                    if (hotelsHtml === '<div class="results-header">...') {
+                        hotelsHtml = '<div class="no-results"><h3>🏨 No valid hotels found in ' + city + '</h3><a href="/">← Search again</a></div>';
                     }
                     
                     resultsDiv.innerHTML = hotelsHtml;
