@@ -129,5 +129,157 @@
         if (city && checkin && checkout) { searchHotels(); } 
         else { document.getElementById('results').innerHTML = '<div class="no-results">No search criteria found. <a href="/">Search for hotels</a></div>'; }
     </script>
+
+<!-- AI Travel Assistant Button -->
+<div style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
+    <div id="assistantBtn" style="width: 60px; height: 60px; background: linear-gradient(135deg, #e67e22, #d35400); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: transform 0.2s;">
+        <span style="font-size: 32px;">👩‍✈️</span>
+    </div>
+</div>
+
+<!-- AI Assistant Window (Hidden by default) -->
+<div id="assistantWindow" style="position: fixed; bottom: 90px; right: 20px; width: 350px; height: 450px; background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); display: none; flex-direction: column; overflow: hidden; z-index: 1001;">
+    <div style="background: linear-gradient(135deg, #e67e22, #d35400); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 28px;">👩‍✈️</span>
+            <div><strong style="font-size: 16px;">Sarah</strong><br><small style="font-size: 10px; opacity: 0.9;">Your Travel Assistant</small></div>
+        </div>
+        <button id="closeAssistant" style="background: none; border: none; color: white; font-size: 24px; cursor: pointer; width: 30px; height: 30px;">×</button>
+    </div>
+    
+    <div id="assistantMessages" style="flex: 1; padding: 15px; overflow-y: auto; background: #f8f9fa;">
+        <div style="margin-bottom: 12px; display: flex; gap: 8px;">
+            <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #e67e22, #d35400); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px;">👩‍✈️</div>
+            <div style="background: white; padding: 10px 14px; border-radius: 18px; max-width: 75%; font-size: 13px; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
+                Hello! I'm Sarah! ✨<br><br>
+                Ask me about:<br>
+                🏛️ Attractions &nbsp; 🍽️ Food<br>
+                🌤️ Weather &nbsp; 💡 Travel Tips
+            </div>
+        </div>
+    </div>
+    
+    <div style="display: flex; padding: 12px; border-top: 1px solid #eee; background: white; gap: 8px;">
+        <input type="text" id="assistantInput" placeholder="Ask me about your destination..." style="flex: 1; padding: 10px 15px; border: 1px solid #ddd; border-radius: 25px; outline: none; font-size: 13px;">
+        <button id="assistantSend" style="background: #e67e22; border: none; width: 40px; height: 40px; border-radius: 50%; color: white; cursor: pointer; font-size: 18px;">➤</button>
+    </div>
+</div>
+
+<script>
+    // City information database
+    const travelDB = {
+        karachi: { attractions: '🏛️ Quaid-e-Azam Mausoleum, Clifton Beach, Port Grand, Tariq Road', food: '🍛 Biryani, Bun Kebab, Fresh Seafood, Kulfi', weather: 'Best from Nov-Feb (15-25°C)', tips: 'Try Burns Road food, use ride-hailing apps' },
+        dubai: { attractions: '🗼 Burj Khalifa, Dubai Mall, Palm Jumeirah, Desert Safari', food: '🍢 Shawarma, Al Harees, Luqaimat', weather: 'Best from Nov-Mar (20-30°C)', tips: 'Visit weekdays for cheaper hotels' },
+        london: { attractions: '🎡 London Eye, Buckingham Palace, British Museum', food: '🐟 Fish and Chips, Afternoon Tea', weather: 'Best from May-Sep (15-25°C)', tips: 'Get Oyster card, many museums free' },
+        muscat: { attractions: '🕌 Grand Mosque, Mutrah Souq, Royal Opera House', food: '🍖 Shuwa, Mashuai, Halwa', weather: 'Best from Oct-Mar (20-30°C)', tips: 'Dress modestly, respect local customs' }
+    };
+    
+    function getCityInfo(city, type) {
+        const info = travelDB[city?.toLowerCase()] || travelDB.dubai;
+        if (type === 'attractions') return info.attractions;
+        if (type === 'food') return info.food;
+        if (type === 'weather') return info.weather;
+        if (type === 'tips') return info.tips;
+        return '';
+    }
+    
+    // Get current city from URL
+    const currentCity = new URLSearchParams(window.location.search).get('city') || '';
+    
+    // DOM elements
+    const assistantBtn = document.getElementById('assistantBtn');
+    const assistantWindow = document.getElementById('assistantWindow');
+    const closeAssistant = document.getElementById('closeAssistant');
+    const assistantInput = document.getElementById('assistantInput');
+    const assistantSend = document.getElementById('assistantSend');
+    const messagesDiv = document.getElementById('assistantMessages');
+    
+    function addMessage(text, isUser = false) {
+        const msgDiv = document.createElement('div');
+        msgDiv.style.marginBottom = '12px';
+        msgDiv.style.display = 'flex';
+        msgDiv.style.gap = '8px';
+        msgDiv.style.justifyContent = isUser ? 'flex-end' : 'flex-start';
+        
+        if (isUser) {
+            msgDiv.innerHTML = `<div style="background: #e67e22; color: white; padding: 10px 14px; border-radius: 18px; max-width: 75%; font-size: 13px;">${text}</div>`;
+        } else {
+            msgDiv.innerHTML = `
+                <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #e67e22, #d35400); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px;">👩‍✈️</div>
+                <div style="background: white; padding: 10px 14px; border-radius: 18px; max-width: 75%; font-size: 13px; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">${text}</div>
+            `;
+        }
+        messagesDiv.appendChild(msgDiv);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+    
+    function showTyping() {
+        const typingDiv = document.createElement('div');
+        typingDiv.id = 'typingIndicator';
+        typingDiv.style.marginBottom = '12px';
+        typingDiv.style.display = 'flex';
+        typingDiv.style.gap = '8px';
+        typingDiv.innerHTML = `
+            <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #e67e22, #d35400); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px;">👩‍✈️</div>
+            <div style="background: white; padding: 10px 14px; border-radius: 18px;">
+                <span style="display: inline-block; width: 6px; height: 6px; background: #999; border-radius: 50%; margin: 0 2px; animation: blink 1.4s infinite;"></span>
+                <span style="display: inline-block; width: 6px; height: 6px; background: #999; border-radius: 50%; margin: 0 2px; animation: blink 1.4s 0.2s infinite;"></span>
+                <span style="display: inline-block; width: 6px; height: 6px; background: #999; border-radius: 50%; margin: 0 2px; animation: blink 1.4s 0.4s infinite;"></span>
+            </div>
+        `;
+        messagesDiv.appendChild(typingDiv);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+    
+    function hideTyping() {
+        const typing = document.getElementById('typingIndicator');
+        if (typing) typing.remove();
+    }
+    
+    async function sendMessage() {
+        const msg = assistantInput.value.trim();
+        if (!msg) return;
+        addMessage(msg, true);
+        assistantInput.value = '';
+        showTyping();
+        
+        const lower = msg.toLowerCase();
+        let response = '';
+        
+        setTimeout(() => {
+            hideTyping();
+            if (lower.includes('attraction') || lower.includes('see') || lower.includes('visit')) {
+                response = `🏛️ Top attractions in ${currentCity.toUpperCase()}:\n${getCityInfo(currentCity, 'attractions')}\n\nEnjoy exploring! ✨`;
+            } else if (lower.includes('food') || lower.includes('eat')) {
+                response = `🍽️ Must-try foods in ${currentCity.toUpperCase()}:\n${getCityInfo(currentCity, 'food')}\n\nHungry yet? 😋`;
+            } else if (lower.includes('weather')) {
+                response = `🌤️ Best time to visit ${currentCity.toUpperCase()}:\n${getCityInfo(currentCity, 'weather')}`;
+            } else if (lower.includes('tip') || lower.includes('advice')) {
+                response = `💡 Travel tips for ${currentCity.toUpperCase()}:\n${getCityInfo(currentCity, 'tips')}`;
+            } else {
+                response = `✨ I can help you with:\n• 🏛️ Attractions\n• 🍽️ Local Food\n• 🌤️ Weather\n• 💡 Travel tips\n\nWhat would you like to know about ${currentCity.toUpperCase()}?`;
+            }
+            addMessage(response);
+        }, 800);
+    }
+    
+    // Event listeners
+    assistantBtn?.addEventListener('click', () => {
+        assistantWindow.style.display = assistantWindow.style.display === 'none' ? 'flex' : 'none';
+        if (assistantWindow.style.display === 'flex' && currentCity && messagesDiv.children.length === 1) {
+            addMessage(`✨ Welcome to ${currentCity.toUpperCase()}! 🎉\n\nAsk me about attractions, food, weather, or travel tips!`);
+        }
+    });
+    
+    closeAssistant?.addEventListener('click', () => assistantWindow.style.display = 'none');
+    assistantSend?.addEventListener('click', sendMessage);
+    assistantInput?.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
+    
+    // Add animation keyframes
+    const style = document.createElement('style');
+    style.textContent = `@keyframes blink { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }`;
+    document.head.appendChild(style);
+</script>
+
 </body>
 </html>
