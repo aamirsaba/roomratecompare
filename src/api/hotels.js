@@ -11,23 +11,44 @@ const CACHE_DURATION = 24 * 60 * 60 * 1000;
 
 const currencySymbols = {
     'USD': '$', 'EUR': '€', 'GBP': '£', 'JPY': '¥',
-    'AED': 'د.إ', 'SAR': '﷼', 'PKR': '₨', 'INR': '₹'
+    'AED': 'د.إ', 'SAR': '﷼', 'PKR': '₨', 'INR': '₹',
+    'OMR': '﷼', 'CAD': 'C$', 'AUD': 'A$', 'CHF': 'CHF', 'CNY': '¥'
 };
 
 function getAmenitiesForHotel(hotelName, stars) {
     const name = (hotelName || '').toLowerCase();
     const amenities = ['Free WiFi'];
-    if (stars >= 4) amenities.push('Air conditioning', '24/7 front desk', 'Room service');
-    else if (stars >= 3) amenities.push('Air conditioning', '24/7 front desk');
-    else amenities.push('Front desk (limited hours)');
-    if (name.includes('resort') || name.includes('spa')) amenities.push('Spa', 'Swimming pool', 'Fitness center');
-    if (name.includes('suite') || name.includes('luxury')) amenities.push('Mini bar', 'Premium bedding');
-    if (name.includes('inn') || name.includes('lodge')) amenities.push('Breakfast included', 'Free parking');
-    if (name.includes('airport')) amenities.push('Airport shuttle');
-    if (name.includes('beach')) amenities.push('Beach access');
-    if (name.includes('business')) amenities.push('Business center', 'Meeting rooms');
+    if (stars >= 4) {
+        amenities.push('Air conditioning', '24/7 front desk', 'Room service');
+    } else if (stars >= 3) {
+        amenities.push('Air conditioning', '24/7 front desk');
+    } else {
+        amenities.push('Front desk (limited hours)');
+    }
+    if (name.includes('resort') || name.includes('spa')) {
+        amenities.push('Spa', 'Swimming pool', 'Fitness center');
+    }
+    if (name.includes('suite') || name.includes('luxury')) {
+        amenities.push('Mini bar', 'Premium bedding');
+    }
+    if (name.includes('inn') || name.includes('lodge')) {
+        amenities.push('Breakfast included', 'Free parking');
+    }
+    if (name.includes('airport')) {
+        amenities.push('Airport shuttle');
+    }
+    if (name.includes('beach')) {
+        amenities.push('Beach access');
+    }
+    if (name.includes('business')) {
+        amenities.push('Business center', 'Meeting rooms');
+    }
     amenities.push('Housekeeping', 'Elevator', 'Luggage storage');
     return [...new Set(amenities)].slice(0, 8);
+}
+
+function getCacheKey(city, checkin, checkout, guests) {
+    return `${city.toLowerCase()}_${checkin}_${checkout}_${guests}`;
 }
 
 router.get('/search', async (req, res) => {
@@ -37,37 +58,30 @@ router.get('/search', async (req, res) => {
         return res.status(400).json({ error: 'Missing required fields' });
     }
     
-    // Get user's currency
+    // Get user's location for currency
     const userLocation = await getUserLocation();
     const targetCurrency = userLocation?.currencyCode || 'USD';
     const currencySymbol = currencySymbols[targetCurrency] || '$';
-    console.log(`🪙 User currency: ${targetCurrency}`);
+    console.log(`🪙 User: ${userLocation?.countryCode || 'Unknown'}, Currency: ${targetCurrency} (${currencySymbol})`);
     
-    const cacheKey = `${city.toLowerCase()}_${checkin}_${checkout}_${guests}`;
+    const cacheKey = getCacheKey(city, checkin, checkout, guests);
     
     // Check memory cache
     if (memoryCache[cacheKey]) {
         let hotels = memoryCache[cacheKey].hotels;
         
-        // Convert prices ONCE for display
-        const convertedHotels = await Promise.all(hotels.map(async (hotel) => ({
-            id: hotel.id,
-            name: hotel.name,
-            stars: hotel.stars,
-            price: await convertPrice(hotel.price_usd, targetCurrency),
-            price_per_night: await convertPrice(hotel.price_per_night_usd, targetCurrency),
-            currency: targetCurrency,
-            currencySymbol: currencySymbol,
-            nights: hotel.nights,
-            city: hotel.city,
-            checkin: hotel.checkin,
-            checkout: hotel.checkout,
-            guests: hotel.guests,
-            amenities: hotel.amenities,
-            booking_link: hotel.booking_link
-        })));
+        // Convert prices if needed
+        if (targetCurrency !== 'USD') {
+            hotels = await Promise.all(hotels.map(async (hotel) => ({
+                ...hotel,
+                price: await convertPrice(hotel.price, targetCurrency),
+                price_per_night: await convertPrice(hotel.price_per_night, targetCurrency),
+                currency: targetCurrency,
+                currencySymbol: currencySymbol
+            })));
+        }
         
-        return res.json({ source: 'cache', hotels: convertedHotels, count: convertedHotels.length, currency: targetCurrency });
+        return res.json({ source: 'cache', hotels, count: hotels.length, currency: targetCurrency, currencySymbol });
     }
     
     // Check database
@@ -79,34 +93,28 @@ router.get('/search', async (req, res) => {
             .order('created_at', { ascending: false })
             .limit(1);
         
-        if (cached && cached.length > 0 && cached[0].data) {
+        if (cached && cached.length > 0 && cached[0].data && cached[0].data.length > 0) {
             let hotels = cached[0].data;
             console.log(`✅ Found ${hotels.length} hotels in DATABASE for ${city}`);
             
             memoryCache[cacheKey] = { hotels, timestamp: Date.now() };
             
-            const convertedHotels = await Promise.all(hotels.map(async (hotel) => ({
-                id: hotel.id,
-                name: hotel.name,
-                stars: hotel.stars,
-                price: await convertPrice(hotel.price_usd, targetCurrency),
-                price_per_night: await convertPrice(hotel.price_per_night_usd, targetCurrency),
-                currency: targetCurrency,
-                currencySymbol: currencySymbol,
-                nights: hotel.nights,
-                city: hotel.city,
-                checkin: hotel.checkin,
-                checkout: hotel.checkout,
-                guests: hotel.guests,
-                amenities: hotel.amenities,
-                booking_link: hotel.booking_link
-            })));
+            // Convert prices if needed
+            if (targetCurrency !== 'USD') {
+                hotels = await Promise.all(hotels.map(async (hotel) => ({
+                    ...hotel,
+                    price: await convertPrice(hotel.price, targetCurrency),
+                    price_per_night: await convertPrice(hotel.price_per_night, targetCurrency),
+                    currency: targetCurrency,
+                    currencySymbol: currencySymbol
+                })));
+            }
             
-            return res.json({ source: 'database', hotels: convertedHotels, count: convertedHotels.length, currency: targetCurrency });
+            return res.json({ source: 'database', hotels, count: hotels.length, currency: targetCurrency, currencySymbol });
         }
     } catch (err) { console.error('DB error:', err.message); }
     
-    // Fetch from Apify (only for new cities)
+    // Fetch from Apify
     try {
         console.log(`🚀 Fetching fresh data for ${city}...`);
         
@@ -115,17 +123,18 @@ router.get('/search', async (req, res) => {
         });
         
         const { items } = await apifyClient.dataset(run.defaultDatasetId).listItems();
-        let hotels = items[0]?.hotels || [];
+        let hotelsFromActor = items[0]?.hotels || [];
         
         const nights = Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24));
         
-        // Store in USD only (no conversion at storage time)
-        const usdHotels = hotels.slice(0, 30).map((hotel, idx) => ({
+        let hotels = hotelsFromActor.slice(0, 30).map((hotel, idx) => ({
             id: idx + 1,
             name: hotel.name,
-            stars: hotel.stars || 4,
-            price_usd: (hotel.pricePerNight || 99) * nights,
-            price_per_night_usd: hotel.pricePerNight || 99,
+            stars: hotel.stars || Math.floor(Math.random() * 3) + 3,
+            price: (hotel.pricePerNight || 99) * nights,
+            price_per_night: hotel.pricePerNight || 99,
+            currency: 'USD',
+            currencySymbol: '$',
             nights: nights,
             city: city,
             checkin: checkin,
@@ -135,36 +144,29 @@ router.get('/search', async (req, res) => {
             booking_link: `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(hotel.name)}&checkin=${checkin}&checkout=${checkout}&group_adults=${guests}`
         }));
         
-        if (usdHotels.length > 0) {
-            memoryCache[cacheKey] = { hotels: usdHotels, timestamp: Date.now() };
+        if (hotels.length > 0) {
+            memoryCache[cacheKey] = { hotels, timestamp: Date.now() };
             await supabase.from('hotel_cache').insert({ 
                 city: city.toLowerCase(), 
                 check_in: checkin,
                 check_out: checkout,
-                data: usdHotels, 
+                data: hotels, 
                 created_at: new Date() 
             });
         }
         
-        // Convert for display
-        const convertedHotels = await Promise.all(usdHotels.map(async (hotel) => ({
-            id: hotel.id,
-            name: hotel.name,
-            stars: hotel.stars,
-            price: await convertPrice(hotel.price_usd, targetCurrency),
-            price_per_night: await convertPrice(hotel.price_per_night_usd, targetCurrency),
-            currency: targetCurrency,
-            currencySymbol: currencySymbol,
-            nights: hotel.nights,
-            city: hotel.city,
-            checkin: hotel.checkin,
-            checkout: hotel.checkout,
-            guests: hotel.guests,
-            amenities: hotel.amenities,
-            booking_link: hotel.booking_link
-        })));
+        // Convert prices if needed
+        if (targetCurrency !== 'USD') {
+            hotels = await Promise.all(hotels.map(async (hotel) => ({
+                ...hotel,
+                price: await convertPrice(hotel.price, targetCurrency),
+                price_per_night: await convertPrice(hotel.price_per_night, targetCurrency),
+                currency: targetCurrency,
+                currencySymbol: currencySymbol
+            })));
+        }
         
-        res.json({ source: 'apify', hotels: convertedHotels, count: convertedHotels.length, currency: targetCurrency });
+        res.json({ source: 'apify', hotels, count: hotels.length, currency: targetCurrency, currencySymbol });
         
     } catch (error) {
         console.error('Error:', error.message);
@@ -184,7 +186,7 @@ router.get('/:id', async (req, res) => {
         const targetCurrency = userLocation?.currencyCode || 'USD';
         const currencySymbol = currencySymbols[targetCurrency] || '$';
         
-        const cacheKey = `${city.toLowerCase()}_${checkin}_${checkout}_${guests}`;
+        const cacheKey = getCacheKey(city, checkin, checkout, guests);
         let hotel = null;
         
         if (memoryCache[cacheKey]) {
@@ -206,7 +208,7 @@ router.get('/:id', async (req, res) => {
         if (hotel) {
             const nights = checkin && checkout ? Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24)) : hotel.nights;
             
-            let totalPrice = hotel.price_usd;
+            let totalPrice = hotel.price_per_night * nights;
             let originalPrice = Math.round(totalPrice * 1.2);
             
             if (targetCurrency !== 'USD') {
@@ -217,14 +219,14 @@ router.get('/:id', async (req, res) => {
             return res.json({
                 id: hotel.id,
                 name: hotel.name,
-                stars: hotel.stars,
+                stars: hotel.stars || 4,
                 total_price: totalPrice,
                 original_price: originalPrice,
                 savings: originalPrice - totalPrice,
                 currency: targetCurrency,
                 currencySymbol: currencySymbol,
                 city: hotel.city,
-                description: `${hotel.name} offers great accommodation.`,
+                description: `${hotel.name} offers comfortable accommodation.`,
                 amenities: hotel.amenities,
                 checkin: checkin || hotel.checkin,
                 checkout: checkout || hotel.checkout,
@@ -253,6 +255,7 @@ router.get('/:id', async (req, res) => {
         });
         
     } catch (error) {
+        console.error('Hotel detail error:', error.message);
         res.status(500).json({ error: 'Failed to fetch hotel details' });
     }
 });
