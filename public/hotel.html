@@ -77,9 +77,20 @@
             margin-bottom: 0.5rem;
         }
 
-        .hotel-header .stars {
+        .stars-wrapper {
+            margin: 0.5rem 0;
+        }
+
+        .stars {
             color: #ffc107;
             font-size: 0.9rem;
+        }
+
+        .stars-note {
+            font-size: 0.6rem;
+            color: #ccc;
+            margin-left: 0.5rem;
+            font-weight: normal;
         }
 
         .hotel-header .address {
@@ -241,6 +252,16 @@
             color: white;
         }
 
+        .illustrative-note {
+            background: #fef9e6;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-size: 0.7rem;
+            color: #856404;
+            text-align: center;
+        }
+
         .loader, .error-container {
             text-align: center;
             padding: 3rem;
@@ -282,6 +303,11 @@
             }
             .hotel-header h1 {
                 font-size: 1.2rem;
+            }
+            .stars-note {
+                display: block;
+                margin-left: 0;
+                margin-top: 0.2rem;
             }
         }
     </style>
@@ -379,6 +405,7 @@
                 const totalPrice = hotel.total_price || (hotel.price_per_night * nights) || 199;
                 const originalPrice = hotel.original_price || Math.round(totalPrice * 1.2);
                 const savings = hotel.savings || (originalPrice - totalPrice);
+                const currencySymbol = hotel.currencySymbol || '$';
                 
                 const searchQuery = hotelName || hotel.name || city || 'hotel';
                 const bookingLink = 'https://www.booking.com/searchresults.html?ss=' + encodeURIComponent(searchQuery) + '&checkin=' + (checkin || '') + '&checkout=' + (checkout || '') + '&group_adults=' + guests;
@@ -400,16 +427,19 @@
                     <div class="hotel-detail-card">
                         <div class="hotel-header">
                             <h1>${escapeHtml(hotel.name)}</h1>
-                            <div class="stars">${'★'.repeat(hotel.stars || 4)}${'☆'.repeat(5 - (hotel.stars || 4))}</div>
+                            <div class="stars-wrapper">
+                                <span class="stars">${'★'.repeat(hotel.stars || 4)}${'☆'.repeat(5 - (hotel.stars || 4))}</span>
+                                <span class="stars-note">(illustrative - verify on Booking.com)</span>
+                            </div>
                             <div class="address">📍 ${cityCapitalized}, ${hotel.country || 'International'}</div>
                         </div>
                         
                         <div class="hotel-info">
                             <div class="price-section">
                                 <div class="price-left">
-                                    <span class="current-price">$${totalPrice}</span>
-                                    <span class="old-price">$${originalPrice}</span>
-                                    <span class="you-save">✨ Save $${savings}</span>
+                                    <span class="current-price">${currencySymbol}${totalPrice}</span>
+                                    <span class="old-price">${currencySymbol}${originalPrice}</span>
+                                    <span class="you-save">✨ Save ${currencySymbol}${savings}</span>
                                 </div>
                                 <div class="price-right">💰 Total for ${nights} night${nights > 1 ? 's' : ''}</div>
                             </div>
@@ -419,6 +449,10 @@
                                 <a href="${agodaLink}" target="_blank" class="ota-link" onclick="trackClick('Agoda')">🌏 Agoda</a>
                                 <a href="${expediaLink}" target="_blank" class="ota-link" onclick="trackClick('Expedia')">✈️ Expedia</a>
                                 <a href="${hotelscomLink}" target="_blank" class="ota-link" onclick="trackClick('Hotels.com')">🏢 Hotels.com</a>
+                            </div>
+                            
+                            <div class="illustrative-note">
+                                ℹ️ Star ratings are for illustration only. Please check the actual hotel rating on the booking site.
                             </div>
                             
                             ${amenitiesHtml}
@@ -432,7 +466,7 @@
                                         <p>1 Queen bed • City view • 25 m²</p>
                                     </div>
                                     <div class="room-price-info">
-                                        <div class="room-amount">$${Math.round(totalPrice * 0.9)}</div>
+                                        <div class="room-amount">${currencySymbol}${Math.round(totalPrice * 0.9)}</div>
                                         <div class="room-nights">total for ${nights} night${nights > 1 ? 's' : ''}</div>
                                     </div>
                                     <a href="${bookingLink}" target="_blank" class="book-room-btn" onclick="trackClick('Booking.com')">Book Now →</a>
@@ -444,7 +478,7 @@
                                         <p>1 King bed • City view • 35 m² • Breakfast included</p>
                                     </div>
                                     <div class="room-price-info">
-                                        <div class="room-amount">$${Math.round(totalPrice * 1.15)}</div>
+                                        <div class="room-amount">${currencySymbol}${Math.round(totalPrice * 1.15)}</div>
                                         <div class="room-nights">total for ${nights} night${nights > 1 ? 's' : ''}</div>
                                     </div>
                                     <a href="${bookingLink}" target="_blank" class="book-room-btn" onclick="trackClick('Booking.com')">Book Now →</a>
@@ -456,7 +490,7 @@
                                         <p>1 King bed + Sofa bed • Panoramic view • 55 m² • Breakfast + Spa access</p>
                                     </div>
                                     <div class="room-price-info">
-                                        <div class="room-amount">$${Math.round(totalPrice * 1.4)}</div>
+                                        <div class="room-amount">${currencySymbol}${Math.round(totalPrice * 1.4)}</div>
                                         <div class="room-nights">total for ${nights} night${nights > 1 ? 's' : ''}</div>
                                     </div>
                                     <a href="${bookingLink}" target="_blank" class="book-room-btn" onclick="trackClick('Booking.com')">Book Now →</a>

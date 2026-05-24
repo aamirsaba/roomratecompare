@@ -86,10 +86,20 @@
             color: #1a1a1a;
         }
         
+        .stars-wrapper {
+            margin: 0.5rem 0;
+        }
+        
         .stars {
             color: #f39c12;
-            margin: 0.5rem 0;
             font-size: 0.9rem;
+        }
+        
+        .stars-note {
+            font-size: 0.6rem;
+            color: #999;
+            margin-left: 0.5rem;
+            font-weight: normal;
         }
         
         .price-section {
@@ -224,6 +234,12 @@
             .ota-links {
                 justify-content: center;
             }
+            
+            .stars-note {
+                display: block;
+                margin-left: 0;
+                margin-top: 0.2rem;
+            }
         }
     </style>
 </head>
@@ -321,6 +337,7 @@
                         const totalPrice = hotel.total_price || hotel.price;
                         const originalPrice = Math.round(totalPrice * 1.2);
                         const savings = originalPrice - totalPrice;
+                        const currencySymbol = hotel.currencySymbol || '$';
                         
                         const bookingLink = 'https://www.booking.com/searchresults.html?ss=' + encodeURIComponent(hotel.name) + '&checkin=' + checkin + '&checkout=' + checkout + '&group_adults=' + (guests || 2);
                         const agodaLink = 'https://www.agoda.com/search?city=' + encodeURIComponent(city) + '&checkIn=' + checkin + '&checkOut=' + checkout + '&adults=' + (guests || 2);
@@ -332,11 +349,14 @@
                                 <div class="hotel-image">🏨</div>
                                 <div class="hotel-details">
                                     <div class="hotel-name">${escapeHtml(hotel.name)}</div>
-                                    <div class="stars">${'★'.repeat(hotel.stars)}${'☆'.repeat(5-hotel.stars)}</div>
+                                    <div class="stars-wrapper">
+                                        <span class="stars">${'★'.repeat(hotel.stars)}${'☆'.repeat(5-hotel.stars)}</span>
+                                        <span class="stars-note">(illustrative - verify on site)</span>
+                                    </div>
                                     <div class="price-section">
-                                        <span class="price">$${totalPrice}</span>
-                                        <span class="original-price">$${originalPrice}</span>
-                                        <div class="savings">✨ Save $${savings}</div>
+                                        <span class="price">${currencySymbol}${totalPrice}</span>
+                                        <span class="original-price">${currencySymbol}${originalPrice}</span>
+                                        <div class="savings">✨ Save ${currencySymbol}${savings}</div>
                                     </div>
                                     <div class="booking-details">
                                         📅 ${formatDate(checkin)} - ${formatDate(checkout)} • ${nights} night${nights > 1 ? 's' : ''} • ${guests || 2} guests
