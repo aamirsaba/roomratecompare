@@ -311,7 +311,6 @@
     </footer>
 
     <script>
-        // Fix Search button - go to homepage
         const searchNavLink = document.getElementById('searchNavLink');
         if (searchNavLink) {
             searchNavLink.addEventListener('click', function(e) {
@@ -320,7 +319,6 @@
             });
         }
         
-        // Fix Back button
         function goBack() {
             if (document.referrer && document.referrer.includes(window.location.hostname)) {
                 window.location.href = document.referrer;
@@ -344,10 +342,19 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ hotel_id: hotelId, site: site })
                 });
-                console.log('Tracked click for ' + site);
             } catch(e) { 
                 console.log('Track error:', e); 
             }
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
         }
         
         async function loadHotelDetails() {
@@ -382,6 +389,13 @@
                 const cityDisplay = hotel.city || city || 'City';
                 const cityCapitalized = cityDisplay.charAt(0).toUpperCase() + cityDisplay.slice(1);
                 
+                let amenitiesHtml = '';
+                if (hotel.amenities && hotel.amenities.length > 0) {
+                    amenitiesHtml = '<div class="amenities">' + hotel.amenities.map(a => `<span class="amenity">✓ ${a}</span>`).join('') + '</div>';
+                } else {
+                    amenitiesHtml = '<div class="amenities"><span class="amenity">✓ Free WiFi</span><span class="amenity">✓ Air conditioning</span><span class="amenity">✓ 24/7 front desk</span><span class="amenity">✓ Housekeeping</span><span class="amenity">✓ Elevator</span><span class="amenity">✓ Luggage storage</span></div>';
+                }
+                
                 detailDiv.innerHTML = `
                     <div class="hotel-detail-card">
                         <div class="hotel-header">
@@ -407,14 +421,7 @@
                                 <a href="${hotelscomLink}" target="_blank" class="ota-link" onclick="trackClick('Hotels.com')">🏢 Hotels.com</a>
                             </div>
                             
-                            <div class="amenities">
-                                <span class="amenity">✓ Free WiFi</span>
-                                <span class="amenity">✓ Air conditioning</span>
-                                <span class="amenity">✓ 24/7 front desk</span>
-                                <span class="amenity">✓ Housekeeping</span>
-                                <span class="amenity">✓ Elevator</span>
-                                <span class="amenity">✓ Luggage storage</span>
-                            </div>
+                            ${amenitiesHtml}
                             
                             <div class="room-rates-section">
                                 <h3>📋 Available Room Types</h3>
@@ -463,16 +470,6 @@
                 console.error('Error:', error);
                 detailDiv.innerHTML = '<div class="error-container"><h3>❌ Failed to load hotel details</h3><a href="/" class="book-room-btn" style="display:inline-block;margin-top:1rem;">Search Hotels</a></div>';
             }
-        }
-        
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/[&<>]/g, function(m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
-            });
         }
         
         loadHotelDetails();

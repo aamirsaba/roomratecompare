@@ -7,15 +7,54 @@ const apifyClient = new ApifyClient({
     token: process.env.APIFY_API_TOKEN,
 });
 
-// Memory cache - now properly separated by city
+// Memory cache
 let memoryCache = {};
-const MEMORY_CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
+const MEMORY_CACHE_DURATION = 24 * 60 * 60 * 1000;
 
-// Helper to get cache key
+// Helper: Get cache key
 function getCacheKey(city, checkin, checkout, guests) {
     return `${city.toLowerCase()}_${checkin}_${checkout}_${guests}`;
 }
 
+// Helper: Dynamic amenities based on hotel name and stars
+function getAmenitiesForHotel(hotelName, stars) {
+    const name = (hotelName || '').toLowerCase();
+    const amenities = ['Free WiFi'];
+    
+    // Star-based amenities
+    if (stars >= 4) {
+        amenities.push('Air conditioning', '24/7 front desk', 'Room service');
+    } else if (stars >= 3) {
+        amenities.push('Air conditioning', '24/7 front desk');
+    } else {
+        amenities.push('Front desk (limited hours)');
+    }
+    
+    // Name-based amenities
+    if (name.includes('resort') || name.includes('spa')) {
+        amenities.push('Spa', 'Swimming pool', 'Fitness center');
+    }
+    if (name.includes('suite') || name.includes('luxury')) {
+        amenities.push('Mini bar', 'Premium bedding');
+    }
+    if (name.includes('inn') || name.includes('lodge')) {
+        amenities.push('Breakfast included', 'Free parking');
+    }
+    if (name.includes('airport')) {
+        amenities.push('Airport shuttle');
+    }
+    if (name.includes('beach')) {
+        amenities.push('Beach access');
+    }
+    if (name.includes('business')) {
+        amenities.push('Business center', 'Meeting rooms');
+    }
+    
+    amenities.push('Housekeeping', 'Elevator', 'Luggage storage');
+    return [...new Set(amenities)].slice(0, 8);
+}
+
+// Search hotels
 router.get('/search', async (req, res) => {
     const { city, checkin, checkout, guests = 2 } = req.query;
     
@@ -41,7 +80,7 @@ router.get('/search', async (req, res) => {
     try {
         console.log(`📦 Checking Supabase database for ${city}...`);
         
-        const { data: cached, error } = await supabase
+        const { data: cached } = await supabase
             .from('hotel_cache')
             .select('data')
             .eq('city', city.toLowerCase())
@@ -62,16 +101,14 @@ router.get('/search', async (req, res) => {
                 hotels: hotels,
                 count: hotels.length
             });
-        } else {
-            console.log(`⚠️ No database cache found for ${city}`);
         }
     } catch (dbError) {
         console.error('Database read error:', dbError.message);
     }
     
-    // Call Apify Actor (slow)
+    // Call Apify Actor
     try {
-        console.log(`🚀 Calling Apify Actor for ${city} (this will take ~15-30 seconds)...`);
+        console.log(`🚀 Calling Apify Actor for ${city}...`);
         
         const input = {
             city: city,
@@ -104,6 +141,7 @@ router.get('/search', async (req, res) => {
             checkin: checkin,
             checkout: checkout,
             guests: parseInt(guests),
+            amenities: getAmenitiesForHotel(hotel.name, hotel.stars || 4),
             booking_link: `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(hotel.name)}&checkin=${checkin}&checkout=${checkout}&group_adults=${guests}`
         }));
         
@@ -113,46 +151,30 @@ router.get('/search', async (req, res) => {
                 timestamp: Date.now()
             };
             
-            // Store in Supabase
-            try {
-                await supabase
-                    .from('hotel_cache')
-                    .insert({ 
-                        city: city.toLowerCase(), 
-                        check_in: checkin,
-                        check_out: checkout,
-                        data: formattedHotels, 
-                        created_at: new Date() 
-                    });
-                console.log(`💾 Saved ${formattedHotels.length} hotels to database for ${city}`);
-            } catch (dbError) {
-                console.log('DB save error:', dbError.message);
-            }
+            await supabase
+                .from('hotel_cache')
+                .insert({ 
+                    city: city.toLowerCase(), 
+                    check_in: checkin,
+                    check_out: checkout,
+                    data: formattedHotels, 
+                    created_at: new Date() 
+                });
         }
         
         if (formattedHotels.length === 0) {
-            console.log(`❌ No hotels found for ${city}`);
-            return res.json({ 
-                source: 'error', 
-                hotels: [], 
-                count: 0,
-                error: 'No hotels found for this city'
-            });
+            return res.json({ source: 'error', hotels: [], count: 0 });
         }
         
-        res.json({ 
-            source: 'apify', 
-            hotels: formattedHotels,
-            count: formattedHotels.length
-        });
+        res.json({ source: 'apify', hotels: formattedHotels, count: formattedHotels.length });
         
     } catch (error) {
         console.error(`❌ Error for ${city}:`, error.message);
-        res.json({ source: 'error', hotels: [], count: 0, error: error.message });
+        res.json({ source: 'error', hotels: [], count: 0 });
     }
 });
 
-// Get single hotel details - FIXED to prevent cross-city mixing
+// Get single hotel details
 router.get('/:id', async (req, res) => {
     const hotelId = parseInt(req.params.id);
     const { city, checkin, checkout, guests, name } = req.query;
@@ -160,39 +182,29 @@ router.get('/:id', async (req, res) => {
     console.log(`🔍 Fetching hotel ID: ${hotelId} for city: ${city}`);
     
     if (!city) {
-        console.log(`⚠️ No city provided, cannot fetch hotel`);
         return res.status(400).json({ error: 'City is required' });
     }
     
     try {
-        const searchKey = city.toLowerCase();
+        const cacheKey = getCacheKey(city, checkin, checkout, guests);
         let hotel = null;
         
-        // CRITICAL: Only search cache for the exact city
-        const cacheKey = getCacheKey(searchKey, checkin, checkout, guests);
-        
-        // Check memory cache for exact city
+        // Check memory cache
         if (memoryCache[cacheKey]) {
             hotel = memoryCache[cacheKey].hotels.find(h => h.id === hotelId);
-            if (hotel) {
-                console.log(`✅ Found hotel in memory cache for ${city}: ${hotel.name}`);
-            }
         }
         
-        // If not in memory, check database for exact city
+        // Check database
         if (!hotel) {
             const { data: cached } = await supabase
                 .from('hotel_cache')
                 .select('data')
-                .eq('city', searchKey)
+                .eq('city', city.toLowerCase())
                 .order('created_at', { ascending: false })
                 .limit(1);
             
             if (cached && cached.length > 0 && cached[0].data) {
                 hotel = cached[0].data.find(h => h.id === hotelId);
-                if (hotel) {
-                    console.log(`✅ Found hotel in DATABASE for ${city}: ${hotel.name}`);
-                }
             }
         }
         
@@ -216,8 +228,8 @@ router.get('/:id', async (req, res) => {
                 currency: hotel.currency || 'USD',
                 city: hotel.city,
                 country: 'International',
-                description: `${hotel.name} offers great accommodation in ${hotel.city}.`,
-                amenities: ['Free WiFi', 'Air conditioning', '24/7 front desk', 'Housekeeping', 'Elevator', 'Luggage storage'],
+                description: `${hotel.name} offers comfortable accommodation in ${hotel.city}.`,
+                amenities: hotel.amenities || getAmenitiesForHotel(hotel.name, hotel.stars || 4),
                 checkin: checkin || hotel.checkin,
                 checkout: checkout || hotel.checkout,
                 guests: parseInt(guests) || hotel.guests || 2,
@@ -226,9 +238,7 @@ router.get('/:id', async (req, res) => {
             });
         }
         
-        console.log(`⚠️ Hotel ${hotelId} not found for city ${city}`);
-        
-        // If hotel not found but we have name parameter
+        // Fallback using name parameter
         if (name) {
             const nights = checkin && checkout ? 
                 Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24)) : 1;
@@ -246,7 +256,7 @@ router.get('/:id', async (req, res) => {
                 city: city,
                 country: 'International',
                 description: `${decodedName} offers great accommodation.`,
-                amenities: ['Free WiFi', 'Air conditioning', '24/7 front desk'],
+                amenities: getAmenitiesForHotel(decodedName, 4),
                 checkin: checkin || '2026-06-01',
                 checkout: checkout || '2026-06-04',
                 guests: parseInt(guests) || 2,
@@ -271,7 +281,7 @@ router.get('/:id', async (req, res) => {
             city: city,
             country: 'International',
             description: `A beautiful hotel located in ${city}.`,
-            amenities: ['Free WiFi', 'Air conditioning', '24/7 front desk', 'Housekeeping'],
+            amenities: getAmenitiesForHotel(city, 4),
             checkin: checkin || '2026-06-01',
             checkout: checkout || '2026-06-04',
             guests: parseInt(guests) || 2,
@@ -295,7 +305,6 @@ router.post('/click', async (req, res) => {
         }]);
         res.json({ success: true });
     } catch (error) {
-        console.error('Click error:', error.message);
         res.json({ success: false });
     }
 });
