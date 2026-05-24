@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Compare Room Rates | RoomRateCompare</title>
-    <meta name="description" content="Compare hotel room rates across Booking.com, Agoda, Expedia. Find the best price for your stay.">
     <link rel="stylesheet" href="/css/style.css">
     
-    <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-GKJZTX45SB"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -16,701 +14,117 @@
         gtag('config', 'G-GKJZTX45SB');
     </script>
     
-    <!-- Travelpayouts Affiliate Script -->
-    <script nowprocket data-noptimize="1" data-cfasync="false" data-wpfc-render="false" seraph-accel-crit="1" data-no-defer="1">
-        (function () {
-            var script = document.createElement("script");
-            script.async = 1;
-            script.src = 'https://emrldtp.cc/NTMxODI2.js?t=531826';
-            document.head.appendChild(script);
-        })();
-    </script>
-    
     <style>
-        .results-container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-        }
-        
-        .results-header {
-            margin-bottom: 2rem;
-        }
-        
-        .results-header h2 {
-            font-size: 1.5rem;
-            color: #1a1a1a;
-        }
-        
-        .results-header p {
-            color: #666;
-            margin-top: 0.5rem;
-        }
-        
-        .hotel-card {
-            background: white;
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin-bottom: 1.25rem;
-            display: flex;
-            gap: 1.5rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            transition: all 0.2s;
-            border: 1px solid #eee;
-        }
-        
-        .hotel-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-        }
-        
-        .hotel-image {
-            width: 200px;
-            height: 150px;
-            background: linear-gradient(135deg, #e0e0e0, #f0f0f0);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #999;
-            font-size: 3rem;
-        }
-        
-        .hotel-details {
-            flex: 1;
-        }
-        
-        .hotel-name {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #1a1a1a;
-        }
-        
-        .stars-wrapper {
-            margin: 0.5rem 0;
-        }
-        
-        .stars {
-            color: #f39c12;
-            font-size: 0.9rem;
-        }
-        
-        .stars-note {
-            font-size: 0.6rem;
-            color: #999;
-            margin-left: 0.5rem;
-            font-weight: normal;
-        }
-        
-        .price-section {
-            margin: 0.75rem 0;
-        }
-        
-        .price {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #e67e22;
-        }
-        
-        .original-price {
-            text-decoration: line-through;
-            color: #999;
-            font-size: 0.9rem;
-            margin-left: 0.5rem;
-        }
-        
-        .savings {
-            color: #27ae60;
-            font-size: 0.8rem;
-            margin-top: 0.25rem;
-            font-weight: 500;
-        }
-        
-        .booking-details {
-            color: #666;
-            font-size: 0.85rem;
-            margin: 0.5rem 0;
-        }
-        
-        .ota-links {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 0.75rem;
-            flex-wrap: wrap;
-        }
-        
-        .ota-link {
-            background: #f0f0f0;
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            text-decoration: none;
-            color: #e67e22;
-            font-weight: 500;
-        }
-        
-        .ota-link:hover {
-            background: #e67e22;
-            color: white;
-        }
-        
-        .view-details-btn {
-            background: #e67e22;
-            color: white;
-            border: none;
-            padding: 0.8rem 2rem;
-            border-radius: 40px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 1rem;
-            transition: all 0.2s;
-            white-space: nowrap;
-            text-decoration: none;
-            display: inline-block;
-        }
-        
-        .view-details-btn:hover {
-            background: #d35400;
-            transform: scale(1.02);
-        }
-        
-        .loader {
-            text-align: center;
-            padding: 4rem;
-        }
-        
-        .loader-spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid #f0f0f0;
-            border-top-color: #e67e22;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .no-results {
-            text-align: center;
-            padding: 4rem;
-            color: #666;
-            background: white;
-            border-radius: 16px;
-        }
-        
-        .search-again {
-            margin-top: 2rem;
-            text-align: center;
-        }
-        
-        .search-again a {
-            color: #e67e22;
-            text-decoration: none;
-        }
-        
-        @media (max-width: 768px) {
-            .hotel-card {
-                flex-direction: column;
-            }
-            
-            .hotel-image {
-                width: 100%;
-                height: 120px;
-            }
-            
-            .view-details-btn {
-                width: 100%;
-                margin-top: 1rem;
-                text-align: center;
-            }
-            
-            .price {
-                font-size: 1.5rem;
-            }
-            
-            .ota-links {
-                justify-content: center;
-            }
-            
-            .stars-note {
-                display: block;
-                margin-left: 0;
-                margin-top: 0.2rem;
-            }
-        }
+        .results-container { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; }
+        .results-header { margin-bottom: 2rem; }
+        .results-header h2 { font-size: 1.5rem; color: #1a1a1a; }
+        .results-header p { color: #666; margin-top: 0.5rem; }
+        .hotel-card { background: white; border-radius: 16px; padding: 1.5rem; margin-bottom: 1.25rem; display: flex; gap: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #eee; }
+        .hotel-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
+        .hotel-image { width: 200px; height: 150px; background: linear-gradient(135deg, #e0e0e0, #f0f0f0); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 3rem; }
+        .hotel-details { flex: 1; }
+        .hotel-name { font-size: 1.3rem; font-weight: 700; color: #1a1a1a; }
+        .stars { color: #f39c12; margin: 0.5rem 0; font-size: 0.9rem; }
+        .price { font-size: 1.8rem; font-weight: 700; color: #e67e22; }
+        .original-price { text-decoration: line-through; color: #999; font-size: 0.9rem; margin-left: 0.5rem; }
+        .savings { color: #27ae60; font-size: 0.8rem; margin-top: 0.25rem; }
+        .booking-details { color: #666; font-size: 0.85rem; margin: 0.5rem 0; }
+        .ota-links { display: flex; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap; }
+        .ota-link { background: #f0f0f0; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.7rem; text-decoration: none; color: #e67e22; font-weight: 500; }
+        .ota-link:hover { background: #e67e22; color: white; }
+        .view-details-btn { background: #e67e22; color: white; border: none; padding: 0.8rem 2rem; border-radius: 40px; cursor: pointer; font-weight: 600; font-size: 1rem; text-decoration: none; display: inline-block; }
+        .view-details-btn:hover { background: #d35400; }
+        .loader { text-align: center; padding: 4rem; }
+        .loader-spinner { width: 50px; height: 50px; border: 4px solid #f0f0f0; border-top-color: #e67e22; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .no-results { text-align: center; padding: 4rem; background: white; border-radius: 16px; }
+        .search-again { margin-top: 2rem; text-align: center; }
+        @media (max-width: 768px) { .hotel-card { flex-direction: column; } .hotel-image { width: 100%; height: 120px; } .view-details-btn { width: 100%; text-align: center; } }
     </style>
 </head>
 <body>
     <header>
         <nav>
-            <div class="logo">
-                <h1>Room<span>Rate</span>Compare</h1>
-            </div>
-            <div class="nav-links">
-                <a href="/">Home</a>
-                <a href="/search">Search</a>
-            </div>
+            <div class="logo"><h1>Room<span>Rate</span>Compare</h1></div>
+            <div class="nav-links"><a href="/">Home</a><a href="/search">Search</a></div>
         </nav>
     </header>
 
     <main>
         <div class="results-container">
             <div id="results"></div>
-            <div class="search-again">
-                <a href="/">← Search again</a>
-            </div>
+            <div class="search-again"><a href="/">← Search again</a></div>
         </div>
     </main>
 
-    <footer>
-        <p>&copy; 2026 RoomRateCompare.com - Compare hotel room rates instantly from 50+ sites</p>
-    </footer>
+    <footer><p>&copy; 2026 RoomRateCompare.com - Compare hotel room rates instantly</p></footer>
 
     <script>
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/[&<>]/g, function(m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
-            });
-        }
-        
-        async function trackClick(hotelId, site) {
-            try {
-                await fetch('/api/hotels/click', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ hotel_id: hotelId, site: site })
-                });
-                console.log('Tracked click for ' + site);
-            } catch(e) { 
-                console.log('Track error:', e); 
-            }
-        }
-        
         const urlParams = new URLSearchParams(window.location.search);
         let city = urlParams.get('city');
         const checkin = urlParams.get('checkin');
         const checkout = urlParams.get('checkout');
-        const guests = urlParams.get('guests');
+        const guests = urlParams.get('guests') || 2;
         
-        if (!city) {
-            const savedSearch = sessionStorage.getItem('roomratecompare_search');
-            if (savedSearch) {
-                const search = JSON.parse(savedSearch);
-                city = search.city;
-            }
-        }
-        
-        function formatDate(dateStr) {
-            if (!dateStr) return '';
-            const date = new Date(dateStr);
-            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        }
+        function formatDate(d) { if (!d) return ''; const date = new Date(d); return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
         
         async function searchHotels() {
             const resultsDiv = document.getElementById('results');
-            
             if (!city || !checkin || !checkout) {
-                resultsDiv.innerHTML = '<div class="no-results"><h3>🔍 Missing search information</h3><a href="/">← Search for hotels</a></div>';
+                resultsDiv.innerHTML = '<div class="no-results">Missing search information. <a href="/">Go back</a></div>';
                 return;
             }
             
-            resultsDiv.innerHTML = '<div class="loader">
-    <div class="loader-spinner"></div>
-    <p>🔍 Searching Booking.com, Agoda, Expedia...</p>
-    <div id="travelTips" class="loading-tip-card" style="margin-top: 15px;"></div>
-</div>';
+            resultsDiv.innerHTML = '<div class="loader"><div class="loader-spinner"></div><p>Searching hotels...</p></div>';
             
             try {
-                const response = await fetch('/api/hotels/search?city=' + encodeURIComponent(city) + '&checkin=' + checkin + '&checkout=' + checkout + '&guests=' + (guests || 2));
+                const response = await fetch(`/api/hotels/search?city=${encodeURIComponent(city)}&checkin=${checkin}&checkout=${checkout}&guests=${guests}`);
                 const data = await response.json();
+                console.log('API Response:', data);
                 
                 if (data.hotels && data.hotels.length > 0) {
                     const nights = Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24));
+                    let html = `<div class="results-header"><h2>🏨 ${city.charAt(0).toUpperCase() + city.slice(1)} Hotels</h2><p>${formatDate(checkin)} → ${formatDate(checkout)} • ${nights} nights • ${guests} guests • ${data.hotels.length} hotels found</p></div>`;
                     
-                    let hotelsHtml = '<div class="results-header"><h2>🏨 ' + city.charAt(0).toUpperCase() + city.slice(1) + ' Hotel Room Rates</h2><p>' + formatDate(checkin) + ' → ' + formatDate(checkout) + ' • ' + nights + ' night' + (nights > 1 ? 's' : '') + ' • ' + (guests || 2) + ' guests • Found ' + data.hotels.length + ' hotels</p></div>';
-                    
-                    for (let i = 0; i < data.hotels.length; i++) {
-                        const hotel = data.hotels[i];
-                        const totalPrice = hotel.price;
-                        const originalPrice = Math.round(totalPrice * 1.2);
-                        const savings = originalPrice - totalPrice;
-                        const currencySymbol = hotel.currencySymbol || '$';
+                    for (const hotel of data.hotels) {
+                        const price = hotel.price;
+                        const original = Math.round(price * 1.2);
+                        const save = original - price;
+                        const symbol = hotel.currencySymbol || '$';
+                        const bookingLink = `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(hotel.name)}&checkin=${checkin}&checkout=${checkout}&group_adults=${guests}`;
                         
-                        const bookingLink = 'https://www.booking.com/searchresults.html?ss=' + encodeURIComponent(hotel.name) + '&checkin=' + checkin + '&checkout=' + checkout + '&group_adults=' + (guests || 2);
-                        const agodaLink = 'https://www.agoda.com/search?city=' + encodeURIComponent(city) + '&checkIn=' + checkin + '&checkOut=' + checkout + '&adults=' + (guests || 2);
-                        const expediaLink = 'https://www.expedia.com/search?q=' + encodeURIComponent(city) + '+hotels&startDate=' + checkin + '&endDate=' + checkout + '&adults=' + (guests || 2);
-                        const hotelscomLink = 'https://www.hotels.com/search?q=' + encodeURIComponent(city) + '+hotels&checkIn=' + checkin + '&checkOut=' + checkout + '&adults=' + (guests || 2);
-                        
-                        hotelsHtml += `
+                        html += `
                             <div class="hotel-card">
                                 <div class="hotel-image">🏨</div>
                                 <div class="hotel-details">
                                     <div class="hotel-name">${escapeHtml(hotel.name)}</div>
-                                    <div class="stars-wrapper">
-                                        <span class="stars">${'★'.repeat(hotel.stars)}${'☆'.repeat(5-hotel.stars)}</span>
-                                        <span class="stars-note">(illustrative - verify on site)</span>
-                                    </div>
-                                    <div class="price-section">
-                                        <span class="price">${currencySymbol}${totalPrice}</span>
-                                        <span class="original-price">${currencySymbol}${originalPrice}</span>
-                                        <div class="savings">✨ Save ${currencySymbol}${savings}</div>
-                                    </div>
-                                    <div class="booking-details">
-                                        📅 ${formatDate(checkin)} - ${formatDate(checkout)} • ${nights} night${nights > 1 ? 's' : ''} • ${guests || 2} guests
-                                    </div>
+                                    <div class="stars">${'★'.repeat(hotel.stars || 4)}${'☆'.repeat(5-(hotel.stars || 4))}</div>
+                                    <div><span class="price">${symbol}${price}</span> <span class="original-price">${symbol}${original}</span> <span class="savings">✨ Save ${symbol}${save}</span></div>
+                                    <div class="booking-details">📅 ${formatDate(checkin)} - ${formatDate(checkout)} • ${nights} nights • ${guests} guests</div>
                                     <div class="ota-links">
-                                        <a href="${bookingLink}" target="_blank" class="ota-link" onclick="trackClick(${hotel.id}, 'Booking.com')">🏨 Booking.com</a>
-                                        <a href="${agodaLink}" target="_blank" class="ota-link" onclick="trackClick(${hotel.id}, 'Agoda')">🌏 Agoda</a>
-                                        <a href="${expediaLink}" target="_blank" class="ota-link" onclick="trackClick(${hotel.id}, 'Expedia')">✈️ Expedia</a>
-                                        <a href="${hotelscomLink}" target="_blank" class="ota-link" onclick="trackClick(${hotel.id}, 'Hotels.com')">🏢 Hotels.com</a>
+                                        <a href="${bookingLink}" target="_blank" class="ota-link">🏨 Booking.com</a>
+                                        <a href="https://www.agoda.com/search?city=${encodeURIComponent(city)}&checkIn=${checkin}&checkOut=${checkout}&adults=${guests}" target="_blank" class="ota-link">🌏 Agoda</a>
+                                        <a href="https://www.expedia.com/search?q=${encodeURIComponent(city)}+hotels&startDate=${checkin}&endDate=${checkout}&adults=${guests}" target="_blank" class="ota-link">✈️ Expedia</a>
                                     </div>
                                 </div>
-                                <div>
-                                    <a href="/hotel.html?id=${hotel.id}&checkin=${checkin}&checkout=${checkout}&guests=${guests || 2}&city=${encodeURIComponent(city)}&name=${encodeURIComponent(hotel.name)}">
-                                        <button class="view-details-btn">View Details →</button>
-                                    </a>
-                                </div>
+                                <div><a href="/hotel.html?id=${hotel.id}&checkin=${checkin}&checkout=${checkout}&guests=${guests}&city=${encodeURIComponent(city)}&name=${encodeURIComponent(hotel.name)}"><button class="view-details-btn">View Details →</button></a></div>
                             </div>
                         `;
                     }
-                    
-                    resultsDiv.innerHTML = hotelsHtml;
+                    resultsDiv.innerHTML = html;
                 } else {
-                    resultsDiv.innerHTML = '<div class="no-results"><h3>🏨 No hotels found in ' + city + '</h3><a href="/">← Search again</a></div>';
+                    resultsDiv.innerHTML = `<div class="no-results">🏨 No hotels found in ${city}. <a href="/">Try another city</a></div>`;
                 }
             } catch (error) {
-                console.error('Search error:', error);
-                resultsDiv.innerHTML = '<div class="no-results"><h3>⚠️ Unable to fetch room rates</h3><a href="/">← Try again</a></div>';
+                console.error('Error:', error);
+                resultsDiv.innerHTML = '<div class="no-results">⚠️ Unable to fetch hotels. Please try again.</div>';
             }
         }
         
-        if (city && checkin && checkout) {
-            searchHotels();
-        } else {
-            document.getElementById('results').innerHTML = '<div class="no-results"><h3>🔍 No search criteria found</h3><a href="/">← Search for hotels</a></div>';
-        }
+        function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, function(m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; }); }
+        
+        if (city && checkin && checkout) { searchHotels(); } 
+        else { document.getElementById('results').innerHTML = '<div class="no-results">No search criteria found. <a href="/">Search for hotels</a></div>'; }
     </script>
-
-<!-- AI Travel Assistant with Beautiful Avatar -->
-<div class="ai-assistant">
-    <div class="assistant-button" id="assistantToggle">
-        <div class="pulse-ring"></div>
-        <div class="assistant-avatar">👩‍✈️</div>
-    </div>
-    
-    <div class="assistant-window hidden" id="assistantWindow">
-        <div class="assistant-header">
-            <div class="assistant-header-avatar">👩‍✈️</div>
-            <div class="assistant-header-info">
-                <h3>✨ Sarah - Your Travel Assistant</h3>
-                <p>Here to help you explore! 💕</p>
-            </div>
-            <button class="close-assistant" id="closeAssistant">×</button>
-        </div>
-        
-        <div class="assistant-messages" id="assistantMessages">
-            <div class="assistant-message assistant">
-                <div class="message-avatar">👩‍✈️</div>
-                <div class="message-bubble">
-                    Hello! I'm Sarah, your personal travel assistant! ✨<br><br>
-                    I'll help you discover amazing places while we find the best hotel deals for you.<br><br>
-                    <div class="quick-buttons">
-                        <button class="quick-btn" data-question="attractions">🏛️ Attractions</button>
-                        <button class="quick-btn" data-question="food">🍽️ Local Food</button>
-                        <button class="quick-btn" data-question="weather">🌤️ Weather</button>
-                        <button class="quick-btn" data-question="tips">💡 Travel Tips</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="assistant-input-area">
-            <input type="text" id="assistantInput" placeholder="Ask me anything about your destination...">
-            <button id="assistantSend">➤</button>
-        </div>
-    </div>
-</div>
-
-<script>
-    // City database with rich information
-    const travelDatabase = {
-        'dubai': {
-            name: 'Dubai',
-            emoji: '🇦🇪',
-            attractions: ['🏙️ Burj Khalifa - Tallest building in the world', '🛍️ Dubai Mall - Shopping paradise', '🏖️ Palm Jumeirah - Man-made island', '🎡 Dubai Fountain - Spectacular water show', '🏜️ Desert Safari - Dune bashing and camel rides'],
-            food: ['🍢 Shawarma', '🍛 Al Harees (traditional wheat dish)', '🍯 Luqaimat (sweet dumplings)', '🐪 Camel milk chocolate', '🍽️ International fine dining'],
-            weather: 'Best from November to March (20-30°C / 68-86°F). Summers are hot (40-50°C)!',
-            transport: '🚇 Metro, 🚕 Taxis (Careem/Uber), 🚌 Buses. Metro is best for sightseeing!',
-            tips: '⭐ Visit during weekdays for cheaper hotels\n⭐ Friday brunches are famous\n⭐ Dress modestly in public areas\n⭐ Get a Nol card for public transport',
-            funFact: 'Did you know? The Burj Khalifa is 829.8 meters tall - that\'s 3 Eiffel Towers stacked! 🗼',
-            greeting: '✨ Welcome to Dubai! The city of gold, luxury, and amazing adventures! ✨'
-        },
-        'london': {
-            name: 'London',
-            emoji: '🇬🇧',
-            attractions: ['🎡 London Eye', '🏰 Buckingham Palace', '🏛️ British Museum', '🗼 Tower of London', '🌳 Hyde Park'],
-            food: ['🐟 Fish and Chips', '☕ Afternoon Tea', '🥧 Sunday Roast', '🧀 Pie and Mash', '🍺 Traditional pubs'],
-            weather: 'Best from May to September (15-25°C / 59-77°F). Bring an umbrella! ☔',
-            transport: '🚇 Tube (subway), 🚌 Red double-decker buses, 🚕 Black cabs',
-            tips: '⭐ Get an Oyster card for cheaper travel\n⭐ Many museums are FREE!\n⭐ Stand on the right on escalators',
-            funFact: 'Did you know? The London Underground is the oldest in the world (1863)! 🚇',
-            greeting: '🎩 Cheers! Welcome to London, where history meets modern charm! 🎡'
-        },
-        'paris': {
-            name: 'Paris',
-            emoji: '🇫🇷',
-            attractions: ['🗼 Eiffel Tower', '🎨 Louvre Museum (home of Mona Lisa!)', '⛪ Notre-Dame Cathedral', '🏛️ Arc de Triomphe', '🚤 Seine River Cruise'],
-            food: ['🥐 Fresh croissants', '🐌 Escargot (snails!)', '🍰 Macarons', '🧅 French Onion Soup', '🥖 Baguettes'],
-            weather: 'Best from April to June and September to October (15-25°C)',
-            transport: '🚇 Métro, 🚌 Buses, 🚲 Velib bikes, 🚕 Taxis',
-            tips: '⭐ Visit museums on first Sunday of month for FREE\n⭐ Learn a few French words (Bonjour! Merci!)\n⭐ Book Eiffel Tower tickets in advance',
-            funFact: 'Did you know? The Eiffel Tower grows taller in summer! (thermal expansion) 🗼',
-            greeting: 'Bonjour! Welcome to the City of Love and Lights! 💕✨'
-        },
-        'muscat': {
-            name: 'Muscat',
-            emoji: '🇴🇲',
-            attractions: ['🕌 Sultan Qaboos Grand Mosque', '🛍️ Mutrah Souq', '🎭 Royal Opera House', '🏖️ Qurum Beach', '🏰 Al Alam Palace'],
-            food: ['🍖 Shuwa (slow-cooked lamb)', '🐟 Mashuai (grilled kingfish)', '🍬 Halwa (sweet treat)', '☕ Omani coffee with dates', '🍞 Khubz (traditional bread)'],
-            weather: 'Best from October to March (20-30°C / 68-86°F). Very pleasant!',
-            transport: '🚕 Taxis (best option), 🚗 Rental car recommended, 🚌 Public buses',
-            tips: '⭐ Dress modestly - cover shoulders and knees\n⭐ Friday mornings are quiet (prayer time)\n⭐ Try Omani halwa - it\'s delicious!\n⭐ Respect local customs and traditions',
-            funFact: 'Did you know? The Grand Mosque\'s chandelier is the second largest in the world! 🕌',
-            greeting: 'Marhaba! Welcome to Muscat, the Jewel of Arabia! ✨🇴🇲'
-        },
-        'karachi': {
-            name: 'Karachi',
-            emoji: '🇵🇰',
-            attractions: ['🏖️ Clifton Beach', '🕌 Quaid-e-Azam Mausoleum', '🎡 Port Grand', '🏛️ Mohatta Palace', '🛍️ Tariq Road shopping'],
-            food: ['🍛 Biryani (world famous!)', '🍔 Bun Kebabs', '🦐 Fresh seafood', '🍦 Kulfi (ice cream)', '🍡 Gola Ganda (shaved ice)'],
-            weather: 'Best from November to February (15-25°C / 59-77°F). Humid otherwise!',
-            transport: '🚕 Ride-hailing (Uber/Careem/BYKEA), 🚌 Buses, 🛺 Rickshaws',
-            tips: '⭐ Try Burns Road for authentic street food\n⭐ Stay hydrated - it gets hot!\n⭐ Shop at Empress Market for souvenirs\n⭐ Use ride-hailing apps for safe travel',
-            funFact: 'Did you know? Karachi is home to the largest shopping mall in Pakistan! 🛍️',
-            greeting: 'Aslam-o-Alaikum! Welcome to Karachi - the City of Lights! 🌟🇵🇰'
-        },
-        'default': {
-            name: 'your destination',
-            emoji: '✈️',
-            attractions: ['🏛️ Historic landmarks', '🎨 Cultural sites', '🛍️ Local markets', '🌳 Parks and gardens', '📸 Instagram-worthy spots'],
-            food: ['🍜 Local specialties', '🌮 Street food', '🍰 Traditional desserts', '☕ Local coffee/tea'],
-            weather: 'Check local forecast for the best time to visit',
-            transport: '🚕 Taxis, 🚌 Public transport, 🚗 Car rental available',
-            tips: '⭐ Book hotels in advance\n⭐ Check local customs\n⭐ Try local cuisine\n⭐ Stay hydrated',
-            funFact: 'Every destination has its own unique charm waiting to be discovered! ✨',
-            greeting: 'Hi traveler! Ready to explore amazing places? Let me help you! ✨✈️'
-        }
-    };
-    
-    function getDestinationInfo(cityName) {
-        const key = Object.keys(travelDatabase).find(k => 
-            cityName.toLowerCase().includes(k) || k.includes(cityName.toLowerCase())
-        );
-        return travelDatabase[key] || travelDatabase['default'];
-    }
-    
-    let currentCity = '';
-    let typingTimeout;
-    
-    function addAssistantMessage(text, isUser = false, quickButtons = null) {
-        const messagesDiv = document.getElementById('assistantMessages');
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `assistant-message ${isUser ? 'user' : 'assistant'}`;
-        
-        if (isUser) {
-            messageDiv.innerHTML = `<div class="message-bubble">${text}</div>`;
-        } else {
-            let buttonsHtml = '';
-            if (quickButtons) {
-                buttonsHtml = `<div class="quick-buttons">
-                    ${quickButtons.map(btn => `<button class="quick-btn" data-question="${btn.key}">${btn.icon} ${btn.label}</button>`).join('')}
-                </div>`;
-            }
-            messageDiv.innerHTML = `
-                <div class="message-avatar">👩‍✈️</div>
-                <div class="message-bubble">
-                    ${text}
-                    ${buttonsHtml}
-                </div>
-            `;
-        }
-        
-        messagesDiv.appendChild(messageDiv);
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        
-        // Re-attach quick button events
-        document.querySelectorAll('.quick-btn').forEach(btn => {
-            btn.removeEventListener('click', handleQuickQuestion);
-            btn.addEventListener('click', handleQuickQuestion);
-        });
-    }
-    
-    function showTypingIndicator() {
-        const messagesDiv = document.getElementById('assistantMessages');
-        const typingDiv = document.createElement('div');
-        typingDiv.className = 'assistant-message assistant';
-        typingDiv.id = 'typingIndicator';
-        typingDiv.innerHTML = `
-            <div class="message-avatar">👩‍✈️</div>
-            <div class="typing-indicator"><span></span><span></span><span></span></div>
-        `;
-        messagesDiv.appendChild(typingDiv);
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    }
-    
-    function hideTypingIndicator() {
-        const typing = document.getElementById('typingIndicator');
-        if (typing) typing.remove();
-    }
-    
-    async function getAssistantResponse(question, city, destinationInfo) {
-        const q = question.toLowerCase();
-        
-        if (q.includes('attraction') || q.includes('see') || q.includes('visit') || q.includes('place')) {
-            return `✨ Here are the must-see attractions in ${destinationInfo.name} ${destinationInfo.emoji}:\n\n${destinationInfo.attractions.map(a => `  ${a}`).join('\n')}\n\nWhich one catches your eye? 💫`;
-        }
-        else if (q.includes('food') || q.includes('eat') || q.includes('restaurant') || q.includes('cuisine')) {
-            return `🍽️ You're in for a treat! Here's what to eat in ${destinationInfo.name}:\n\n${destinationInfo.food.map(f => `  ${f}`).join('\n')}\n\nMakes me hungry just thinking about it! 😋`;
-        }
-        else if (q.includes('weather') || q.includes('best time') || q.includes('season')) {
-            return `🌤️ Great question! ${destinationInfo.weather}\n\nPerfect timing to plan your trip! ☀️`;
-        }
-        else if (q.includes('transport') || q.includes('get around') || q.includes('travel') || q.includes('metro')) {
-            return `🚗 Getting around ${destinationInfo.name} is easy!\n\n${destinationInfo.transport}\n\nNeed any specific directions? 🗺️`;
-        }
-        else if (q.includes('tip') || q.includes('advice') || q.includes('suggestion') || q.includes('recommend')) {
-            return `💡 Here are my personal tips for ${destinationInfo.name}:\n\n${destinationInfo.tips}\n\nAnything else you'd like to know? 🌟`;
-        }
-        else if (q.includes('fun fact') || q.includes('interesting')) {
-            return `🎉 Fun Fact about ${destinationInfo.name}: ${destinationInfo.funFact}\n\nAmazing, right? 🤩`;
-        }
-        else if (q.includes('hotel') || q.includes('stay') || q.includes('accommodation')) {
-            return `🏨 We're finding the best hotels in ${destinationInfo.name} for you right now! Our search is working hard to get you the best deals. Please wait a moment... ✨`;
-        }
-        else {
-            return `💫 I'd love to help! Ask me about:\n\n🏛️ Attractions\n🍽️ Local Food\n🌤️ Best Time to Visit\n🚗 Getting Around\n💡 Travel Tips\n🎉 Fun Facts\n\nWhat interests you about ${destinationInfo.name}? 🌟`;
-        }
-    }
-    
-    async function sendAssistantMessage() {
-        const input = document.getElementById('assistantInput');
-        const message = input.value.trim();
-        if (!message) return;
-        
-        addAssistantMessage(message, true);
-        input.value = '';
-        showTypingIndicator();
-        
-        const destinationInfo = getDestinationInfo(currentCity);
-        
-        setTimeout(async () => {
-            hideTypingIndicator();
-            const response = await getAssistantResponse(message, currentCity, destinationInfo);
-            addAssistantMessage(response);
-        }, 800);
-    }
-    
-    function handleQuickQuestion(e) {
-        const question = e.currentTarget.getAttribute('data-question');
-        let questionText = '';
-        switch(question) {
-            case 'attractions': questionText = 'Tell me about attractions'; break;
-            case 'food': questionText = 'What should I eat?'; break;
-            case 'weather': questionText = 'Best time to visit?'; break;
-            case 'tips': questionText = 'Any travel tips?'; break;
-            default: questionText = 'Tell me more';
-        }
-        document.getElementById('assistantInput').value = questionText;
-        sendAssistantMessage();
-    }
-    
-    function showTravelTip(city) {
-        const destinationInfo = getDestinationInfo(city);
-        const tipsDiv = document.getElementById('travelTips');
-        if (tipsDiv) {
-            tipsDiv.innerHTML = `
-                <div class="loading-tip-card">
-                    <h4>💡 Did you know? ${destinationInfo.emoji}</h4>
-                    <p>${destinationInfo.funFact}</p>
-                </div>
-            `;
-        }
-    }
-    
-    // Initialize assistant when search starts
-    function startAssistantForCity(city) {
-        currentCity = city;
-        const destinationInfo = getDestinationInfo(city);
-        
-        // Clear previous messages
-        const messagesDiv = document.getElementById('assistantMessages');
-        messagesDiv.innerHTML = '';
-        
-        // Welcome message
-        addAssistantMessage(destinationInfo.greeting);
-        
-        setTimeout(() => {
-            addAssistantMessage(`✨ I'm Sarah, your personal travel assistant! I know all about ${destinationInfo.name} ${destinationInfo.emoji}\n\nWhat would you like to know?`, false, [
-                { key: 'attractions', icon: '🏛️', label: 'Attractions' },
-                { key: 'food', icon: '🍽️', label: 'Food' },
-                { key: 'weather', icon: '🌤️', label: 'Weather' },
-                { key: 'tips', icon: '💡', label: 'Tips' }
-            ]);
-        }, 500);
-        
-        showTravelTip(city);
-    }
-    
-    // UI Events
-    document.getElementById('assistantToggle')?.addEventListener('click', () => {
-        const window = document.getElementById('assistantWindow');
-        window.classList.toggle('hidden');
-        if (!window.classList.contains('hidden') && currentCity) {
-            startAssistantForCity(currentCity);
-        }
-    });
-    
-    document.getElementById('closeAssistant')?.addEventListener('click', () => {
-        document.getElementById('assistantWindow').classList.add('hidden');
-    });
-    
-    document.getElementById('assistantSend')?.addEventListener('click', sendAssistantMessage);
-    document.getElementById('assistantInput')?.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') sendAssistantMessage();
-    });
-    
-    // Hook into search - show assistant automatically
-    const originalSearchFunction = window.searchHotels;
-    if (originalSearchFunction) {
-        window.searchHotels = async function() {
-            const cityInput = document.getElementById('city');
-            const searchCity = cityInput?.value || urlParams.get('city');
-            if (searchCity) {
-                currentCity = searchCity;
-                const assistantWindow = document.getElementById('assistantWindow');
-                assistantWindow.classList.remove('hidden');
-                startAssistantForCity(searchCity);
-            }
-            await originalSearchFunction();
-        };
-    }
-    
-    // Also show when page loads with search params
-    const urlCity = urlParams?.get('city');
-    if (urlCity) {
-        setTimeout(() => {
-            currentCity = urlCity;
-            startAssistantForCity(urlCity);
-        }, 1000);
-    }
-</script>
-
 </body>
 </html>
