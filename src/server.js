@@ -4,6 +4,7 @@ const cors = require('cors');
 const path = require('path');
 
 const hotelsRouter = require('./api/hotels');
+const chatRouter = require('./api/chat');
 const stripeWebhook = require('./payment/stripe');
 
 const app = express();
@@ -18,6 +19,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 // API routes
 app.use('/api/hotels', hotelsRouter);
+app.use('/api/chat', chatRouter);
 
 // Serve frontend
 app.get('/', (req, res) => {

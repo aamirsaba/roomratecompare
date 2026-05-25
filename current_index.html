@@ -136,140 +136,6 @@
             color: white;
         }
         
-        /* AI Chatbot Styles */
-        .chatbot-container {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 350px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            z-index: 1000;
-            display: none;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        
-        .chatbot-header {
-            background: #e67e22;
-            color: white;
-            padding: 12px 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .chatbot-header button {
-            background: none;
-            border: none;
-            color: white;
-            cursor: pointer;
-            font-size: 18px;
-        }
-        
-        .chat-messages {
-            height: 300px;
-            overflow-y: auto;
-            padding: 12px;
-            background: #f9f9f9;
-        }
-        
-        .message {
-            margin-bottom: 12px;
-        }
-        
-        .message.user {
-            text-align: right;
-        }
-        
-        .message.user .message-text {
-            background: #e67e22;
-            color: white;
-            display: inline-block;
-            padding: 8px 14px;
-            border-radius: 18px;
-            max-width: 80%;
-        }
-        
-        .message.bot .message-text {
-            background: white;
-            color: #333;
-            display: inline-block;
-            padding: 8px 14px;
-            border-radius: 18px;
-            max-width: 80%;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        }
-        
-        .chat-input-area {
-            display: flex;
-            padding: 12px;
-            border-top: 1px solid #eee;
-            background: white;
-            gap: 8px;
-        }
-        
-        .chat-input-area input {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 25px;
-            outline: none;
-        }
-        
-        .chat-input-area button {
-            background: #e67e22;
-            color: white;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 25px;
-            cursor: pointer;
-        }
-        
-        .chatbot-open-btn {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #e67e22;
-            color: white;
-            border: none;
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 24px;
-            z-index: 999;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            transition: transform 0.2s;
-        }
-        
-        .chatbot-open-btn:hover {
-            transform: scale(1.05);
-        }
-        
-        .typing-indicator {
-            display: inline-block;
-            background: #f0f0f0;
-            padding: 8px 12px;
-            border-radius: 18px;
-        }
-        
-        .typing-indicator span {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #999;
-            margin: 0 2px;
-            animation: typing 1.4s infinite;
-        }
-        
-        @keyframes typing {
-            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-            30% { transform: translateY(-10px); opacity: 1; }
-        }
-        
         @media (max-width: 768px) {
             .destination-grid {
                 grid-template-columns: repeat(3, 1fr);
@@ -278,11 +144,6 @@
             .dest-card {
                 padding: 0.5rem;
                 font-size: 0.8rem;
-            }
-            .chatbot-container {
-                width: 90%;
-                right: 5%;
-                left: 5%;
             }
         }
     </style>
@@ -379,24 +240,6 @@
         <p>RoomRateCompare is a product of Aamir Saba Ltd (UK) & Aamir Saba Inc (USA)</p>
     </footer>
 
-    <!-- AI Chatbot -->
-    <div id="chatbotContainer" class="chatbot-container">
-        <div class="chatbot-header">
-            <span>🤖 Hotel Assistant</span>
-            <button id="closeChatbot">✕</button>
-        </div>
-        <div id="chatMessages" class="chat-messages">
-            <div class="message bot">
-                <div class="message-text">👋 Hi! I'm your hotel assistant. Ask me anything about hotels, destinations, or deals!</div>
-            </div>
-        </div>
-        <div class="chat-input-area">
-            <input type="text" id="chatInput" placeholder="Ask me something...">
-            <button onclick="sendChatMessage()">Send</button>
-        </div>
-    </div>
-    <button id="openChatbotBtn" class="chatbot-open-btn">💬</button>
-
     <script>
         // Dynamic spell correction using Datamuse API (free, no key)
         let correctionTimeout;
@@ -406,10 +249,12 @@
             if (!word || word.length < 3) return null;
             
             try {
+                // Use Datamuse API for spelling suggestions
                 const response = await fetch(`https://api.datamuse.com/words?sp=${encodeURIComponent(word)}&max=1`);
                 const data = await response.json();
                 
                 if (data && data.length > 0 && data[0].word !== word.toLowerCase()) {
+                    // Capitalize first letter
                     const suggestion = data[0].word.charAt(0).toUpperCase() + data[0].word.slice(1);
                     return suggestion;
                 }
@@ -538,100 +383,6 @@
             searchNavLink.addEventListener('click', function(e) {
                 e.preventDefault();
                 document.getElementById('searchForm').scrollIntoView({ behavior: 'smooth' });
-            });
-        }
-        
-        // ========== AI CHATBOT FUNCTIONS ==========
-        const chatbot = document.getElementById('chatbotContainer');
-        const openBtn = document.getElementById('openChatbotBtn');
-        const closeBtn = document.getElementById('closeChatbot');
-        
-        openBtn.onclick = function() { 
-            chatbot.style.display = 'flex'; 
-            openBtn.style.display = 'none'; 
-        };
-        
-        closeBtn.onclick = function() { 
-            chatbot.style.display = 'none'; 
-            openBtn.style.display = 'flex'; 
-        };
-        
-        function addMessage(sender, text, isUser) {
-            const messagesDiv = document.getElementById('chatMessages');
-            const msgDiv = document.createElement('div');
-            msgDiv.className = 'message ' + (isUser ? 'user' : 'bot');
-            msgDiv.innerHTML = '<div class="message-text">' + text + '</div>';
-            messagesDiv.appendChild(msgDiv);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        }
-        
-        function getSimpleReply(message) {
-            const msg = message.toLowerCase();
-            
-            if (msg.includes('find hotel') || msg.includes('search hotel') || msg.includes('hotel in')) {
-                let city = '';
-                if (msg.includes('in ')) {
-                    city = msg.split('in ')[1].split(' ')[0];
-                }
-                if (city) {
-                    return `🔍 I'll help you find hotels in ${city}! Use the search box above or <a href="/search?city=${encodeURIComponent(city)}" style="color:#e67e22;">click here to search</a>`;
-                }
-                return "Please tell me which city you want to search. Example: 'Find hotels in Dubai'";
-            }
-            
-            if (msg.includes('best hotel') || msg.includes('top hotel')) {
-                return "🏨 For the best hotels, I recommend checking 5-star properties. Use our search to compare prices from Booking.com, Agoda, and Expedia!";
-            }
-            
-            if (msg.includes('cheap') || msg.includes('budget')) {
-                return "💰 Looking for budget hotels? Try sorting by price (lowest first) in search results. You can also look for 2-3 star hotels for better rates.";
-            }
-            
-            if (msg.includes('help')) {
-                return "I can help you:<br>• Search hotels in any city<br>• Find best deals<br>• Compare prices<br>Just say 'Find hotels in London' or ask me a question!";
-            }
-            
-            return "I'm your hotel assistant. Try saying 'Find hotels in Dubai', 'Best hotels in Paris', or 'Budget hotels in London'";
-        }
-        
-        async function sendChatMessage() {
-            const input = document.getElementById('chatInput');
-            const msg = input.value.trim();
-            if (!msg) return;
-            
-            addMessage('You', msg, true);
-            input.value = '';
-            
-            // Show typing indicator
-            const messagesDiv = document.getElementById('chatMessages');
-            const typingDiv = document.createElement('div');
-            typingDiv.className = 'message bot';
-            typingDiv.id = 'typingIndicator';
-            typingDiv.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
-            messagesDiv.appendChild(typingDiv);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-            
-            try {
-                const response = await fetch('/api/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: msg })
-                });
-                const data = await response.json();
-                document.getElementById('typingIndicator').remove();
-                addMessage('Assistant', data.reply || 'Try asking about hotels in Dubai!', false);
-            } catch(error) {
-                document.getElementById('typingIndicator').remove();
-                const reply = getSimpleReply(msg);
-                addMessage('Assistant', reply, false);
-            }
-        }
-        
-        window.sendChatMessage = sendChatMessage;
-        const chatInput = document.getElementById('chatInput');
-        if (chatInput) {
-            chatInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') sendChatMessage();
             });
         }
     </script>

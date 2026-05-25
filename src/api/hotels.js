@@ -12,7 +12,7 @@ const CACHE_DURATION = 24 * 60 * 60 * 1000;
 const currencySymbols = {
     'USD': '$', 'EUR': '€', 'GBP': '£', 'JPY': '¥',
     'AED': 'د.إ', 'SAR': '﷼', 'PKR': '₨', 'INR': '₹',
-    'OMR': '﷼', 'CAD': 'C$', 'AUD': 'A$', 'CHF': 'CHF', 'CNY': '¥'
+    'OMR': '﷼', 'TRY': '₺', 'CAD': 'C$', 'AUD': 'A$', 'CHF': 'CHF'
 };
 
 function getAmenitiesForHotel(hotelName, stars) {
@@ -59,23 +59,8 @@ router.get('/search', async (req, res) => {
         return res.status(400).json({ error: 'Missing required fields' });
     }
     
-    // Use currency from query parameter or detect from location
     let targetCurrency = currency || 'USD';
     let currencySymbol = currencySymbols[targetCurrency] || '$';
-    
-    // If no currency provided, try to detect from location
-    if (!currency) {
-        try {
-            const userLocation = await getUserLocation();
-            if (userLocation && userLocation.currencyCode) {
-                targetCurrency = userLocation.currencyCode;
-                currencySymbol = currencySymbols[targetCurrency] || '$';
-                console.log(`🪙 Detected currency: ${targetCurrency} (${currencySymbol})`);
-            }
-        } catch (err) {
-            console.log('Currency detection failed, using USD');
-        }
-    }
     
     console.log(`🔍 Searching for: ${city}, Currency: ${targetCurrency}`);
     
@@ -83,51 +68,60 @@ router.get('/search', async (req, res) => {
     
     // Check memory cache
     if (memoryCache[cacheKey]) {
-        let hotels = memoryCache[cacheKey].hotels;
+        let hotels = JSON.parse(JSON.stringify(memoryCache[cacheKey].hotels));
+        console.log(`📦 Using memory cache for ${city} (${hotels.length} hotels)`);
         
         if (targetCurrency !== 'USD') {
-            hotels = await Promise.all(hotels.map(async (hotel) => ({
-                ...hotel,
-                price: await convertPrice(hotel.price, targetCurrency),
-                price_per_night: await convertPrice(hotel.price_per_night, targetCurrency),
-                currency: targetCurrency,
-                currencySymbol: currencySymbol
-            })));
+            for (let i = 0; i < hotels.length; i++) {
+                if (hotels[i].price_usd) {
+                    hotels[i].price = await convertPrice(hotels[i].price_usd, targetCurrency);
+                    hotels[i].price_per_night = await convertPrice(hotels[i].price_per_night_usd, targetCurrency);
+                    hotels[i].currency = targetCurrency;
+                    hotels[i].currencySymbol = currencySymbol;
+                }
+            }
         }
         
         return res.json({ source: 'cache', hotels, count: hotels.length, currency: targetCurrency, currencySymbol });
     }
     
-    // Check database
+    // Check database cache
     try {
         const { data: cached } = await supabase
             .from('hotel_cache')
-            .select('data')
+            .select('data, created_at')
             .eq('city', city.toLowerCase())
             .order('created_at', { ascending: false })
             .limit(1);
         
         if (cached && cached.length > 0 && cached[0].data && cached[0].data.length > 0) {
-            let hotels = cached[0].data;
-            console.log(`✅ Found ${hotels.length} hotels in DATABASE for ${city}`);
+            let hotels = JSON.parse(JSON.stringify(cached[0].data));
+            console.log(`📦 Using DATABASE cache for ${city} (${hotels.length} hotels)`);
             
             memoryCache[cacheKey] = { hotels, timestamp: Date.now() };
             
             if (targetCurrency !== 'USD') {
-                hotels = await Promise.all(hotels.map(async (hotel) => ({
-                    ...hotel,
-                    price: await convertPrice(hotel.price, targetCurrency),
-                    price_per_night: await convertPrice(hotel.price_per_night, targetCurrency),
-                    currency: targetCurrency,
-                    currencySymbol: currencySymbol
-                })));
+                for (let i = 0; i < hotels.length; i++) {
+                    if (hotels[i].price_usd) {
+                        hotels[i].price = await convertPrice(hotels[i].price_usd, targetCurrency);
+                        hotels[i].price_per_night = await convertPrice(hotels[i].price_per_night_usd, targetCurrency);
+                        hotels[i].currency = targetCurrency;
+                        hotels[i].currencySymbol = currencySymbol;
+                    } else if (hotels[i].price) {
+                        hotels[i].price = await convertPrice(hotels[i].price, targetCurrency);
+                        hotels[i].currency = targetCurrency;
+                        hotels[i].currencySymbol = currencySymbol;
+                    }
+                }
             }
             
             return res.json({ source: 'database', hotels, count: hotels.length, currency: targetCurrency, currencySymbol });
         }
-    } catch (err) { console.error('DB error:', err.message); }
+    } catch (err) { 
+        console.error('DB read error:', err.message); 
+    }
     
-    // Fetch from Apify
+    // Fetch from Apify scraper
     try {
         console.log(`🚀 Fetching fresh data for ${city}...`);
         
@@ -138,27 +132,42 @@ router.get('/search', async (req, res) => {
         const { items } = await apifyClient.dataset(run.defaultDatasetId).listItems();
         let hotelsFromActor = items[0]?.hotels || [];
         
+        console.log(`✅ Actor returned ${hotelsFromActor.length} hotels for ${city}`);
+        
         const nights = Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24));
         
-        let hotels = hotelsFromActor.slice(0, 30).map((hotel, idx) => ({
-            id: idx + 1,
-            name: hotel.name,
-            stars: hotel.stars || 4,
-            price: (hotel.pricePerNight || 99) * nights,
-            price_per_night: hotel.pricePerNight || 99,
-            currency: 'USD',
-            currencySymbol: '$',
-            nights: nights,
-            city: city,
-            checkin: checkin,
-            checkout: checkout,
-            guests: parseInt(guests),
-            amenities: getAmenitiesForHotel(hotel.name, hotel.stars || 4),
-            booking_link: `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(hotel.name)}&checkin=${checkin}&checkout=${checkout}&group_adults=${guests}`
-        }));
+        let hotels = [];
+        for (let idx = 0; idx < hotelsFromActor.length && idx < 30; idx++) {
+            const hotel = hotelsFromActor[idx];
+            let pricePerNightUsd = hotel.pricePerNight || hotel.price || 99;
+            if (isNaN(pricePerNightUsd) || pricePerNightUsd <= 0) {
+                pricePerNightUsd = 99;
+            }
+            const totalPriceUsd = pricePerNightUsd * nights;
+            
+            hotels.push({
+                id: idx + 1,
+                name: hotel.name || 'Hotel',
+                stars: hotel.stars || 4,
+                price_usd: totalPriceUsd,
+                price_per_night_usd: pricePerNightUsd,
+                price: totalPriceUsd,
+                price_per_night: pricePerNightUsd,
+                currency: 'USD',
+                currencySymbol: '$',
+                nights: nights,
+                city: city,
+                checkin: checkin,
+                checkout: checkout,
+                guests: parseInt(guests),
+                amenities: getAmenitiesForHotel(hotel.name, hotel.stars || 4),
+                booking_link: `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(hotel.name)}&checkin=${checkin}&checkout=${checkout}&group_adults=${guests}`
+            });
+        }
         
         if (hotels.length > 0) {
-            memoryCache[cacheKey] = { hotels, timestamp: Date.now() };
+            memoryCache[cacheKey] = { hotels: JSON.parse(JSON.stringify(hotels)), timestamp: Date.now() };
+            
             await supabase.from('hotel_cache').insert({ 
                 city: city.toLowerCase(), 
                 check_in: checkin,
@@ -166,23 +175,24 @@ router.get('/search', async (req, res) => {
                 data: hotels, 
                 created_at: new Date() 
             });
+            console.log(`💾 Saved ${hotels.length} hotels to database for ${city}`);
         }
         
+        let responseHotels = JSON.parse(JSON.stringify(hotels));
         if (targetCurrency !== 'USD') {
-            hotels = await Promise.all(hotels.map(async (hotel) => ({
-                ...hotel,
-                price: await convertPrice(hotel.price, targetCurrency),
-                price_per_night: await convertPrice(hotel.price_per_night, targetCurrency),
-                currency: targetCurrency,
-                currencySymbol: currencySymbol
-            })));
+            for (let i = 0; i < responseHotels.length; i++) {
+                responseHotels[i].price = await convertPrice(responseHotels[i].price_usd, targetCurrency);
+                responseHotels[i].price_per_night = await convertPrice(responseHotels[i].price_per_night_usd, targetCurrency);
+                responseHotels[i].currency = targetCurrency;
+                responseHotels[i].currencySymbol = currencySymbol;
+            }
         }
         
-        res.json({ source: 'apify', hotels, count: hotels.length, currency: targetCurrency, currencySymbol });
+        res.json({ source: 'apify', hotels: responseHotels, count: responseHotels.length, currency: targetCurrency, currencySymbol });
         
     } catch (error) {
-        console.error('Error:', error.message);
-        res.json({ source: 'error', hotels: [], count: 0 });
+        console.error('Error fetching from Apify:', error.message);
+        res.json({ source: 'error', hotels: [], count: 0, error: error.message });
     }
 });
 
@@ -197,19 +207,12 @@ router.get('/:id', async (req, res) => {
         let targetCurrency = currency || 'USD';
         let currencySymbol = currencySymbols[targetCurrency] || '$';
         
-        if (!currency) {
-            const userLocation = await getUserLocation();
-            if (userLocation && userLocation.currencyCode) {
-                targetCurrency = userLocation.currencyCode;
-                currencySymbol = currencySymbols[targetCurrency] || '$';
-            }
-        }
-        
         const cacheKey = getCacheKey(city, checkin, checkout, guests);
         let hotel = null;
         
         if (memoryCache[cacheKey]) {
-            hotel = memoryCache[cacheKey].hotels.find(h => h.id === hotelId);
+            hotel = memoryCache[cacheKey].hotels.find(function(h) { return h.id === hotelId; });
+            if (hotel) console.log('✅ Found hotel in memory cache: ' + hotel.name);
         }
         
         if (!hotel) {
@@ -219,21 +222,24 @@ router.get('/:id', async (req, res) => {
                 .eq('city', city.toLowerCase())
                 .order('created_at', { ascending: false })
                 .limit(1);
-            if (cached && cached.length > 0) {
-                hotel = cached[0].data.find(h => h.id === hotelId);
+            if (cached && cached.length > 0 && cached[0].data) {
+                hotel = cached[0].data.find(function(h) { return h.id === hotelId; });
+                if (hotel) console.log('✅ Found hotel in database: ' + hotel.name);
             }
         }
         
         if (hotel) {
-            const nights = checkin && checkout ? Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24)) : hotel.nights;
-            
-            let totalPrice = hotel.price_per_night * nights;
-            let originalPrice = Math.round(totalPrice * 1.2);
+            const nights = checkin && checkout ? Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24)) : (hotel.nights || 1);
+            let pricePerNight = hotel.price_per_night_usd || hotel.price_per_night || 150;
+            let totalPrice = pricePerNight * nights;
+            let originalPrice = Math.round(pricePerNight * nights * 1.2);
             
             if (targetCurrency !== 'USD') {
                 totalPrice = await convertPrice(totalPrice, targetCurrency);
                 originalPrice = await convertPrice(originalPrice, targetCurrency);
             }
+            
+            const savings = originalPrice - totalPrice;
             
             return res.json({
                 id: hotel.id,
@@ -241,35 +247,43 @@ router.get('/:id', async (req, res) => {
                 stars: hotel.stars || 4,
                 total_price: totalPrice,
                 original_price: originalPrice,
-                savings: originalPrice - totalPrice,
+                savings: savings,
                 currency: targetCurrency,
                 currencySymbol: currencySymbol,
                 city: hotel.city,
-                description: `${hotel.name} offers comfortable accommodation.`,
-                amenities: hotel.amenities,
+                description: hotel.name + ' offers comfortable accommodation.',
+                amenities: hotel.amenities || getAmenitiesForHotel(hotel.name, hotel.stars || 4),
                 checkin: checkin || hotel.checkin,
                 checkout: checkout || hotel.checkout,
-                guests: parseInt(guests) || hotel.guests,
+                guests: parseInt(guests) || hotel.guests || 2,
                 nights: nights,
                 booking_link: hotel.booking_link
             });
         }
         
-        const nights = 1;
+        const nights = checkin && checkout ? Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24)) : 1;
+        let totalPrice = 150 * nights;
+        let originalPrice = 180 * nights;
+        
+        if (targetCurrency !== 'USD') {
+            totalPrice = await convertPrice(totalPrice, targetCurrency);
+            originalPrice = await convertPrice(originalPrice, targetCurrency);
+        }
+        
         res.json({
             id: hotelId,
-            name: name ? decodeURIComponent(name) : `${city} Hotel`,
+            name: name ? decodeURIComponent(name) : (city + ' Hotel'),
             stars: 4,
-            total_price: 150,
-            original_price: 180,
-            savings: 30,
+            total_price: totalPrice,
+            original_price: originalPrice,
+            savings: originalPrice - totalPrice,
             currency: targetCurrency,
             currencySymbol: currencySymbol,
             city: city,
-            description: `A beautiful hotel in ${city}.`,
+            description: 'A beautiful hotel in ' + city + '.',
             amenities: getAmenitiesForHotel(city, 4),
             nights: nights,
-            booking_link: `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(city)}`
+            booking_link: 'https://www.booking.com/searchresults.html?ss=' + encodeURIComponent(city)
         });
         
     } catch (error) {
@@ -280,9 +294,14 @@ router.get('/:id', async (req, res) => {
 
 router.post('/click', async (req, res) => {
     try {
-        await supabase.from('clicks').insert([{ hotel_id: req.body.hotel_id, site: req.body.site, clicked_at: new Date() }]);
+        await supabase.from('clicks').insert([{ 
+            hotel_id: req.body.hotel_id, 
+            site: req.body.site, 
+            clicked_at: new Date() 
+        }]);
         res.json({ success: true });
     } catch (error) {
+        console.error('Click error:', error.message);
         res.json({ success: false });
     }
 });

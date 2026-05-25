@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Compare Room Rates | RoomRateCompare</title>
+    <meta name="description" content="Compare hotel room rates across Booking.com, Agoda, Expedia. Find the best price for your stay.">
     <link rel="stylesheet" href="/css/style.css">
     
+    <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-GKJZTX45SB"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -14,7 +16,8 @@
         gtag('config', 'G-GKJZTX45SB');
     </script>
     
-    <script>
+    <!-- Travelpayouts Affiliate Script -->
+    <script nowprocket data-noptimize="1" data-cfasync="false" data-wpfc-render="false" seraph-accel-crit="1" data-no-defer="1">
         (function () {
             var script = document.createElement("script");
             script.async = 1;
@@ -24,188 +27,628 @@
     </script>
     
     <style>
-        .results-container { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; }
-        .results-header { margin-bottom: 2rem; }
-        .results-header h2 { font-size: 1.5rem; color: #1a1a1a; }
-        .results-header p { color: #666; margin-top: 0.5rem; }
-        .hotel-card { background: white; border-radius: 16px; padding: 1.5rem; margin-bottom: 1.25rem; display: flex; gap: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #eee; }
-        .hotel-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
-        .hotel-image { width: 200px; height: 150px; background: linear-gradient(135deg, #e0e0e0, #f0f0f0); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #999; font-size: 3rem; }
-        .hotel-details { flex: 1; }
-        .hotel-name { font-size: 1.3rem; font-weight: 700; color: #1a1a1a; }
-        .stars { color: #f39c12; margin: 0.5rem 0; font-size: 0.9rem; }
-        .price-section { margin: 0.75rem 0; }
-        .price { font-size: 1.8rem; font-weight: 700; color: #e67e22; }
-        .original-price { text-decoration: line-through; color: #999; font-size: 0.9rem; margin-left: 0.5rem; }
-        .savings { color: #27ae60; font-size: 0.8rem; margin-top: 0.25rem; font-weight: 500; }
-        .booking-details { color: #666; font-size: 0.85rem; margin: 0.5rem 0; }
-        .ota-links { display: flex; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap; }
-        .ota-link { background: #f0f0f0; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.7rem; text-decoration: none; color: #e67e22; font-weight: 500; }
-        .ota-link:hover { background: #e67e22; color: white; }
-        .view-details-btn { background: #e67e22; color: white; border: none; padding: 0.6rem 1.5rem; border-radius: 40px; cursor: pointer; font-weight: 600; font-size: 0.9rem; display: inline-block; text-decoration: none; }
-        .loader { text-align: center; padding: 3rem; }
-        .loader-spinner { width: 40px; height: 40px; border: 3px solid #f0f0f0; border-top-color: #e67e22; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .no-results { text-align: center; padding: 3rem; background: white; border-radius: 16px; }
-        .search-again { margin-top: 2rem; text-align: center; }
-        .search-again a { color: #e67e22; text-decoration: none; }
+        .results-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .results-header {
+            margin-bottom: 2rem;
+        }
+        
+        .results-header h2 {
+            font-size: 1.5rem;
+            color: #1a1a1a;
+        }
+        
+        .results-header p {
+            color: #666;
+            margin-top: 0.5rem;
+        }
+        
+        .hotel-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.25rem;
+            display: flex;
+            gap: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.2s;
+            border: 1px solid #eee;
+        }
+        
+        .hotel-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+        
+        .hotel-image {
+            width: 200px;
+            height: 150px;
+            background: linear-gradient(135deg, #e0e0e0, #f0f0f0);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 3rem;
+        }
+        
+        .hotel-details {
+            flex: 1;
+        }
+        
+        .hotel-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+        
+        .stars {
+            color: #f39c12;
+            margin: 0.5rem 0;
+            font-size: 0.9rem;
+        }
+        
+        .price-section {
+            margin: 0.75rem 0;
+        }
+        
+        .price {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #e67e22;
+        }
+        
+        .original-price {
+            text-decoration: line-through;
+            color: #999;
+            font-size: 0.9rem;
+            margin-left: 0.5rem;
+        }
+        
+        .savings {
+            color: #27ae60;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            font-weight: 500;
+        }
+        
+        .booking-details {
+            color: #666;
+            font-size: 0.85rem;
+            margin: 0.5rem 0;
+        }
+        
+        .source-badge {
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            margin-top: 0.5rem;
+        }
+        
+        .view-details-btn {
+            background: #e67e22;
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.2s;
+            white-space: nowrap;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .view-details-btn:hover {
+            background: #d35400;
+            transform: scale(1.02);
+        }
+        
+        .loader {
+            text-align: center;
+            padding: 4rem;
+        }
+        
+        .loader-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f0f0f0;
+            border-top-color: #e67e22;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 4rem;
+            color: #666;
+            background: white;
+            border-radius: 16px;
+        }
+        
+        .search-again {
+            margin-top: 2rem;
+            text-align: center;
+        }
+        
+        .search-again a {
+            color: #e67e22;
+            text-decoration: none;
+        }
+        
+        /* AI Chatbot Styles */
+        .chatbot-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 350px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .chatbot-header {
+            background: #e67e22;
+            color: white;
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chatbot-header button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        
+        .chat-messages {
+            height: 300px;
+            overflow-y: auto;
+            padding: 12px;
+            background: #f9f9f9;
+        }
+        
+        .message {
+            margin-bottom: 12px;
+        }
+        
+        .message.user {
+            text-align: right;
+        }
+        
+        .message.user .message-text {
+            background: #e67e22;
+            color: white;
+            display: inline-block;
+            padding: 8px 14px;
+            border-radius: 18px;
+            max-width: 80%;
+        }
+        
+        .message.bot .message-text {
+            background: white;
+            color: #333;
+            display: inline-block;
+            padding: 8px 14px;
+            border-radius: 18px;
+            max-width: 80%;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .chat-input-area {
+            display: flex;
+            padding: 12px;
+            border-top: 1px solid #eee;
+            background: white;
+            gap: 8px;
+        }
+        
+        .chat-input-area input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            outline: none;
+        }
+        
+        .chat-input-area button {
+            background: #e67e22;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 25px;
+            cursor: pointer;
+        }
+        
+        .chatbot-open-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #e67e22;
+            color: white;
+            border: none;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 24px;
+            z-index: 999;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+        
+        .chatbot-open-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .typing-indicator {
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 8px 12px;
+            border-radius: 18px;
+        }
+        
+        .typing-indicator span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #999;
+            margin: 0 2px;
+            animation: typing 1.4s infinite;
+        }
+        
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-10px); opacity: 1; }
+        }
+        
         @media (max-width: 768px) {
-            .hotel-card { flex-direction: column; }
-            .hotel-image { width: 100%; height: 120px; }
-            .ota-links { justify-content: center; }
-            .view-details-btn { width: 100%; text-align: center; }
+            .hotel-card {
+                flex-direction: column;
+            }
+            
+            .hotel-image {
+                width: 100%;
+                height: 120px;
+            }
+            
+            .view-details-btn {
+                width: 100%;
+                margin-top: 1rem;
+                text-align: center;
+            }
+            
+            .price {
+                font-size: 1.5rem;
+            }
+            
+            .chatbot-container {
+                width: 90%;
+                right: 5%;
+                left: 5%;
+            }
         }
     </style>
 </head>
 <body>
     <header>
         <nav>
-            <div class="logo"><h1>Room<span>Rate</span>Compare</h1></div>
-            <div class="nav-links"><a href="/">Home</a><a href="/search">Search</a></div>
+            <div class="logo">
+                <h1>Room<span>Rate</span>Compare</h1>
+            </div>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/search">Search</a>
+            </div>
         </nav>
     </header>
 
     <main>
         <div class="results-container">
             <div id="results"></div>
-            <div class="search-again"><a href="/">← Search again</a></div>
+            <div class="search-again">
+                <a href="/">← Search again</a>
+            </div>
         </div>
     </main>
 
-    <footer><p>&copy; 2026 RoomRateCompare.com - Compare hotel room rates instantly from 50+ sites</p></footer>
+    <footer>
+        <p>&copy; 2026 RoomRateCompare.com - Compare hotel room rates instantly from 50+ sites</p>
+    </footer>
+
+    <!-- AI Chatbot -->
+    <div id="chatbotContainer" class="chatbot-container">
+        <div class="chatbot-header">
+            <span>🤖 Hotel Assistant</span>
+            <button id="closeChatbot">✕</button>
+        </div>
+        <div id="chatMessages" class="chat-messages">
+            <div class="message bot">
+                <div class="message-text">👋 Hi! I'm your hotel assistant. Ask me anything about hotels, destinations, or deals!</div>
+            </div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="chatInput" placeholder="Ask me something...">
+            <button onclick="sendChatMessage()">Send</button>
+        </div>
+    </div>
+    <button id="openChatbotBtn" class="chatbot-open-btn">💬</button>
 
     <script>
-        const currencySymbols = {
-            'USD': '$', 'EUR': '€', 'GBP': '£', 'JPY': '¥',
-            'AED': 'د.إ', 'SAR': '﷼', 'PKR': '₨', 'INR': '₹', 'OMR': '﷼',
-            'CAD': 'C$', 'AUD': 'A$', 'CHF': 'CHF', 'CNY': '¥'
-        };
-        
-        // Get user's currency using browser IP geolocation (client-side)
-        async function getUserCurrency() {
-            try {
-                // Use free IP geolocation API directly from browser
-                const response = await fetch('https://ipapi.co/json/');
-                const data = await response.json();
-                const countryCode = data.country_code;
-                
-                // Map country to currency
-                const currencyMap = {
-                    'OM': 'OMR', 'AE': 'AED', 'SA': 'SAR', 'QA': 'QAR', 'KW': 'KWD',
-                    'GB': 'GBP', 'US': 'USD', 'CA': 'CAD', 'AU': 'AUD',
-                    'PK': 'PKR', 'IN': 'INR', 'BD': 'BDT', 'LK': 'LKR',
-                    'FR': 'EUR', 'DE': 'EUR', 'IT': 'EUR', 'ES': 'EUR', 'NL': 'EUR',
-                    'JP': 'JPY', 'CN': 'CNY', 'SG': 'SGD', 'MY': 'MYR',
-                    'CH': 'CHF', 'SE': 'SEK', 'NO': 'NOK', 'DK': 'DKK'
-                };
-                
-                let currency = currencyMap[countryCode] || 'USD';
-                let symbol = currencySymbols[currency] || '$';
-                
-                console.log(`📍 Browser detected country: ${countryCode}, Currency: ${currency} (${symbol})`);
-                return { currency, symbol, country: countryCode };
-                
-            } catch (error) {
-                console.log('IP detection failed, using browser language fallback');
-                // Fallback to language detection
-                const locale = navigator.language || 'en-US';
-                const langMap = {
-                    'en-GB': 'GBP', 'en-US': 'USD', 'en-AE': 'AED', 'ar-AE': 'AED',
-                    'en-PK': 'PKR', 'ur-PK': 'PKR', 'en-IN': 'INR', 'hi-IN': 'INR',
-                    'fr-FR': 'EUR', 'de-DE': 'EUR', 'it-IT': 'EUR', 'es-ES': 'EUR',
-                    'ja-JP': 'JPY', 'zh-CN': 'CNY'
-                };
-                let currency = langMap[locale] || 'USD';
-                let symbol = currencySymbols[currency] || '$';
-                return { currency, symbol, country: 'unknown' };
-            }
-        }
-        
-        function formatDate(dateStr) { if (!dateStr) return ''; const date = new Date(dateStr); return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
-        function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, function(m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; }); }
-        async function trackClick(hotelId, site) { try { await fetch('/api/hotels/click', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ hotel_id: hotelId, site: site }) }); } catch(e) { console.log('Track error:', e); } }
-        
+        // Get search params from URL
         const urlParams = new URLSearchParams(window.location.search);
         let city = urlParams.get('city');
         const checkin = urlParams.get('checkin');
         const checkout = urlParams.get('checkout');
         const guests = urlParams.get('guests');
         
+        // If no city in URL, try to get from sessionStorage
         if (!city) {
             const savedSearch = sessionStorage.getItem('roomratecompare_search');
-            if (savedSearch) { const search = JSON.parse(savedSearch); city = search.city; }
+            if (savedSearch) {
+                const search = JSON.parse(savedSearch);
+                city = search.city;
+            }
+        }
+        
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
         }
         
         async function searchHotels() {
             const resultsDiv = document.getElementById('results');
-            if (!city || !checkin || !checkout) { resultsDiv.innerHTML = '<div class="no-results"><h3>🔍 Missing search information</h3><a href="/">← Search for hotels</a></div>'; return; }
             
-            resultsDiv.innerHTML = '<div class="loader"><div class="loader-spinner"></div><p>🔍 Searching Booking.com...</p></div>';
+            // Check if we have required parameters
+            if (!city || !checkin || !checkout) {
+                resultsDiv.innerHTML = `
+                    <div class="no-results">
+                        <h3>🔍 Missing search information</h3>
+                        <p>Please go back to the homepage and enter a city and dates.</p>
+                        <div class="search-again">
+                            <a href="/">← Search for hotels</a>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Display search header
+            resultsDiv.innerHTML = `
+                <div class="results-header">
+                    <h2>🏨 ${city.charAt(0).toUpperCase() + city.slice(1)} Hotel Room Rates</h2>
+                    <p>${formatDate(checkin)} → ${formatDate(checkout)} • ${guests || 2} ${guests == 1 ? 'guest' : 'guests'} • Comparing 50+ travel sites</p>
+                </div>
+                <div class="loader">
+                    <div class="loader-spinner"></div>
+                    <p>🔍 Searching Booking.com, Agoda, Expedia...</p>
+                </div>
+            `;
             
             try {
-                const userCurrency = await getUserCurrency();
-                console.log(`🪙 Final currency: ${userCurrency.currency} (${userCurrency.symbol}) for country: ${userCurrency.country}`);
-                
-                const apiUrl = '/api/hotels/search?city=' + encodeURIComponent(city) + '&checkin=' + checkin + '&checkout=' + checkout + '&guests=' + (guests || 2) + '&currency=' + userCurrency.currency;
-                
-                const response = await fetch(apiUrl);
-                if (!response.ok) throw new Error('API returned ' + response.status);
+                const response = await fetch(`/api/hotels/search?city=${encodeURIComponent(city)}&checkin=${checkin}&checkout=${checkout}&guests=${guests || 2}`);
                 const data = await response.json();
                 
                 if (data.hotels && data.hotels.length > 0) {
                     const nights = Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24));
-                    const currencySymbol = data.currencySymbol || userCurrency.symbol || '$';
                     
-                    let hotelsHtml = '<div class="results-header"><h2>🏨 ' + city.charAt(0).toUpperCase() + city.slice(1) + ' Hotel Room Rates</h2><p>' + formatDate(checkin) + ' → ' + formatDate(checkout) + ' • ' + nights + ' night' + (nights > 1 ? 's' : '') + ' • ' + (guests || 2) + ' guests • Found ' + data.hotels.length + ' hotels</p></div>';
+                    let hotelsHtml = `
+                        <div class="results-header">
+                            <h2>🏨 ${city.charAt(0).toUpperCase() + city.slice(1)} Hotel Room Rates</h2>
+                            <p>${formatDate(checkin)} → ${formatDate(checkout)} • ${nights} night${nights > 1 ? 's' : ''} • ${guests || 2} ${guests == 1 ? 'guest' : 'guests'} • Found ${data.hotels.length} hotels</p>
+                        </div>
+                    `;
                     
                     for (let i = 0; i < data.hotels.length; i++) {
                         const hotel = data.hotels[i];
-                        let totalPrice = hotel.price || hotel.total_price || hotel.price_per_night || 0;
-                        if (totalPrice === 0 || isNaN(totalPrice)) continue;
-                        
+                        const totalPrice = hotel.total_price || hotel.price;
                         const originalPrice = Math.round(totalPrice * 1.2);
                         const savings = originalPrice - totalPrice;
-                        const hotelStars = hotel.stars || 4;
-                        
-                        const bookingLink = 'https://www.booking.com/searchresults.html?ss=' + encodeURIComponent(hotel.name) + '&checkin=' + checkin + '&checkout=' + checkout + '&group_adults=' + (guests || 2);
-                        const agodaLink = 'https://www.agoda.com/search?city=' + encodeURIComponent(city) + '&checkIn=' + checkin + '&checkOut=' + checkout + '&adults=' + (guests || 2);
-                        const expediaLink = 'https://www.expedia.com/search?q=' + encodeURIComponent(city) + '+hotels&startDate=' + checkin + '&endDate=' + checkout + '&adults=' + (guests || 2);
-                        const hotelscomLink = 'https://www.hotels.com/search?q=' + encodeURIComponent(city) + '+hotels&checkIn=' + checkin + '&checkOut=' + checkout + '&adults=' + (guests || 2);
                         
                         hotelsHtml += `
                             <div class="hotel-card">
-                                <div class="hotel-image">🏨</div>
+                                <div class="hotel-image">
+                                    🏨
+                                </div>
                                 <div class="hotel-details">
                                     <div class="hotel-name">${escapeHtml(hotel.name)}</div>
-                                    <div class="stars">${'★'.repeat(hotelStars)}${'☆'.repeat(5-hotelStars)}</div>
+                                    <div class="stars">${'★'.repeat(hotel.stars)}${'☆'.repeat(5-hotel.stars)}</div>
+				<small style="color:#999; font-size:0.7rem;">* Star ratings are for illustration only</small>
+	
                                     <div class="price-section">
-                                        <span class="price">${currencySymbol}${totalPrice}</span>
-                                        <span class="original-price">${currencySymbol}${originalPrice}</span>
-                                        <div class="savings">✨ Save ${currencySymbol}${savings}</div>
+                                        <span class="price">$${totalPrice}</span>
+                                        <span class="original-price">$${originalPrice}</span>
+                                        <div class="savings">✨ Save $${savings} compared to other sites</div>
                                     </div>
-                                    <div class="booking-details">📅 ${formatDate(checkin)} - ${formatDate(checkout)} • ${nights} night${nights > 1 ? 's' : ''} • ${guests || 2} guests</div>
-                                    <div class="ota-links">
-                                        <a href="${bookingLink}" target="_blank" class="ota-link" onclick="trackClick(${hotel.id}, 'Booking.com')">🏨 Booking.com</a>
-                                        <a href="${agodaLink}" target="_blank" class="ota-link" onclick="trackClick(${hotel.id}, 'Agoda')">🌏 Agoda</a>
-                                        <a href="${expediaLink}" target="_blank" class="ota-link" onclick="trackClick(${hotel.id}, 'Expedia')">✈️ Expedia</a>
-                                        <a href="${hotelscomLink}" target="_blank" class="ota-link" onclick="trackClick(${hotel.id}, 'Hotels.com')">🏢 Hotels.com</a>
+                                    <div class="booking-details">
+                                        📅 ${formatDate(checkin)} - ${formatDate(checkout)} • ${nights} night${nights > 1 ? 's' : ''} • ${guests || 2} ${guests == 1 ? 'guest' : 'guests'}
+                                    </div>
+                                    <div class="source-badge">
+                                        🔗 Compare price from Booking.com • Agoda • Expedia
                                     </div>
                                 </div>
-                                <div><a href="/hotel.html?id=${hotel.id}&checkin=${checkin}&checkout=${checkout}&guests=${guests || 2}&city=${encodeURIComponent(city)}&name=${encodeURIComponent(hotel.name)}&currency=${userCurrency.currency}"><button class="view-details-btn">View Details →</button></a></div>
+                                <div>
+                                    <a href="/hotel.html?id=${hotel.id}&checkin=${checkin}&checkout=${checkout}&guests=${guests || 2}&city=${encodeURIComponent(city)}&name=${encodeURIComponent(hotel.name)}">
+                                        <button class="view-details-btn">View Details →</button>
+                                    </a>
+                                </div>
                             </div>
                         `;
                     }
+                    
                     resultsDiv.innerHTML = hotelsHtml;
                 } else {
-                    resultsDiv.innerHTML = '<div class="no-results"><h3>🏨 No hotels found in ' + city + '</h3><a href="/">← Search again</a></div>';
+                    resultsDiv.innerHTML = `
+                        <div class="no-results">
+                            <h3>🏨 No hotels found in ${city}</h3>
+                            <p>Try a different city or check your spelling.</p>
+                            <div class="search-again">
+                                <a href="/">← Search again</a>
+                            </div>
+                        </div>
+                    `;
                 }
             } catch (error) {
                 console.error('Search error:', error);
-                resultsDiv.innerHTML = '<div class="no-results"><h3>⚠️ Unable to fetch room rates</h3><p>' + error.message + '</p><a href="/">← Try again</a></div>';
+                resultsDiv.innerHTML = `
+                    <div class="no-results">
+                        <h3>⚠️ Unable to fetch room rates</h3>
+                        <p>Please try again in a moment.</p>
+                        <div class="search-again">
+                            <a href="/">← Search again</a>
+                        </div>
+                    </div>
+                `;
             }
         }
         
-        if (city && checkin && checkout) { searchHotels(); } else { document.getElementById('results').innerHTML = '<div class="no-results"><h3>🔍 No search criteria found</h3><a href="/">← Search for hotels</a></div>'; }
+        // Start search if we have parameters
+        if (city && checkin && checkout) {
+            searchHotels();
+        } else if (city) {
+            window.location.href = '/';
+        } else {
+            document.getElementById('results').innerHTML = `
+                <div class="no-results">
+                    <h3>🔍 No search criteria found</h3>
+                    <p>Please go to the homepage and search for a city and dates.</p>
+                    <div class="search-again">
+                        <a href="/">← Search for hotels</a>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // ========== AI CHATBOT FUNCTIONS ==========
+        const chatbot = document.getElementById('chatbotContainer');
+        const openBtn = document.getElementById('openChatbotBtn');
+        const closeBtn = document.getElementById('closeChatbot');
+        
+        openBtn.onclick = function() { 
+            chatbot.style.display = 'flex'; 
+            openBtn.style.display = 'none'; 
+        };
+        
+        closeBtn.onclick = function() { 
+            chatbot.style.display = 'none'; 
+            openBtn.style.display = 'flex'; 
+        };
+        
+        function addMessage(sender, text, isUser) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'message ' + (isUser ? 'user' : 'bot');
+            msgDiv.innerHTML = '<div class="message-text">' + text + '</div>';
+            messagesDiv.appendChild(msgDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        function getSimpleReply(message) {
+            const msg = message.toLowerCase();
+            const currentCity = city || 'your destination';
+            
+            if (msg.includes('find hotel') || msg.includes('search hotel') || msg.includes('hotel in')) {
+                let cityName = '';
+                if (msg.includes('in ')) {
+                    cityName = msg.split('in ')[1].split(' ')[0];
+                }
+                if (cityName) {
+                    return `🔍 I'll help you find hotels in ${cityName}! Use the search box above or <a href="/search?city=${encodeURIComponent(cityName)}" style="color:#e67e22;">click here to search</a>`;
+                }
+                return "Please tell me which city you want to search. Example: 'Find hotels in Dubai'";
+            }
+            
+            if (msg.includes('cheapest') || msg.includes('lowest price')) {
+                return `💰 To find the cheapest hotels in ${currentCity}, try sorting by price (lowest first) using the filter options. Budget hotels (2-3 stars) typically offer the best rates.`;
+            }
+            
+            if (msg.includes('best hotel') || msg.includes('top rated')) {
+                return `🏨 For the best hotels in ${currentCity}, look for 4-5 star properties with high guest ratings. Check the review scores on each hotel card!`;
+            }
+            
+            if (msg.includes('how many hotels')) {
+                const hotelCount = document.querySelectorAll('.hotel-card').length;
+                return `📊 I see ${hotelCount} hotels available in ${currentCity} for your selected dates. You can browse through them above!`;
+            }
+            
+            if (msg.includes('help')) {
+                return "I can help you:<br>• Find hotels in any city<br>• Compare prices across sites<br>• Find budget or luxury options<br>Just ask me a question!";
+            }
+            
+            return `I'm your hotel assistant. You can ask me about hotels in ${currentCity}, best deals, or how to compare prices!`;
+        }
+        
+        async function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+            
+            addMessage('You', msg, true);
+            input.value = '';
+            
+            // Show typing indicator
+            const messagesDiv = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+            messagesDiv.appendChild(typingDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: msg, city: city })
+                });
+                const data = await response.json();
+                document.getElementById('typingIndicator').remove();
+                addMessage('Assistant', data.reply || getSimpleReply(msg), false);
+            } catch(error) {
+                document.getElementById('typingIndicator').remove();
+                const reply = getSimpleReply(msg);
+                addMessage('Assistant', reply, false);
+            }
+        }
+        
+        window.sendChatMessage = sendChatMessage;
+        const chatInput = document.getElementById('chatInput');
+        if (chatInput) {
+            chatInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') sendChatMessage();
+            });
+        }
     </script>
 </body>
 </html>
