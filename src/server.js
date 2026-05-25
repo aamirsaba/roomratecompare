@@ -6,6 +6,8 @@ const path = require('path');
 const hotelsRouter = require('./api/hotels');
 const chatRouter = require('./api/chat');
 const stripeWebhook = require('./payment/stripe');
+const agentsRouter = require('./api/agents');
+
 
 const app = express();
 
@@ -20,8 +22,14 @@ app.use(express.static(path.join(__dirname, '../public')));
 // API routes
 app.use('/api/hotels', hotelsRouter);
 app.use('/api/chat', chatRouter);
+app.use('/api/agents', agentsRouter);
 
 // Serve frontend
+
+app.get('/agents', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/agents.html'));
+});
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/index.html'));
 });
