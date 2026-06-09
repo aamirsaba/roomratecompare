@@ -1,0 +1,4 @@
+echo "" > public/uploads/.gitkeep
+echo "" > public/uploads/agents/.gitkeep
+echo "" > public/uploads/blog/.gitkeep
+echo "" > public/uploads/partners/.gitkeep
