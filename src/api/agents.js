@@ -1,75 +1,51 @@
-// src/api/agents.js
 const express = require('express');
 const router = express.Router();
 const supabase = require('../db/supabase');
 
-// Submit a travel agent request
-router.post('/request', async (req, res) => {
-    console.log('📝 Agent request received:', req.body);
-    
-    const { name, email, destination, checkin, checkout, budget, message, agentId } = req.body;
-    
-    // Validate required fields
-    if (!name || !email || !destination || !checkin || !checkout) {
-        console.log('❌ Missing fields:', { name, email, destination, checkin, checkout });
-        return res.status(400).json({ 
-            success: false, 
-            error: 'Missing required fields. Please fill in all required information.' 
-        });
-    }
+// ============ GET ALL AGENTS (PUBLIC) ============
+router.get('/list', async (req, res) => {
+    console.log('GET /api/agents/list');
     
     try {
-        // Insert into Supabase
-        const { data, error } = await supabase
-            .from('agent_requests')
-            .insert([
-                {
-                    name: name,
-                    email: email,
-                    destination: destination,
-                    checkin: checkin,
-                    checkout: checkout,
-                    budget: budget || null,
-                    message: message || null,
-                    agent_id: agentId || null,
-                    status: 'pending',
-                    created_at: new Date()
-                }
-            ]);
+        const { data: agents, error } = await supabase
+            .from('agents')
+            .select('id, name, email, phone, whatsapp_number, specialty, bio, avg_rating, total_ratings, profile_photo')
+            .eq('status', 'approved');
         
         if (error) {
-            console.error('❌ Supabase error:', error);
-            throw error;
+            console.error('Supabase error:', error);
+            return res.status(500).json({ success: false, error: error.message });
         }
         
-        console.log('✅ Request saved successfully for:', name);
-        
-        res.json({ 
-            success: true, 
-            message: 'Thank you! A travel agent will contact you within 24 hours.' 
-        });
+        console.log(`Found ${agents?.length || 0} approved agents`);
+        res.json({ success: true, agents: agents || [] });
         
     } catch (error) {
-        console.error('❌ Error saving request:', error);
-        res.status(500).json({ 
-            success: false, 
-            error: 'Server error. Please try again later.' 
-        });
+        console.error('Error:', error);
+        res.status(500).json({ success: false, error: error.message });
     }
 });
 
-// Get all requests (admin only - protect this later)
-router.get('/requests', async (req, res) => {
+// ============ GET AGENT BY ID ============
+router.get('/:id', async (req, res) => {
+    const { id } = req.params;
+    console.log(`GET /api/agents/${id}`);
+    
     try {
-        const { data, error } = await supabase
-            .from('agent_requests')
-            .select('*')
-            .order('created_at', { ascending: false });
+        const { data: agent, error } = await supabase
+            .from('agents')
+            .select('id, name, email, phone, whatsapp_number, specialty, bio, avg_rating, total_ratings, profile_photo')
+            .eq('id', parseInt(id))
+            .single();
         
-        if (error) throw error;
-        res.json({ success: true, requests: data });
+        if (error || !agent) {
+            return res.status(404).json({ success: false, error: 'Agent not found' });
+        }
+        
+        res.json({ success: true, agent });
+        
     } catch (error) {
-        console.error('Error fetching requests:', error);
+        console.error('Error:', error);
         res.status(500).json({ success: false, error: error.message });
     }
 });

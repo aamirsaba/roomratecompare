@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Our Affiliate Partners | RoomRateCompare</title>
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GKJZTX45SB"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-GKJZTX45SB');
+    </script>
+    
+    <!-- Travelpayouts Affiliate Script -->
+    <script nowprocket data-noptimize="1" data-cfasync="false" data-wpfc-render="false" seraph-accel-crit="1" data-no-defer="1">
+        (function () {
+            var script = document.createElement("script");
+            script.async = 1;
+            script.src = 'https://emrldtp.cc/NTMxODI2.js?t=531826';
+            document.head.appendChild(script);
+        })();
+    </script>
+    
+    <style>
+        .partners-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        .partners-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .partners-header h1 {
+            color: #e67e22;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        .partners-header p {
+            color: #666;
+        }
+        .category-filter {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        .category-btn {
+            padding: 0.5rem 1rem;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .category-btn:hover {
+            border-color: #e67e22;
+            background: #fef5e8;
+        }
+        .category-btn.active {
+            background: #e67e22;
+            color: white;
+            border-color: #e67e22;
+        }
+        .partners-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+        .partner-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            position: relative;
+        }
+        .partner-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        .hot-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, #f44336, #e91e63);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            z-index: 1;
+        }
+        .partner-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.2rem;
+            border-bottom: 1px solid #eee;
+            background: #fafafa;
+        }
+        .partner-logo {
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border-radius: 12px;
+            padding: 0.5rem;
+        }
+        .partner-logo img {
+            max-width: 60px;
+            max-height: 60px;
+            object-fit: contain;
+        }
+        .partner-logo-placeholder {
+            font-size: 2rem;
+        }
+        .partner-title {
+            flex: 1;
+        }
+        .partner-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #1a1a1a;
+        }
+        .partner-info {
+            padding: 1rem;
+        }
+        .partner-description {
+            font-size: 0.85rem;
+            color: #555;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+            min-height: 60px;
+        }
+        .partner-categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .category-tag {
+            background: #f0f0f0;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            color: #555;
+        }
+        .partner-footer {
+            display: flex;
+            justify-content: flex-end;
+            padding-top: 0.8rem;
+            border-top: 1px solid #eee;
+        }
+        .visit-btn {
+            background: #e67e22;
+            color: white;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+        .visit-btn:hover {
+            background: #d35400;
+        }
+        .loader {
+            text-align: center;
+            padding: 3rem;
+        }
+        .loader-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f0f0f0;
+            border-top-color: #e67e22;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .no-partners {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+        @media (max-width: 768px) {
+            .partners-container {
+                padding: 0 1rem;
+            }
+            .partners-grid {
+                grid-template-columns: 1fr;
+            }
+            .category-filter {
+                gap: 0.5rem;
+            }
+            .category-btn {
+                font-size: 0.7rem;
+                padding: 0.3rem 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <h1>Room<span>Rate</span>Compare</h1>
+                <p class="tagline">Compare 1000+ hotels. Find your best room rate.</p>
+            </div>
+            <button class="mobile-menu-btn" id="menuBtn">☰</button>
+            <div class="nav-links" id="navLinks">
+                <a href="/">Home</a>
+                <a href="/search">Search</a>
+                <a href="/agents">Travel Agents</a>
+                <a href="/agent-register">Become an Agent</a>
+                <a href="/blog">Blog</a>
+                <a href="/partners">Partners</a>
+            </div>
+        </nav>
+        <div class="menu-overlay" id="menuOverlay"></div>
+    </header>
+
+    <main>
+        <div class="partners-container">
+            <div class="partners-header">
+                <h1>🤝 Our Trusted Partners</h1>
+                <p>Book with confidence through our verified affiliate partners</p>
+            </div>
+
+            <div id="categoryFilter" class="category-filter"></div>
+            <div id="partnersGrid" class="partners-grid">
+                <div class="loader"><div class="loader-spinner"></div><p>Loading partners...</p></div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-column">
+                <h3>🏨 RoomRateCompare</h3>
+                <p>Compare hotel room rates from 50+ travel sites.</p>
+                <p>📍 UK: Aamir Saba Ltd<br>📍 USA: Aamir Saba Inc</p>
+            </div>
+            <div class="footer-column">
+                <h3>🔗 Quick Links</h3>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/search">Search Hotels</a></li>
+                    <li><a href="/agents">Travel Agents</a></li>
+                    <li><a href="/agent-register">Become an Agent</a></li>
+                    <li><a href="/blog">Travel Blog</a></li>
+                    <li><a href="/partners">Affiliate Partners</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>⚖️ Legal & Support</h3>
+                <ul>
+                    <li><a href="/privacy">Privacy Policy</a></li>
+                    <li><a href="/terms">Terms & Conditions</a></li>
+                    <li><a href="/refund">Refund Policy</a></li>
+                    <li><a href="/contact">Contact Us</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 RoomRateCompare.com. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu
+        (function() {
+            const menuBtn = document.getElementById('menuBtn');
+            const navLinks = document.getElementById('navLinks');
+            const menuOverlay = document.getElementById('menuOverlay');
+            if (!menuBtn) return;
+            function toggleMenu() {
+                navLinks.classList.toggle('active');
+                menuOverlay.classList.toggle('active');
+                document.body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : '';
+            }
+            function closeMenu() {
+                navLinks.classList.remove('active');
+                menuOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+            menuBtn.addEventListener('click', toggleMenu);
+            if (menuOverlay) menuOverlay.addEventListener('click', closeMenu);
+            document.querySelectorAll('.nav-links a').forEach(link => link.addEventListener('click', closeMenu));
+            window.addEventListener('resize', function() { if (window.innerWidth > 768) closeMenu(); });
+        })();
+
+        let allPartners = [];
+        let currentCategory = 'all';
+        
+        const categoryNames = {
+            'hotels': 'Hotels',
+            'flights': 'Flights',
+            'tours': 'Tours',
+            'cars': 'Car Rentals',
+            'transfers': 'Transfers',
+            'insurance': 'Insurance',
+            'sim': 'SIM Cards',
+            'cruises': 'Cruises',
+            'packages': 'Packages',
+            'trains': 'Trains',
+            'other': 'Other'
+        };
+        
+        const categoryIcons = {
+            'hotels': '🏨',
+            'flights': '✈️',
+            'tours': '🎡',
+            'cars': '🚗',
+            'transfers': '🚕',
+            'insurance': '🛡️',
+            'sim': '📱',
+            'cruises': '🚢',
+            'packages': '📦',
+            'trains': '🚂',
+            'other': '📌'
+        };
+        
+        async function loadPartners() {
+            const url = currentCategory === 'all' ? '/api/partners/' : `/api/partners/?category=${currentCategory}`;
+            
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.success && data.partners && data.partners.length > 0) {
+                    allPartners = data.partners;
+                    displayCategoryFilter();
+                    displayPartners();
+                } else {
+                    document.getElementById('partnersGrid').innerHTML = '<div class="no-partners">No partners found. Check back soon!</div>';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('partnersGrid').innerHTML = '<div class="no-partners">Error loading partners. Please try again.</div>';
+            }
+        }
+        
+        function displayCategoryFilter() {
+            const categorySet = new Set();
+            categorySet.add('all');
+            
+            allPartners.forEach(p => {
+                if (p.categories && p.categories.length) {
+                    p.categories.forEach(c => categorySet.add(c));
+                } else if (p.category) {
+                    categorySet.add(p.category);
+                }
+            });
+            
+            let html = '';
+            const categories = Array.from(categorySet);
+            
+            for (let i = 0; i < categories.length; i++) {
+                const cat = categories[i];
+                if (cat === 'all') {
+                    html += `<button class="category-btn ${currentCategory === 'all' ? 'active' : ''}" onclick="filterByCategory('all')">🌍 All</button>`;
+                } else {
+                    const icon = categoryIcons[cat] || '📌';
+                    const name = categoryNames[cat] || cat;
+                    html += `<button class="category-btn ${currentCategory === cat ? 'active' : ''}" onclick="filterByCategory('${cat}')">${icon} ${name}</button>`;
+                }
+            }
+            
+            document.getElementById('categoryFilter').innerHTML = html;
+        }
+        
+        function displayPartners() {
+            const grid = document.getElementById('partnersGrid');
+            
+            if (!allPartners || allPartners.length === 0) {
+                grid.innerHTML = '<div class="no-partners">🤝 No partners found. Check back soon!</div>';
+                return;
+            }
+            
+            let html = '';
+            for (let i = 0; i < allPartners.length; i++) {
+                const p = allPartners[i];
+                const categories = p.categories || (p.category ? [p.category] : []);
+                const categoriesHtml = categories.map(c => `<span class="category-tag">${categoryIcons[c] || '📌'} ${categoryNames[c] || c}</span>`).join('');
+                
+                const logoHtml = p.logo 
+                    ? `<img src="${p.logo}" alt="${escapeHtml(p.name)}" onerror="this.style.display='none'; this.parentElement.innerHTML='${categoryIcons[categories[0]] || '🤝'}'">`
+                    : `<div class="partner-logo-placeholder">${categoryIcons[categories[0]] || '🤝'}</div>`;
+                
+                const hotBadge = p.is_hot ? '<span class="hot-badge">🔥 HOT</span>' : '';
+                
+                html += `
+                    <div class="partner-card" onclick="trackAndRedirect(${p.id}, '${escapeHtml(p.affiliate_link)}')">
+                        ${hotBadge}
+                        <div class="partner-header">
+                            <div class="partner-logo">${logoHtml}</div>
+                            <div class="partner-title">
+                                <h3 class="partner-name">${escapeHtml(p.name)}</h3>
+                            </div>
+                        </div>
+                        <div class="partner-info">
+                            <p class="partner-description">${escapeHtml(p.description || 'Book with our trusted partner for the best deals.')}</p>
+                            <div class="partner-categories">${categoriesHtml}</div>
+                            <div class="partner-footer">
+                                <button class="visit-btn" onclick="event.stopPropagation(); trackAndRedirect(${p.id}, '${escapeHtml(p.affiliate_link)}')">Visit Partner →</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            grid.innerHTML = html;
+        }
+        
+        function filterByCategory(category) {
+            currentCategory = category;
+            loadPartners();
+        }
+        
+        async function trackAndRedirect(partnerId, link) {
+            try {
+                await fetch(`/api/partners/click/${partnerId}`, { method: 'POST' });
+            } catch(e) {
+                console.log('Track error:', e);
+            }
+            window.open(link, '_blank');
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+        }
+        
+        loadPartners();
+    </script>
+</body>
+</html>

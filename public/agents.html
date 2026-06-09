@@ -2,179 +2,304 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Travel Agents | RoomRateCompare</title>
+    <meta name="description" content="Connect with expert travel agents who can help plan your perfect trip">
     <link rel="stylesheet" href="/css/style.css">
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GKJZTX45SB"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-GKJZTX45SB');
+    </script>
+    
+    <!-- Travelpayouts Affiliate Script -->
+    <script nowprocket data-noptimize="1" data-cfasync="false" data-wpfc-render="false" seraph-accel-crit="1" data-no-defer="1">
+        (function () {
+            var script = document.createElement("script");
+            script.async = 1;
+            script.src = 'https://emrldtp.cc/NTMxODI2.js?t=531826';
+            document.head.appendChild(script);
+        })();
+    </script>
+    
     <style>
         .agents-container {
             max-width: 1200px;
             margin: 2rem auto;
             padding: 0 2rem;
         }
-        
-        .agents-header {
+        .header {
             text-align: center;
-            margin-bottom: 3rem;
+            margin-bottom: 2rem;
         }
-        
-        .agents-header h1 {
+        .header h1 {
+            color: #e67e22;
+            margin-bottom: 0.5rem;
             font-size: 2rem;
-            color: #1a1a1a;
         }
-        
-        .agents-header p {
+        .header p {
             color: #666;
-            margin-top: 0.5rem;
         }
-        
+        .filters {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .filter-btn:hover {
+            border-color: #e67e22;
+            background: #fef5e8;
+        }
+        .filter-btn.active {
+            background: #e67e22;
+            color: white;
+            border-color: #e67e22;
+        }
+        .agents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
         .agent-card {
             background: white;
             border-radius: 16px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            gap: 1.5rem;
+            overflow: hidden;
             box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-            transition: transform 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
         }
-        
         .agent-card:hover {
-            transform: translateY(-3px);
+            transform: translateY(-4px);
             box-shadow: 0 8px 25px rgba(0,0,0,0.12);
         }
-        
-        .agent-avatar {
-            width: 100px;
-            height: 100px;
+        .agent-header {
             background: linear-gradient(135deg, #e67e22, #d35400);
+            padding: 1.5rem;
+            text-align: center;
+            color: white;
+        }
+        .agent-avatar {
+            font-size: 48px;
+            background: rgba(255,255,255,0.2);
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.5rem;
-            color: white;
+            margin: 0 auto 1rem;
         }
-        
-        .agent-info {
-            flex: 1;
-        }
-        
         .agent-name {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #1a1a1a;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 0.3rem;
         }
-        
         .agent-specialty {
-            color: #e67e22;
-            font-size: 0.85rem;
-            margin: 0.25rem 0;
+            font-size: 0.8rem;
+            opacity: 0.9;
         }
-        
-        .agent-desc {
-            color: #666;
-            font-size: 0.9rem;
-            margin: 0.5rem 0;
+        .agent-body {
+            padding: 1rem;
         }
-        
-        .agent-languages {
-            display: flex;
-            gap: 0.5rem;
-            margin: 0.5rem 0;
-            flex-wrap: wrap;
-        }
-        
-        .language-badge {
-            background: #f0f0f0;
-            padding: 0.2rem 0.6rem;
-            border-radius: 15px;
-            font-size: 0.7rem;
-            color: #666;
-        }
-        
         .agent-rating {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            margin: 0.5rem 0;
-            flex-wrap: wrap;
+            justify-content: center;
+            gap: 5px;
+            margin-bottom: 0.8rem;
         }
-        
         .stars {
             color: #ffc107;
-            font-size: 0.9rem;
         }
-        
-        .contact-btn {
-            background: #e67e22;
-            color: white;
-            border: none;
-            padding: 0.6rem 1.5rem;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background 0.2s;
+        .rating-number {
+            font-size: 12px;
+            color: #666;
         }
-        
-        .contact-btn:hover {
-            background: #d35400;
+        .agent-bio {
+            font-size: 0.8rem;
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+            text-align: center;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
-        
-        .request-form {
+        .agent-contact {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid #eee;
+        }
+        .contact-icon {
+            font-size: 1rem;
+            color: #666;
+            transition: color 0.2s;
+        }
+        .contact-icon:hover {
+            color: #e67e22;
+        }
+        .no-agents {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+        .loader {
+            text-align: center;
+            padding: 3rem;
+        }
+        .loader-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f0f0f0;
+            border-top-color: #e67e22;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .chatbot-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 350px;
             background: white;
             border-radius: 16px;
-            padding: 2rem;
-            margin-top: 2rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
         }
-        
-        .request-form h3 {
-            margin-bottom: 1rem;
+        .chatbot-header {
+            background: #e67e22;
+            color: white;
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        
-        .form-group {
-            margin-bottom: 1rem;
+        .chat-messages {
+            height: 300px;
+            overflow-y: auto;
+            padding: 12px;
+            background: #f9f9f9;
         }
-        
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 0.8rem;
+        .message {
+            margin-bottom: 12px;
+        }
+        .message.user {
+            text-align: right;
+        }
+        .message.user .message-text {
+            background: #e67e22;
+            color: white;
+            display: inline-block;
+            padding: 8px 14px;
+            border-radius: 18px;
+            max-width: 80%;
+        }
+        .message.bot .message-text {
+            background: white;
+            color: #333;
+            display: inline-block;
+            padding: 8px 14px;
+            border-radius: 18px;
+            max-width: 80%;
+        }
+        .chat-input-area {
+            display: flex;
+            padding: 12px;
+            border-top: 1px solid #eee;
+            background: white;
+            gap: 8px;
+        }
+        .chat-input-area input {
+            flex: 1;
+            padding: 10px;
             border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 0.9rem;
+            border-radius: 25px;
+            outline: none;
         }
-        
-        .submit-btn {
+        .chat-input-area button {
             background: #e67e22;
             color: white;
             border: none;
-            padding: 0.8rem 2rem;
-            border-radius: 30px;
+            padding: 10px 18px;
+            border-radius: 25px;
             cursor: pointer;
-            font-weight: 600;
-            width: 100%;
         }
-        
-        .submit-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
+        .chatbot-open-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #e67e22;
+            color: white;
+            border: none;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 24px;
+            z-index: 999;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
-        
+        .typing-indicator {
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 8px 12px;
+            border-radius: 18px;
+        }
+        .typing-indicator span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #999;
+            margin: 0 2px;
+            animation: typingAnim 1.4s infinite;
+        }
+        @keyframes typingAnim {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-8px); opacity: 1; }
+        }
         @media (max-width: 768px) {
-            .agent-card {
-                flex-direction: column;
-                text-align: center;
+            .agents-container {
+                padding: 0 1rem;
             }
-            .agent-avatar {
-                margin: 0 auto;
+            .agents-grid {
+                grid-template-columns: 1fr;
             }
-            .agent-languages {
-                justify-content: center;
+            .filters {
+                gap: 0.5rem;
             }
-            .agent-rating {
-                justify-content: center;
+            .filter-btn {
+                font-size: 0.7rem;
+                padding: 0.3rem 0.8rem;
+            }
+            .chatbot-container {
+                width: 90%;
+                right: 5%;
+                left: 5%;
             }
         }
     </style>
@@ -184,215 +309,244 @@
         <nav>
             <div class="logo">
                 <h1>Room<span>Rate</span>Compare</h1>
+                <p class="tagline">Compare 1000+ hotels. Find your best room rate.</p>
             </div>
-            <div class="nav-links">
+            <button class="mobile-menu-btn" id="menuBtn" aria-label="Menu">☰</button>
+            <div class="nav-links" id="navLinks">
                 <a href="/">Home</a>
                 <a href="/search">Search</a>
                 <a href="/agents">Travel Agents</a>
+                <a href="/agent-register">Become an Agent</a>
+                <a href="/blog">Blog</a>
+                <a href="/partners">Partners</a>
             </div>
         </nav>
+        <div class="menu-overlay" id="menuOverlay"></div>
     </header>
 
     <main>
         <div class="agents-container">
-            <div class="agents-header">
-                <h1>✈️ Travel Agents</h1>
-                <p>Get personalized hotel booking assistance from our trusted travel partners</p>
+            <div class="header">
+                <h1>✈️ Our Trusted Travel Agents</h1>
+                <p>Connect with expert travel agents who can help plan your perfect trip</p>
             </div>
 
-            <div id="agentsList"></div>
+            <div class="filters" id="filterContainer">
+                <button class="filter-btn active" data-specialty="all" onclick="filterBySpecialty('all')">🌍 All</button>
+                <button class="filter-btn" data-specialty="Luxury & Business" onclick="filterBySpecialty('Luxury & Business')">💼 Luxury & Business</button>
+                <button class="filter-btn" data-specialty="Budget & Family" onclick="filterBySpecialty('Budget & Family')">👨‍👩‍👧‍👦 Budget & Family</button>
+                <button class="filter-btn" data-specialty="Honeymoon & Romantic" onclick="filterBySpecialty('Honeymoon & Romantic')">💕 Honeymoon & Romantic</button>
+                <button class="filter-btn" data-specialty="Adventure & Eco" onclick="filterBySpecialty('Adventure & Eco')">🏔️ Adventure & Eco</button>
+            </div>
 
-            <div class="request-form">
-                <h3>📋 Need help finding a hotel?</h3>
-                <p>Fill out the form below and a travel agent will contact you within 24 hours.</p>
-                <form id="agentRequestForm">
-                    <div class="form-group">
-                        <input type="text" id="name" placeholder="Your Name" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="email" id="email" placeholder="Your Email" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="text" id="destination" placeholder="Destination City" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="date" id="checkin" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="date" id="checkout" required>
-                    </div>
-                    <div class="form-group">
-                        <select id="budget">
-                            <option value="">Select Budget</option>
-                            <option value="budget">Budget ($50-100/night)</option>
-                            <option value="mid">Mid-Range ($100-200/night)</option>
-                            <option value="luxury">Luxury ($200+/night)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <textarea id="message" rows="3" placeholder="Special requests or preferences..."></textarea>
-                    </div>
-                    <button type="submit" class="submit-btn">Submit Request →</button>
-                </form>
+            <div id="agentsGrid" class="agents-grid">
+                <div class="loader"><div class="loader-spinner"></div><p>Loading agents...</p></div>
             </div>
         </div>
     </main>
 
     <footer>
-        <p>&copy; 2026 RoomRateCompare.com - Compare hotel room rates instantly</p>
+        <div class="footer-container">
+            <div class="footer-column">
+                <h3>🏨 RoomRateCompare</h3>
+                <p>Compare hotel room rates from 50+ travel sites.</p>
+                <p>📍 UK: Aamir Saba Ltd<br>📍 USA: Aamir Saba Inc</p>
+            </div>
+            <div class="footer-column">
+                <h3>🔗 Quick Links</h3>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/search">Search Hotels</a></li>
+                    <li><a href="/agents">Travel Agents</a></li>
+                    <li><a href="/agent-register">Become an Agent</a></li>
+                    <li><a href="/blog">Travel Blog</a></li>
+                    <li><a href="/partners">Affiliate Partners</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>⚖️ Legal & Support</h3>
+                <ul>
+                    <li><a href="/privacy">Privacy Policy</a></li>
+                    <li><a href="/terms">Terms & Conditions</a></li>
+                    <li><a href="/refund">Refund Policy</a></li>
+                    <li><a href="/contact">Contact Us</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 RoomRateCompare.com. All rights reserved.</p>
+        </div>
     </footer>
 
+    <!-- Chatbot -->
+    <div id="chatbotContainer" class="chatbot-container">
+        <div class="chatbot-header">
+            <span>🤖 Hotel Assistant</span>
+            <button id="closeChatbot">✕</button>
+        </div>
+        <div id="chatMessages" class="chat-messages">
+            <div class="message bot">
+                <div class="message-text">👋 Hi! Ask me about travel agents or hotels!</div>
+            </div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="chatInput" placeholder="Ask me something...">
+            <button onclick="sendChatMessage()">Send</button>
+        </div>
+    </div>
+    <button id="openChatbotBtn" class="chatbot-open-btn">💬</button>
+
     <script>
-        // Travel agents data
-        const agents = [
-            {
-                id: 1,
-                name: "Sarah Ahmed",
-                specialty: "Luxury & Business Travel",
-                description: "Specializing in 5-star hotels and corporate travel packages. 10+ years experience in Dubai, London, and Singapore.",
-                languages: ["English", "Arabic", "French"],
-                rating: 4.9,
-                reviews: 128,
-                image: "👩‍💼"
-            },
-            {
-                id: 2,
-                name: "Mohammed Al-Rashid",
-                specialty: "Budget & Family Travel",
-                description: "Expert in finding affordable family-friendly hotels. Best prices for Middle East and South Asia destinations.",
-                languages: ["English", "Arabic", "Urdu"],
-                rating: 4.8,
-                reviews: 94,
-                image: "👨‍💼"
-            },
-            {
-                id: 3,
-                name: "Priya Sharma",
-                specialty: "Honeymoon & Romantic Getaways",
-                description: "Curated romantic hotel experiences. Special rates for couples and honeymoon packages worldwide.",
-                languages: ["English", "Hindi", "French"],
-                rating: 4.95,
-                reviews: 210,
-                image: "👩‍💼"
-            },
-            {
-                id: 4,
-                name: "James Wilson",
-                specialty: "Adventure & Eco-Tourism",
-                description: "Sustainable and eco-friendly hotel options. Perfect for nature lovers and adventure travelers.",
-                languages: ["English", "Spanish"],
-                rating: 4.85,
-                reviews: 67,
-                image: "👨‍💼"
+        // Mobile menu
+        (function() {
+            const menuBtn = document.getElementById('menuBtn');
+            const navLinks = document.getElementById('navLinks');
+            const menuOverlay = document.getElementById('menuOverlay');
+            if (!menuBtn) return;
+            function toggleMenu() {
+                navLinks.classList.toggle('active');
+                menuOverlay.classList.toggle('active');
+                document.body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : '';
             }
-        ];
+            function closeMenu() {
+                navLinks.classList.remove('active');
+                menuOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+            menuBtn.addEventListener('click', toggleMenu);
+            if (menuOverlay) menuOverlay.addEventListener('click', closeMenu);
+            document.querySelectorAll('.nav-links a').forEach(link => link.addEventListener('click', closeMenu));
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) closeMenu();
+            });
+        })();
 
-        let selectedAgentId = null;
-        let selectedAgentName = null;
-
-        function renderAgents() {
-            const container = document.getElementById('agentsList');
-            
-            const agentsHtml = agents.map(agent => `
-                <div class="agent-card">
-                    <div class="agent-avatar">${agent.image}</div>
-                    <div class="agent-info">
-                        <div class="agent-name">${agent.name}</div>
-                        <div class="agent-specialty">🎯 ${agent.specialty}</div>
-                        <div class="agent-desc">${agent.description}</div>
-                        <div class="agent-languages">
-                            ${agent.languages.map(lang => `<span class="language-badge">${lang}</span>`).join('')}
-                        </div>
-                        <div class="agent-rating">
-                            <div class="stars">${'★'.repeat(Math.floor(agent.rating))}${'☆'.repeat(5 - Math.floor(agent.rating))}</div>
-                            <span style="color:#666; font-size:0.8rem;">${agent.rating} (${agent.reviews} reviews)</span>
-                        </div>
-                    </div>
-                    <div>
-                        <button class="contact-btn" onclick="selectAgent(${agent.id}, '${agent.name}')">Contact Agent →</button>
-                    </div>
-                </div>
-            `).join('');
-            
-            container.innerHTML = agentsHtml;
+        // Chatbot
+        const chatbot = document.getElementById('chatbotContainer');
+        const openBtn = document.getElementById('openChatbotBtn');
+        const closeBtn = document.getElementById('closeChatbot');
+        if (openBtn) openBtn.onclick = function() { chatbot.style.display = 'flex'; openBtn.style.display = 'none'; };
+        if (closeBtn) closeBtn.onclick = function() { chatbot.style.display = 'none'; openBtn.style.display = 'flex'; };
+        
+        function addMessage(sender, text, isUser) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'message ' + (isUser ? 'user' : 'bot');
+            msgDiv.innerHTML = '<div class="message-text">' + text + '</div>';
+            messagesDiv.appendChild(msgDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
-
-        function selectAgent(id, name) {
-            selectedAgentId = id;
-            selectedAgentName = name;
-            document.getElementById('message').value = `Hi ${name}, I need help booking a hotel. Please contact me.`;
-            document.getElementById('agentRequestForm').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        // Set default dates
-        const today = new Date();
-        const futureDate = new Date(today);
-        futureDate.setDate(futureDate.getDate() + 3);
-        document.getElementById('checkin').value = today.toISOString().split('T')[0];
-        document.getElementById('checkout').value = futureDate.toISOString().split('T')[0];
-
-        // Handle form submission
-        document.getElementById('agentRequestForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const submitBtn = document.querySelector('.submit-btn');
-            const originalText = submitBtn.textContent;
-            submitBtn.textContent = 'Submitting...';
-            submitBtn.disabled = true;
-            
-            // Get form values
-            const name = document.getElementById('name').value;
-            const email = document.getElementById('email').value;
-            const destination = document.getElementById('destination').value;
-            const checkin = document.getElementById('checkin').value;
-            const checkout = document.getElementById('checkout').value;
-            const budget = document.getElementById('budget').value;
-            const message = document.getElementById('message').value;
-            
-            console.log('Form data:', { name, email, destination, checkin, checkout, budget, message, selectedAgentId });
-            
-            const formData = {
-                name: name,
-                email: email,
-                destination: destination,
-                checkin: checkin,
-                checkout: checkout,
-                budget: budget,
-                message: message,
-                agentId: selectedAgentId
-            };
-            
+        
+        async function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+            addMessage('You', msg, true);
+            input.value = '';
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+            document.getElementById('chatMessages').appendChild(typingDiv);
             try {
-                const response = await fetch('/api/agents/request', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
-                });
-                
-                const result = await response.json();
-                console.log('Response:', result);
-                
-                if (result.success) {
-                    alert('✅ Thank you! A travel agent will contact you within 24 hours.');
-                    document.getElementById('agentRequestForm').reset();
-                    selectedAgentId = null;
-                    selectedAgentName = null;
-                    // Reset dates
-                    document.getElementById('checkin').value = today.toISOString().split('T')[0];
-                    document.getElementById('checkout').value = futureDate.toISOString().split('T')[0];
+                const response = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: msg }) });
+                const data = await response.json();
+                typingDiv.remove();
+                addMessage('Assistant', data.reply || 'Try asking about travel agents!', false);
+            } catch(error) {
+                typingDiv.remove();
+                addMessage('Assistant', "I'm your assistant. Ask me about travel agents!", false);
+            }
+        }
+        window.sendChatMessage = sendChatMessage;
+        document.getElementById('chatInput')?.addEventListener('keypress', function(e) { if (e.key === 'Enter') sendChatMessage(); });
+
+        // Agents functionality
+        let allAgents = [];
+        let currentSpecialty = 'all';
+        
+        async function loadAgents() {
+            try {
+                const response = await fetch('/api/agents/list');
+                const data = await response.json();
+                if (data.success && data.agents && data.agents.length > 0) {
+                    allAgents = data.agents;
+                    displayAgents();
                 } else {
-                    alert('❌ ' + (result.error || 'Something went wrong. Please try again.'));
+                    document.getElementById('agentsGrid').innerHTML = '<div class="no-agents">No agents found. Check back soon!</div>';
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('❌ Network error. Please check your connection and try again.');
-            } finally {
-                submitBtn.textContent = originalText;
-                submitBtn.disabled = false;
+                document.getElementById('agentsGrid').innerHTML = '<div class="no-agents">Error loading agents. Please try again later.</div>';
             }
-        });
-
-        renderAgents();
+        }
+        
+        function displayAgents() {
+            let filteredAgents = allAgents;
+            if (currentSpecialty !== 'all') {
+                filteredAgents = allAgents.filter(agent => agent.specialty === currentSpecialty);
+            }
+            if (filteredAgents.length === 0) {
+                document.getElementById('agentsGrid').innerHTML = '<div class="no-agents">No agents found with this specialty.</div>';
+                return;
+            }
+            let html = '';
+            for (let i = 0; i < filteredAgents.length; i++) {
+                const agent = filteredAgents[i];
+                const avgRating = parseFloat(agent.avg_rating) || 0;
+                const stars = getStarRating(avgRating);
+                const specialtyIcons = { 'Luxury & Business': '💼', 'Budget & Family': '👨‍👩‍👧‍👦', 'Honeymoon & Romantic': '💕', 'Adventure & Eco': '🏔️' };
+                const avatarIcon = specialtyIcons[agent.specialty] || '✈️';
+                let contactIcons = '';
+                if (agent.email) contactIcons += '<span class="contact-icon" title="Email">✉️</span>';
+                if (agent.whatsapp_number) contactIcons += '<span class="contact-icon" title="WhatsApp">💬</span>';
+                if (agent.phone) contactIcons += '<span class="contact-icon" title="Phone">📞</span>';
+                
+                html += `
+                    <a href="/agent-profile?id=${agent.id}" class="agent-card">
+                        <div class="agent-header">
+                            <div class="agent-avatar">${avatarIcon}</div>
+                            <div class="agent-name">${escapeHtml(agent.name)}</div>
+                            <div class="agent-specialty">${escapeHtml(agent.specialty || 'Travel Specialist')}</div>
+                        </div>
+                        <div class="agent-body">
+                            <div class="agent-rating"><span class="stars">${stars}</span><span class="rating-number">(${avgRating.toFixed(1)}/5)</span></div>
+                            <div class="agent-bio">${escapeHtml(agent.bio || 'Experienced travel agent ready to help plan your next adventure!')}</div>
+                            <div class="agent-contact">${contactIcons || '<span class="contact-icon">✉️</span>'}</div>
+                        </div>
+                    </a>
+                `;
+            }
+            document.getElementById('agentsGrid').innerHTML = html;
+        }
+        
+        function getStarRating(rating) {
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+            let stars = '';
+            for (let i = 0; i < fullStars; i++) stars += '⭐';
+            if (hasHalfStar) stars += '½';
+            for (let i = 0; i < 5 - fullStars - (hasHalfStar ? 1 : 0); i++) stars += '☆';
+            return stars || '☆☆☆☆☆';
+        }
+        
+        function filterBySpecialty(specialty) {
+            currentSpecialty = specialty;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-specialty') === specialty) {
+                    btn.classList.add('active');
+                }
+            });
+            displayAgents();
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+        }
+        
+        loadAgents();
     </script>
 </body>
 </html>

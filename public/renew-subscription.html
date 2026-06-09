@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Renew Subscription | RoomRateCompare</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://js.stripe.com/v3/"></script>
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GKJZTX45SB"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-GKJZTX45SB');
+    </script>
+    
+    <!-- Travelpayouts Affiliate Script -->
+    <script nowprocket data-noptimize="1" data-cfasync="false" data-wpfc-render="false" seraph-accel-crit="1" data-no-defer="1">
+        (function () {
+            var script = document.createElement("script");
+            script.async = 1;
+            script.src = 'https://emrldtp.cc/NTMxODI2.js?t=531826';
+            document.head.appendChild(script);
+        })();
+    </script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+        }
+        .renew-container {
+            max-width: 500px;
+            margin: 3rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .renew-container h1 {
+            text-align: center;
+            color: #e67e22;
+            margin-bottom: 0.5rem;
+        }
+        .renew-container p {
+            text-align: center;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+        .price {
+            font-size: 2.5rem;
+            text-align: center;
+            color: #e67e22;
+            font-weight: bold;
+            margin: 1rem 0;
+        }
+        .card-element {
+            border: 1px solid #ddd;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            background: white;
+        }
+        button {
+            width: 100%;
+            background: #e67e22;
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #d35400;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .error {
+            color: #c62828;
+            background: #ffebee;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            text-align: center;
+        }
+        .success {
+            color: #2e7d32;
+            background: #e8f5e9;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            text-align: center;
+        }
+        .info-box {
+            background: #e3f2fd;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+        .card-errors {
+            color: #c62828;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            text-align: left;
+        }
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #e67e22;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        @media (max-width: 768px) {
+            .renew-container {
+                margin: 2rem 1rem;
+                padding: 1.5rem;
+            }
+            .price {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <h1>Room<span>Rate</span>Compare</h1>
+                <p class="tagline">Compare 1000+ hotels. Find your best room rate.</p>
+            </div>
+            <button class="mobile-menu-btn" id="menuBtn" aria-label="Menu">☰</button>
+            <div class="nav-links" id="navLinks">
+                <a href="/">Home</a>
+                <a href="/search">Search</a>
+                <a href="/agents">Travel Agents</a>
+                <a href="/agent-register">Become an Agent</a>
+                <a href="/blog">Blog</a>
+                <a href="/partners">Partners</a>
+            </div>
+        </nav>
+        <div class="menu-overlay" id="menuOverlay"></div>
+    </header>
+
+    <main>
+        <div class="renew-container">
+            <h1>🔄 Renew Subscription</h1>
+            <p>Reactivate your agent account</p>
+            <div class="price">$10.00 / month</div>
+            
+            <div class="info-box">
+                <strong>📌 How it works:</strong><br>
+                1. Enter your card details below<br>
+                2. Click "Pay & Renew"<br>
+                3. You'll be redirected to login
+            </div>
+            
+            <div class="card-element" id="card-element"></div>
+            <div id="card-errors" class="card-errors"></div>
+            
+            <button id="renewBtn">Pay $10.00 & Renew →</button>
+            <div id="message"></div>
+            <a href="/agent-login" class="back-link">← Back to Login</a>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-column">
+                <h3>🏨 RoomRateCompare</h3>
+                <p>Compare hotel room rates from 50+ travel sites.</p>
+                <p>📍 UK: Aamir Saba Ltd<br>📍 USA: Aamir Saba Inc</p>
+            </div>
+            <div class="footer-column">
+                <h3>🔗 Quick Links</h3>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/search">Search Hotels</a></li>
+                    <li><a href="/agents">Travel Agents</a></li>
+                    <li><a href="/agent-register">Become an Agent</a></li>
+                    <li><a href="/blog">Travel Blog</a></li>
+                    <li><a href="/partners">Affiliate Partners</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>⚖️ Legal & Support</h3>
+                <ul>
+                    <li><a href="/privacy">Privacy Policy</a></li>
+                    <li><a href="/terms">Terms & Conditions</a></li>
+                    <li><a href="/refund">Refund Policy</a></li>
+                    <li><a href="/contact">Contact Us</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 RoomRateCompare.com. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+    // Mobile menu
+    (function() {
+        const menuBtn = document.getElementById('menuBtn');
+        const navLinks = document.getElementById('navLinks');
+        const menuOverlay = document.getElementById('menuOverlay');
+        if (!menuBtn) return;
+        function toggleMenu() {
+            navLinks.classList.toggle('active');
+            menuOverlay.classList.toggle('active');
+            document.body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : '';
+        }
+        function closeMenu() {
+            navLinks.classList.remove('active');
+            menuOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        menuBtn.addEventListener('click', toggleMenu);
+        if (menuOverlay) menuOverlay.addEventListener('click', closeMenu);
+        document.querySelectorAll('.nav-links a').forEach(link => link.addEventListener('click', closeMenu));
+        window.addEventListener('resize', function() { if (window.innerWidth > 768) closeMenu(); });
+    })();
+
+    // Stripe configuration
+    const stripe = Stripe('pk_test_51KicUgFTB3ubInjd3wW7aUNVlLrgmGTWPXQNjK4Q3oYtVr1YJomoqhzvKlgBxFKhn2DFUAdOLuqnL4HBYVwa4zTA00zpGCymRV');
+    const elements = stripe.elements();
+    const cardElement = elements.create('card', {
+        style: {
+            base: {
+                fontSize: '16px',
+                color: '#32325d',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                '::placeholder': { color: '#aab7c4' }
+            }
+        }
+    });
+    cardElement.mount('#card-element');
+    
+    cardElement.on('change', function(event) {
+        const displayError = document.getElementById('card-errors');
+        if (event.error) {
+            displayError.textContent = event.error.message;
+        } else {
+            displayError.textContent = '';
+        }
+    });
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const email = urlParams.get('email');
+    
+    async function renewSubscription() {
+        const btn = document.getElementById('renewBtn');
+        const messageDiv = document.getElementById('message');
+        
+        btn.textContent = 'Processing...';
+        btn.disabled = true;
+        messageDiv.innerHTML = '';
+        
+        try {
+            // First, get password from user
+            const password = prompt('Please enter your password to confirm renewal:');
+            if (!password) {
+                btn.textContent = 'Pay $10.00 & Renew →';
+                btn.disabled = false;
+                return;
+            }
+            
+            // Use special renewal login endpoint (bypasses subscription check)
+            const loginResponse = await fetch('/api/agent-auth/renewal-login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email, password: password })
+            });
+            
+            const loginData = await loginResponse.json();
+            
+            if (!loginData.success) {
+                messageDiv.innerHTML = `<div class="error">❌ Login failed: ${loginData.error}</div>`;
+                btn.textContent = 'Pay $10.00 & Renew →';
+                btn.disabled = false;
+                return;
+            }
+            
+            // Create payment method
+            const { paymentMethod, error: paymentError } = await stripe.createPaymentMethod({
+                type: 'card',
+                card: cardElement,
+            });
+            
+            if (paymentError) {
+                messageDiv.innerHTML = `<div class="error">❌ Card error: ${paymentError.message}</div>`;
+                btn.textContent = 'Pay $10.00 & Renew →';
+                btn.disabled = false;
+                return;
+            }
+            
+            // Process renewal
+            const renewResponse = await fetch('/api/agent-auth/renew-subscription-direct', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: email,
+                    password: password,
+                    paymentMethodId: paymentMethod.id
+                })
+            });
+            
+            const data = await renewResponse.json();
+            
+            if (data.success) {
+                messageDiv.innerHTML = `<div class="success">✅ ${data.message}<br><br>Redirecting to login...</div>`;
+                setTimeout(() => {
+                    window.location.href = '/agent-login';
+                }, 3000);
+            } else {
+                messageDiv.innerHTML = `<div class="error">❌ ${data.error}</div>`;
+                btn.textContent = 'Pay $10.00 & Renew →';
+                btn.disabled = false;
+            }
+        } catch (error) {
+            console.error('Renewal error:', error);
+            messageDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            btn.textContent = 'Pay $10.00 & Renew →';
+            btn.disabled = false;
+        }
+    }
+    
+    document.getElementById('renewBtn').addEventListener('click', renewSubscription);
+    
+    if (!email) {
+        document.getElementById('message').innerHTML = '<div class="error">❌ No email provided. Please go back to login.</div>';
+        document.getElementById('renewBtn').disabled = true;
+    }
+</script>
+
+</body>
+</html>

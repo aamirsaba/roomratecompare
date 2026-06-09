@@ -10,10 +10,81 @@ body {
     color: #1a1a1a;
 }
 
+/* ============ MOBILE MENU BUTTON ============ */
+.mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: #333;
+    padding: 0.5rem;
+    transition: color 0.2s;
+}
+
+.mobile-menu-btn:hover {
+    color: #e67e22;
+}
+
+.menu-overlay {
+    display: none;
+    position: fixed;
+    top: 70px;
+    left: 0;
+    width: 100%;
+    height: calc(100vh - 70px);
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+}
+
+.menu-overlay.active {
+    display: block;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .mobile-menu-btn {
+        display: block;
+    }
+    
+    .nav-links {
+        position: fixed;
+        top: 70px;
+        left: -100%;
+        width: 75%;
+        max-width: 280px;
+        height: calc(100vh - 70px);
+        background: white;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1.5rem;
+        gap: 1rem;
+        transition: left 0.3s ease;
+        box-shadow: 2px 0 15px rgba(0,0,0,0.1);
+        z-index: 1000;
+    }
+    
+    .nav-links.active {
+        left: 0;
+    }
+    
+    .nav-links a {
+        width: 100%;
+        padding: 0.8rem 0;
+        border-bottom: 1px solid #eee;
+        font-size: 1rem;
+    }
+    
+    .nav-links a:last-child {
+        border-bottom: none;
+    }
+}
+
+
+/* ============ HEADER ============ */
 header {
     background: white;
     box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-    padding: 1rem 2rem;
     position: sticky;
     top: 0;
     z-index: 100;
@@ -22,9 +93,11 @@ header {
 nav {
     max-width: 1200px;
     margin: 0 auto;
+    padding: 1rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .logo h1 {
@@ -42,18 +115,25 @@ nav {
     margin-top: 0.25rem;
 }
 
+.nav-links {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+}
+
 .nav-links a {
-    margin-left: 2rem;
     text-decoration: none;
     color: #333;
     font-weight: 500;
     transition: color 0.2s;
+    padding: 0.5rem;
 }
 
 .nav-links a:hover {
     color: #e67e22;
 }
 
+/* ============ HERO SECTION ============ */
 .hero {
     background: linear-gradient(135deg, #1a252f, #2c3e50);
     color: white;
@@ -72,28 +152,40 @@ nav {
     opacity: 0.9;
 }
 
+/* ============ SEARCH BOX ============ */
 .search-box {
     max-width: 900px;
     margin: 2rem auto 0;
     background: white;
-    padding: 2rem;
-    border-radius: 16px;
+    padding: 1.5rem;
+    border-radius: 60px;
     box-shadow: 0 20px 40px rgba(0,0,0,0.15);
 }
 
 #searchForm {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 0.8fr;
-    gap: 1rem;
+    display: flex;
+    gap: 0.8rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.form-group {
+    flex: 1;
+    min-width: 150px;
+}
+
+.form-group:first-child {
+    flex: 2;
+    min-width: 200px;
 }
 
 .form-group input,
 .form-group select {
     width: 100%;
-    padding: 0.9rem;
+    padding: 0.8rem 1rem;
     border: 1px solid #e0e0e0;
-    border-radius: 10px;
-    font-size: 1rem;
+    border-radius: 50px;
+    font-size: 0.95rem;
     transition: border-color 0.2s;
 }
 
@@ -107,11 +199,12 @@ button[type="submit"] {
     background: #e67e22;
     color: white;
     border: none;
-    padding: 0.9rem;
-    border-radius: 10px;
-    font-size: 1rem;
+    padding: 0.8rem 1.8rem;
+    border-radius: 50px;
+    font-size: 0.95rem;
     font-weight: 600;
     cursor: pointer;
+    white-space: nowrap;
     transition: background 0.2s;
 }
 
@@ -119,6 +212,7 @@ button[type="submit"]:hover {
     background: #d35400;
 }
 
+/* ============ FEATURES ============ */
 .features {
     max-width: 1200px;
     margin: 4rem auto;
@@ -147,210 +241,167 @@ button[type="submit"]:hover {
     font-size: 1.3rem;
 }
 
-
-/* AI Assistant Styles */
-.ai-assistant {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 1000;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+/* ============ POPULAR DESTINATIONS ============ */
+.popular-destinations {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 2rem;
 }
 
-.assistant-button {
-    width: 70px;
-    height: 70px;
-    background: linear-gradient(135deg, #e67e22, #d35400);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
-    transition: all 0.3s ease;
-    position: relative;
+.popular-destinations h3 {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+    text-align: center;
 }
 
-.assistant-button:hover {
-    transform: scale(1.08);
-    box-shadow: 0 8px 30px rgba(230,126,34,0.4);
+.destination-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.8rem;
 }
 
-.assistant-avatar {
-    font-size: 45px;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
-}
-
-.pulse-ring {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background: rgba(230,126,34,0.4);
-    animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); opacity: 0.6; }
-    100% { transform: scale(1.5); opacity: 0; }
-}
-
-.assistant-window {
-    position: fixed;
-    bottom: 100px;
-    right: 20px;
-    width: 380px;
-    height: 550px;
+.dest-card {
     background: white;
-    border-radius: 25px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    transition: all 0.3s ease;
-    z-index: 1001;
+    padding: 0.8rem;
+    text-align: center;
+    border-radius: 12px;
+    text-decoration: none;
+    color: #1a1a1a;
+    font-weight: 500;
+    transition: all 0.2s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
 }
 
-.assistant-window.hidden {
-    display: none;
-    transform: scale(0.9);
-    opacity: 0;
-}
-
-.assistant-header {
-    background: linear-gradient(135deg, #e67e22, #d35400);
-    color: white;
-    padding: 15px 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.assistant-header-avatar {
-    width: 45px;
-    height: 45px;
-    background: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 28px;
-}
-
-.assistant-header-info {
-    flex: 1;
-}
-
-.assistant-header-info h3 {
-    margin: 0;
-    font-size: 16px;
-    font-weight: 600;
-}
-
-.assistant-header-info p {
-    margin: 0;
-    font-size: 11px;
-    opacity: 0.9;
-}
-
-.close-assistant {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 24px;
-    cursor: pointer;
-    padding: 0;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: background 0.2s;
-}
-
-.close-assistant:hover {
-    background: rgba(255,255,255,0.2);
-}
-
-.assistant-messages {
-    flex: 1;
-    padding: 20px;
-    overflow-y: auto;
-    background: #f8f9fa;
-}
-
-.assistant-message {
-    margin-bottom: 15px;
-    display: flex;
-    gap: 10px;
-}
-
-.assistant-message.assistant {
-    justify-content: flex-start;
-}
-
-.assistant-message.user {
-    justify-content: flex-end;
-}
-
-.message-avatar {
-    width: 32px;
-    height: 32px;
-    background: linear-gradient(135deg, #e67e22, #d35400);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    flex-shrink: 0;
-}
-
-.message-bubble {
-    max-width: 75%;
-    padding: 10px 14px;
-    border-radius: 18px;
-    font-size: 13px;
-    line-height: 1.4;
-}
-
-.assistant-message.assistant .message-bubble {
-    background: white;
-    color: #333;
-    border-bottom-left-radius: 4px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-}
-
-.assistant-message.user .message-bubble {
+.dest-card:hover {
+    transform: translateY(-3px);
     background: #e67e22;
     color: white;
-    border-bottom-right-radius: 4px;
 }
 
-.quick-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 12px;
+/* ============ FOOTER ============ */
+footer {
+    background: #1a1a1a;
+    color: #999;
+    margin-top: 3rem;
+    padding: 3rem 2rem 2rem;
 }
 
-.quick-btn {
-    background: #f0f0f0;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 11px;
-    cursor: pointer;
-    transition: all 0.2s;
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+}
+
+.footer-column h3 {
+    color: #e67e22;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #333;
+}
+
+.footer-column p {
+    line-height: 1.6;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.footer-column ul {
+    list-style: none;
+}
+
+.footer-column ul li {
+    margin-bottom: 0.5rem;
+}
+
+.footer-column ul li a {
+    color: #999;
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: color 0.2s;
+}
+
+.footer-column ul li a:hover {
     color: #e67e22;
 }
 
-.quick-btn:hover {
-    background: #e67e22;
-    color: white;
+.footer-bottom {
+    text-align: center;
+    padding-top: 2rem;
+    margin-top: 2rem;
+    border-top: 1px solid #333;
+    font-size: 0.75rem;
 }
 
-.assistant-input-area {
+/* ============ CHATBOT ============ */
+.chatbot-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 350px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    z-index: 1000;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.chatbot-header {
+    background: #e67e22;
+    color: white;
+    padding: 12px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chatbot-header button {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.chat-messages {
+    height: 300px;
+    overflow-y: auto;
+    padding: 12px;
+    background: #f9f9f9;
+}
+
+.message {
+    margin-bottom: 12px;
+}
+
+.message.user {
+    text-align: right;
+}
+
+.message.user .message-text {
+    background: #e67e22;
+    color: white;
+    display: inline-block;
+    padding: 8px 14px;
+    border-radius: 18px;
+    max-width: 80%;
+}
+
+.message.bot .message-text {
+    background: white;
+    color: #333;
+    display: inline-block;
+    padding: 8px 14px;
+    border-radius: 18px;
+    max-width: 80%;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.chat-input-area {
     display: flex;
     padding: 12px;
     border-top: 1px solid #eee;
@@ -358,50 +409,58 @@ button[type="submit"]:hover {
     gap: 8px;
 }
 
-.assistant-input-area input {
+.chat-input-area input {
     flex: 1;
-    padding: 10px 15px;
+    padding: 10px;
     border: 1px solid #ddd;
     border-radius: 25px;
     outline: none;
-    font-size: 13px;
 }
 
-.assistant-input-area input:focus {
-    border-color: #e67e22;
-}
-
-.assistant-input-area button {
+.chat-input-area button {
     background: #e67e22;
-    border: none;
     color: white;
-    width: 40px;
-    height: 40px;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 25px;
+    cursor: pointer;
+}
+
+.chatbot-open-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #e67e22;
+    color: white;
+    border: none;
+    width: 55px;
+    height: 55px;
     border-radius: 50%;
     cursor: pointer;
-    font-size: 18px;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    font-size: 24px;
+    z-index: 999;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    transition: transform 0.2s;
 }
 
-.assistant-input-area button:hover {
-    background: #d35400;
+.chatbot-open-btn:hover {
     transform: scale(1.05);
 }
 
 .typing-indicator {
-    display: flex;
-    gap: 5px;
-    padding: 10px 14px;
+    display: inline-block;
+    background: #f0f0f0;
+    padding: 8px 12px;
+    border-radius: 18px;
 }
 
 .typing-indicator span {
+    display: inline-block;
     width: 8px;
     height: 8px;
-    background: #999;
     border-radius: 50%;
+    background: #999;
+    margin: 0 2px;
     animation: typingAnim 1.4s infinite;
 }
 
@@ -409,63 +468,35 @@ button[type="submit"]:hover {
 .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
 
 @keyframes typingAnim {
-    0%, 60%, 100% { transform: translateY(0); }
-    30% { transform: translateY(-8px); }
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-8px); opacity: 1; }
 }
 
-.loading-tip-card {
-    background: #fff3e0;
-    padding: 12px;
-    border-radius: 12px;
-    margin-top: 10px;
-    border-left: 4px solid #e67e22;
-}
-
-.loading-tip-card h4 {
-    margin: 0 0 5px 0;
-    font-size: 13px;
-    color: #e67e22;
-}
-
-.loading-tip-card p {
-    margin: 0;
-    font-size: 12px;
-    color: #666;
-}
-
-@media (max-width: 480px) {
-    .assistant-window {
-        width: 320px;
-        height: 500px;
-        right: 10px;
-        bottom: 80px;
-    }
-    
-    .assistant-button {
-        width: 55px;
-        height: 55px;
-    }
-    
-    .assistant-avatar {
-        font-size: 35px;
-    }
-}
-
-footer {
-    text-align: center;
-    padding: 2rem;
-    background: #1a1a1a;
-    color: #888;
-    font-size: 0.85rem;
-}
-
+/* ============ RESPONSIVE ============ */
 @media (max-width: 768px) {
     #searchForm {
-        grid-template-columns: 1fr;
+        flex-direction: column;
     }
     
-    .features {
+    .form-group {
+        width: 100%;
+        min-width: unset;
+    }
+    
+    button[type="submit"] {
+        width: 100%;
+    }
+    
+    .footer-container {
         grid-template-columns: 1fr;
+        text-align: center;
+        gap: 1.5rem;
+    }
+    
+    .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.8rem;
     }
     
     nav {
@@ -478,6 +509,32 @@ footer {
     }
     
     .search-box {
-        padding: 1.5rem;
+        border-radius: 20px;
+        padding: 1rem;
+    }
+    
+    .features {
+        grid-template-columns: 1fr;
+        padding: 0 1rem;
+    }
+    
+    .popular-destinations {
+        padding: 0 1rem;
+    }
+    
+    .destination-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+    }
+    
+    .dest-card {
+        padding: 0.5rem;
+        font-size: 0.8rem;
+    }
+    
+    .chatbot-container {
+        width: 90%;
+        right: 5%;
+        left: 5%;
     }
 }

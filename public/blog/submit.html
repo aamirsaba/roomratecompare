@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Write for Us | RoomRateCompare</title>
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GKJZTX45SB"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-GKJZTX45SB');
+    </script>
+    
+    <!-- Travelpayouts Affiliate Script -->
+    <script nowprocket data-noptimize="1" data-cfasync="false" data-wpfc-render="false" seraph-accel-crit="1" data-no-defer="1">
+        (function () {
+            var script = document.createElement("script");
+            script.async = 1;
+            script.src = 'https://emrldtp.cc/NTMxODI2.js?t=531826';
+            document.head.appendChild(script);
+        })();
+    </script>
+    
+    <style>
+        .submit-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        .form-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .form-card h1 {
+            color: #e67e22;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+        .form-card > p {
+            text-align: center;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-family: inherit;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #e67e22;
+        }
+        button {
+            background: #e67e22;
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .word-count {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 0.25rem;
+            text-align: right;
+        }
+        .word-count.warning {
+            color: #e67e22;
+        }
+        .word-count.danger {
+            color: #f44336;
+        }
+        .success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .review-results {
+            background: #f5f5f5;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        .image-upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .image-upload-area:hover {
+            border-color: #e67e22;
+        }
+        .image-preview {
+            display: none;
+        }
+        .image-preview img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+        }
+        .remove-image-btn {
+            background: #f44336;
+            margin-top: 0.5rem;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.8rem;
+            width: auto;
+        }
+        @media (max-width: 768px) {
+            .submit-container {
+                padding: 0 1rem;
+            }
+            .form-card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <h1>Room<span>Rate</span>Compare</h1>
+                <p class="tagline">Compare 1000+ hotels. Find your best room rate.</p>
+            </div>
+            <button class="mobile-menu-btn" id="menuBtn" aria-label="Menu">☰</button>
+            <div class="nav-links" id="navLinks">
+                <a href="/">Home</a>
+                <a href="/search">Search</a>
+                <a href="/agents">Travel Agents</a>
+                <a href="/agent-register">Become an Agent</a>
+                <a href="/blog">Blog</a>
+                <a href="/partners">Partners</a>
+            </div>
+        </nav>
+        <div class="menu-overlay" id="menuOverlay"></div>
+    </header>
+
+    <main>
+        <div class="submit-container">
+            <div class="form-card">
+                <h1>✍️ Write for Us</h1>
+                <p>Share your travel experiences, tips, and guides with our community.</p>
+                <p><strong>Requirements:</strong> Minimum 500 words, original content, travel-related.</p>
+                
+                <div id="message"></div>
+                
+                <form id="blogForm">
+                    <div class="form-group">
+                        <input type="text" id="title" placeholder="Article Title *" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <select id="category" required>
+                            <option value="travel-tips">Travel Tips</option>
+                            <option value="destination-guide">Destination Guide</option>
+                            <option value="hotel-reviews">Hotel Reviews</option>
+                            <option value="travel-stories">Travel Stories</option>
+                            <option value="packing-guides">Packing Guides</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <input type="text" id="authorName" placeholder="Your Name *" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <input type="email" id="authorEmail" placeholder="Your Email *" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <textarea id="content" rows="15" placeholder="Write your article here... (minimum 500 words)"></textarea>
+                        <div id="wordCount" class="word-count">0 words (minimum 500)</div>
+                    </div>
+                    
+                    <!-- Featured Image Upload (Optional) -->
+                    <div class="form-group">
+                        <label>Featured Image (Optional)</label>
+                        <div class="image-upload-area" onclick="document.getElementById('imageInput').click()">
+                            <div id="uploadPlaceholder">
+                                📸 Click to upload featured image
+                                <br><small>JPG, PNG, GIF up to 5MB</small>
+                            </div>
+                            <div id="imagePreview" class="image-preview">
+                                <img id="previewImg" alt="Preview">
+                                <button type="button" class="remove-image-btn" onclick="removeImage(); event.stopPropagation();">Remove</button>
+                            </div>
+                        </div>
+                        <input type="file" id="imageInput" accept="image/*" style="display: none;">
+                        <input type="hidden" id="featuredImage" value="">
+                        <div id="imageUploadMessage" style="font-size: 0.8rem; margin-top: 0.5rem;"></div>
+                    </div>
+                    
+                    <button type="submit" id="submitBtn">Submit for Review →</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-column">
+                <h3>🏨 RoomRateCompare</h3>
+                <p>Compare hotel room rates from 50+ travel sites.</p>
+                <p>📍 UK: Aamir Saba Ltd<br>📍 USA: Aamir Saba Inc</p>
+            </div>
+            <div class="footer-column">
+                <h3>🔗 Quick Links</h3>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/search">Search Hotels</a></li>
+                    <li><a href="/agents">Travel Agents</a></li>
+                    <li><a href="/agent-register">Become an Agent</a></li>
+                    <li><a href="/blog">Travel Blog</a></li>
+                    <li><a href="/partners">Affiliate Partners</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>⚖️ Legal & Support</h3>
+                <ul>
+                    <li><a href="/privacy">Privacy Policy</a></li>
+                    <li><a href="/terms">Terms & Conditions</a></li>
+                    <li><a href="/refund">Refund Policy</a></li>
+                    <li><a href="/contact">Contact Us</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 RoomRateCompare.com. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+    // Mobile menu
+    (function() {
+        const menuBtn = document.getElementById('menuBtn');
+        const navLinks = document.getElementById('navLinks');
+        const menuOverlay = document.getElementById('menuOverlay');
+        if (!menuBtn) return;
+        function toggleMenu() {
+            navLinks.classList.toggle('active');
+            menuOverlay.classList.toggle('active');
+            document.body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : '';
+        }
+        function closeMenu() {
+            navLinks.classList.remove('active');
+            menuOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        menuBtn.addEventListener('click', toggleMenu);
+        if (menuOverlay) menuOverlay.addEventListener('click', closeMenu);
+        document.querySelectorAll('.nav-links a').forEach(link => link.addEventListener('click', closeMenu));
+        window.addEventListener('resize', function() { if (window.innerWidth > 768) closeMenu(); });
+    })();
+
+    // ============ WORD COUNT FUNCTION ============
+    function countWords(text) {
+        if (!text || text.trim() === '') return 0;
+        // Remove HTML tags
+        let cleanText = text.replace(/<[^>]*>/g, '');
+        // Split by spaces and filter empty
+        const words = cleanText.trim().split(/\s+/);
+        return words.filter(w => w.length > 0).length;
+    }
+
+    function updateWordCount() {
+        const content = document.getElementById('content');
+        const wordCountDiv = document.getElementById('wordCount');
+        
+        if (content && wordCountDiv) {
+            const wordCount = countWords(content.value);
+            wordCountDiv.textContent = wordCount + ' words (minimum 500)';
+            
+            if (wordCount < 500) {
+                wordCountDiv.className = 'word-count danger';
+            } else if (wordCount < 700) {
+                wordCountDiv.className = 'word-count warning';
+            } else {
+                wordCountDiv.className = 'word-count';
+            }
+        }
+    }
+
+    // Set up word count listener
+    const contentTextarea = document.getElementById('content');
+    if (contentTextarea) {
+        contentTextarea.addEventListener('input', updateWordCount);
+        contentTextarea.addEventListener('keyup', updateWordCount);
+        contentTextarea.addEventListener('keydown', updateWordCount);
+        // Initial count
+        setTimeout(updateWordCount, 100);
+    }
+    
+    // ============ IMAGE UPLOAD ============
+    const imageInput = document.getElementById('imageInput');
+    if (imageInput) {
+        imageInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file');
+                return;
+            }
+            
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File too large. Max 5MB');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('image', file);
+            
+            const messageDiv = document.getElementById('imageUploadMessage');
+            messageDiv.innerHTML = '<span style="color: #e67e22;">Uploading...</span>';
+            
+            try {
+                const response = await fetch('/api/blog/upload-image', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('featuredImage').value = data.imageUrl;
+                    document.getElementById('previewImg').src = data.imageUrl;
+                    document.getElementById('uploadPlaceholder').style.display = 'none';
+                    document.getElementById('imagePreview').style.display = 'block';
+                    messageDiv.innerHTML = '<span style="color: #4caf50;">✅ Image uploaded!</span>';
+                    setTimeout(() => messageDiv.innerHTML = '', 3000);
+                } else {
+                    messageDiv.innerHTML = `<span style="color: #f44336;">❌ ${data.error}</span>`;
+                }
+            } catch (error) {
+                messageDiv.innerHTML = '<span style="color: #f44336;">❌ Error uploading image</span>';
+            }
+        });
+    }
+    
+    function removeImage() {
+        document.getElementById('featuredImage').value = '';
+        document.getElementById('uploadPlaceholder').style.display = 'block';
+        document.getElementById('imagePreview').style.display = 'none';
+        const imageInput = document.getElementById('imageInput');
+        if (imageInput) imageInput.value = '';
+    }
+    
+    // ============ FORM SUBMISSION ============
+    const blogForm = document.getElementById('blogForm');
+    if (blogForm) {
+        blogForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const title = document.getElementById('title').value;
+            const category = document.getElementById('category').value;
+            const authorName = document.getElementById('authorName').value;
+            const authorEmail = document.getElementById('authorEmail').value;
+            const content = document.getElementById('content').value;
+            const featuredImage = document.getElementById('featuredImage').value;
+            const wordCount = countWords(content);
+            
+            if (wordCount < 500) {
+                document.getElementById('message').innerHTML = '<div class="error">❌ Article must be at least 500 words. Current: ' + wordCount + ' words</div>';
+                return;
+            }
+            
+            const btn = document.getElementById('submitBtn');
+            btn.textContent = 'Submitting...';
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch('/api/blog/submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        title, 
+                        content, 
+                        category, 
+                        authorName, 
+                        authorEmail,
+                        featuredImage: featuredImage || null
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const editUrl = `/blog/edit/${data.post.id}?id=${data.post.id}&token=${data.editToken}`;
+                    let statusMessage = '';
+                    
+                    if (data.post.status === 'published') {
+                        statusMessage = '<p style="color: #4caf50;">✅ Article published! It will appear on the blog shortly.</p>';
+                    } else if (data.post.status === 'rejected') {
+                        statusMessage = `<p style="color: #f44336;">❌ Article needs revision. ${data.review?.feedback || 'Please check the feedback above.'}</p>`;
+                    } else {
+                        statusMessage = '<p style="color: #ff9800;">🟡 Article submitted for review. You will be notified once approved.</p>';
+                    }
+                    
+                    document.getElementById('message').innerHTML = `
+                        <div class="success">
+                            <h3>✅ Article Submitted!</h3>
+                            ${statusMessage}
+                            ${data.review?.feedback ? `<p><strong>AI Feedback:</strong> ${data.review.feedback}</p>` : ''}
+                            <hr>
+                            <p><strong>✏️ Edit your article:</strong> <a href="${editUrl}" target="_blank">Click here to edit</a></p>
+                            <p><strong>📧 Check your email!</strong></p>
+                        </div>
+                    `;
+                    document.getElementById('blogForm').reset();
+                    updateWordCount();
+                    document.getElementById('uploadPlaceholder').style.display = 'block';
+                    document.getElementById('imagePreview').style.display = 'none';
+                } else {
+                    document.getElementById('message').innerHTML = `<div class="error">❌ ${data.error}</div>`;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('message').innerHTML = '<div class="error">❌ Error submitting article. Please try again.</div>';
+            } finally {
+                btn.textContent = 'Submit for Review →';
+                btn.disabled = false;
+            }
+        });
+    }
+    
+    // Initial word count
+    updateWordCount();
+</script>
+
+
+</body>
+</html>

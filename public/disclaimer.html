@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Disclaimer | RoomRateCompare</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <h1>Room<span>Rate</span>Compare</h1>
+                <p class="tagline">Compare 1000+ hotels. Find your best room rate.</p>
+            </div>
+            <button class="mobile-menu-btn" id="menuBtn" aria-label="Menu">☰</button>
+            <div class="nav-links" id="navLinks">
+                <a href="/">Home</a>
+                <a href="/search">Search</a>
+                <a href="/agents">Travel Agents</a>
+                <a href="/agent-register">Become an Agent</a>
+                <a href="/blog">Blog</a>
+                <a href="/partners">Partners</a>
+            </div>
+        </nav>
+        <div class="menu-overlay" id="menuOverlay"></div>
+    </header>
+
+    <main>
+        <main>
+        <main>
+        <main>
+        <div class="legal-container">
+            <h1>Disclaimer</h1>
+            <div class="last-updated">📅 Last Updated: June 1, 2026</div>
+            
+            <div class="disclaimer-box">
+                <p><strong>⚠️ Important Notice:</strong> The information on RoomRateCompare is for general informational purposes only. We do not guarantee the accuracy, completeness, or reliability of any information on this site.</p>
+            </div>
+
+            <h2>1. Hotel & Travel Information</h2>
+            <p>Hotel prices, availability, ratings, and amenities displayed on RoomRateCompare are provided by third-party booking sites. This information may change without notice. We strongly recommend verifying all details directly with the booking provider before making a reservation.</p>
+
+            <h2>2. Affiliate Partners</h2>
+            <p>RoomRateCompare participates in affiliate marketing programs. When you click affiliate links and make a purchase, we may earn a commission. This does not affect your price. See our <a href="/affiliate-disclosure">Affiliate Disclosure</a> for details.</p>
+
+            <h2>3. No Professional Advice</h2>
+            <p>The information on this website does not constitute professional travel advice. You should consult with qualified travel professionals for advice regarding your specific travel plans.</p>
+
+            <h2>4. Third-Party Websites</h2>
+            <p>Our website contains links to third-party websites. We are not responsible for the content, privacy practices, or availability of these sites. Your use of third-party websites is at your own risk.</p>
+
+            <h2>5. Travel Risks</h2>
+            <p>Travel involves inherent risks including but not limited to:</p>
+            <ul>
+                <li>Flight delays and cancellations</li>
+                <li>Hotel overbooking or service issues</li>
+                <li>Travel advisories and safety concerns</li>
+                <li>Health and medical emergencies</li>
+                <li>Loss of baggage or personal items</li>
+                <li>Currency fluctuations</li>
+                <li>Visa and entry requirements</li>
+            </ul>
+            <p>You are responsible for assessing travel risks and obtaining appropriate travel insurance.</p>
+
+            <h2>6. Accuracy of Information</h2>
+            <p>While we strive to provide accurate information, we make no representations or warranties about:</p>
+            <ul>
+                <li>Real-time hotel availability</li>
+                <li>Live pricing accuracy</li>
+                <li>Hotel star ratings or guest reviews</li>
+                <li>Visa or passport requirements</li>
+                <li>Travel restrictions or advisories</li>
+            </ul>
+
+            <h2>7. Limitation of Liability</h2>
+            <p>To the fullest extent permitted by law, RoomRateCompare and its owners, employees, and affiliates shall not be liable for any direct, indirect, incidental, consequential, or punitive damages arising from your use of this website or any bookings made through affiliate links.</p>
+
+            <h2>8. Force Majeure</h2>
+            <p>We are not responsible for any failure to perform due to causes beyond our reasonable control, including natural disasters, pandemics, government actions, or travel restrictions.</p>
+
+            <h2>9. Investment Disclaimer</h2>
+            <p>Any forward-looking statements about our business or growth are not guarantees of future performance.</p>
+
+            <h2>10. Contact</h2>
+            <p>For questions about this disclaimer, contact <a href="mailto:legal@roomratecompare.com">legal@roomratecompare.com</a></p>
+        </div>
+    </main>
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-column">
+                <h3>🏨 RoomRateCompare</h3>
+                <p>Compare hotel room rates from 50+ travel sites including Booking.com, Agoda, and Expedia. Find the best price for your stay.</p>
+                <p>📍 UK: Aamir Saba Ltd<br>📍 USA: Aamir Saba Inc</p>
+            </div>
+            
+            <div class="footer-column">
+                <h3>🔗 Quick Links</h3>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/search">Search Hotels</a></li>
+                    <li><a href="/agents">Travel Agents</a></li>
+                    <li><a href="/agent-register">Become an Agent</a></li>
+                    <li><a href="/blog">Travel Blog</a></li>
+                    <li><a href="/partners">Affiliate Partners</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3>⚖️ Legal & Support</h3>
+                <ul>
+                    <li><a href="/privacy">Privacy Policy</a></li>
+                    <li><a href="/terms">Terms & Conditions</a></li>
+                    <li><a href="/refund">Refund Policy</a></li>
+                    <li><a href="/cookie-policy">Cookie Policy</a></li>
+                    <li><a href="/affiliate-disclosure">Affiliate Disclosure</a></li>
+                    <li><a href="/disclaimer">Disclaimer</a></li>
+                    <li><a href="/agent-agreement">Agent Agreement</a></li>
+                    <li><a href="/contact">Contact Us</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 RoomRateCompare.com. All rights reserved. | Compare hotel room rates worldwide.</p>
+        </div>
+    </footer>
+
+    <script>
+        // ============ MOBILE MENU FUNCTIONALITY ============
+        (function() {
+            const menuBtn = document.getElementById('menuBtn');
+            const navLinks = document.getElementById('navLinks');
+            const menuOverlay = document.getElementById('menuOverlay');
+            
+            if (!menuBtn) return;
+            
+            function toggleMenu() {
+                navLinks.classList.toggle('active');
+                menuOverlay.classList.toggle('active');
+                document.body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : '';
+            }
+            
+            function closeMenu() {
+                navLinks.classList.remove('active');
+                menuOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+            
+            menuBtn.addEventListener('click', toggleMenu);
+            
+            if (menuOverlay) {
+                menuOverlay.addEventListener('click', closeMenu);
+            }
+            
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.addEventListener('click', closeMenu);
+            });
+            
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    closeMenu();
+                }
+            });
+            
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && navLinks.classList.contains('active')) {
+                    closeMenu();
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

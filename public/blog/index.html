@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Travel Blog | RoomRateCompare</title>
+    <meta name="description" content="Read travel tips, destination guides, hotel reviews and travel stories from our community.">
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GKJZTX45SB"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-GKJZTX45SB');
+    </script>
+    
+    <!-- Travelpayouts Affiliate Script -->
+    <script nowprocket data-noptimize="1" data-cfasync="false" data-wpfc-render="false" seraph-accel-crit="1" data-no-defer="1">
+        (function () {
+            var script = document.createElement("script");
+            script.async = 1;
+            script.src = 'https://emrldtp.cc/NTMxODI2.js?t=531826';
+            document.head.appendChild(script);
+        })();
+    </script>
+    
+    <style>
+        .blog-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        .blog-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .blog-header h1 {
+            color: #e67e22;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        .blog-header p {
+            color: #666;
+        }
+        .category-filter {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        .category-btn {
+            padding: 0.5rem 1rem;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .category-btn:hover {
+            border-color: #e67e22;
+            background: #fef5e8;
+        }
+        .category-btn.active {
+            background: #e67e22;
+            color: white;
+            border-color: #e67e22;
+        }
+        .posts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+        .post-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .post-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        }
+        .post-image {
+            height: 180px;
+            background: linear-gradient(135deg, #e67e22, #d35400);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+        }
+        .post-content {
+            padding: 1.5rem;
+        }
+        .post-category {
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 0.2rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            margin-bottom: 0.8rem;
+            color: #666;
+        }
+        .post-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+            line-height: 1.4;
+        }
+        .post-excerpt {
+            color: #666;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+        .post-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: #999;
+            padding-top: 0.5rem;
+            border-top: 1px solid #eee;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 3rem;
+        }
+        .pagination button {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .pagination button:hover {
+            background: #e67e22;
+            color: white;
+            border-color: #e67e22;
+        }
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .pagination span {
+            padding: 0.5rem 1rem;
+            background: #e67e22;
+            color: white;
+            border-radius: 8px;
+        }
+        .loader {
+            text-align: center;
+            padding: 3rem;
+        }
+        .loader-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f0f0f0;
+            border-top-color: #e67e22;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .no-posts {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+        .newsletter-box {
+            background: linear-gradient(135deg, #e67e22, #d35400);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            color: white;
+        }
+        .newsletter-box h3 {
+            margin-bottom: 0.5rem;
+        }
+        .newsletter-box p {
+            margin-bottom: 1rem;
+            opacity: 0.9;
+        }
+        .newsletter-form {
+            display: flex;
+            max-width: 500px;
+            margin: 0 auto;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .newsletter-form input {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+        .newsletter-form button {
+            background: white;
+            color: #e67e22;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .newsletter-form button:hover {
+            background: #fef5e8;
+        }
+        .newsletter-message {
+            margin-top: 1rem;
+            font-size: 0.8rem;
+        }
+        .write-btn {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            background: #e67e22;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 99;
+            transition: transform 0.2s;
+        }
+        .write-btn:hover {
+            transform: scale(1.05);
+            background: #d35400;
+        }
+        @media (max-width: 768px) {
+            .blog-container {
+                padding: 0 1rem;
+            }
+            .posts-grid {
+                grid-template-columns: 1fr;
+            }
+            .category-filter {
+                gap: 0.5rem;
+            }
+            .category-btn {
+                font-size: 0.7rem;
+                padding: 0.3rem 0.8rem;
+            }
+            .newsletter-form {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <h1>Room<span>Rate</span>Compare</h1>
+                <p class="tagline">Compare 1000+ hotels. Find your best room rate.</p>
+            </div>
+            <button class="mobile-menu-btn" id="menuBtn" aria-label="Menu">☰</button>
+            <div class="nav-links" id="navLinks">
+                <a href="/">Home</a>
+                <a href="/search">Search</a>
+                <a href="/agents">Travel Agents</a>
+                <a href="/agent-register">Become an Agent</a>
+                <a href="/blog">Blog</a>
+                <a href="/partners">Partners</a>
+            </div>
+        </nav>
+        <div class="menu-overlay" id="menuOverlay"></div>
+    </header>
+
+    <main>
+        <div class="blog-container">
+            <div class="blog-header">
+                <h1>✈️ Travel Blog</h1>
+                <p>Travel tips, destination guides, hotel reviews and inspiring stories</p>
+            </div>
+
+            <!-- Newsletter Signup -->
+            <div class="newsletter-box">
+                <h3>📧 Get Travel Tips in Your Inbox</h3>
+                <p>Subscribe to our newsletter for exclusive travel guides, hotel deals, and destination tips!</p>
+                <form id="newsletterForm" class="newsletter-form">
+                    <input type="email" id="newsletterEmail" placeholder="Your email address" required>
+                    <button type="submit">Subscribe →</button>
+                </form>
+                <div id="newsletterMessage" class="newsletter-message"></div>
+                <p style="font-size: 0.7rem; margin-top: 0.5rem;">No spam. Unsubscribe anytime.</p>
+            </div>
+
+            <!-- Category Filter -->
+            <div class="category-filter" id="categoryFilter">
+                <button class="category-btn active" data-category="all" onclick="filterByCategory('all')">🌍 All</button>
+                <button class="category-btn" data-category="travel-tips" onclick="filterByCategory('travel-tips')">💡 Travel Tips</button>
+                <button class="category-btn" data-category="destination-guide" onclick="filterByCategory('destination-guide')">🗺️ Destination Guides</button>
+                <button class="category-btn" data-category="hotel-reviews" onclick="filterByCategory('hotel-reviews')">🏨 Hotel Reviews</button>
+                <button class="category-btn" data-category="travel-stories" onclick="filterByCategory('travel-stories')">📖 Travel Stories</button>
+                <button class="category-btn" data-category="packing-guides" onclick="filterByCategory('packing-guides')">🎒 Packing Guides</button>
+            </div>
+
+            <!-- Posts Grid -->
+            <div id="postsGrid" class="posts-grid">
+                <div class="loader"><div class="loader-spinner"></div><p>Loading articles...</p></div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="pagination"></div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-column">
+                <h3>🏨 RoomRateCompare</h3>
+                <p>Compare hotel room rates from 50+ travel sites including Booking.com, Agoda, and Expedia. Find the best price for your stay.</p>
+                <p>📍 UK: Aamir Saba Ltd<br>📍 USA: Aamir Saba Inc</p>
+            </div>
+            <div class="footer-column">
+                <h3>🔗 Quick Links</h3>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/search">Search Hotels</a></li>
+                    <li><a href="/agents">Travel Agents</a></li>
+                    <li><a href="/agent-register">Become an Agent</a></li>
+                    <li><a href="/blog">Travel Blog</a></li>
+                    <li><a href="/partners">Affiliate Partners</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>⚖️ Legal & Support</h3>
+                <ul>
+                    <li><a href="/privacy">Privacy Policy</a></li>
+                    <li><a href="/terms">Terms & Conditions</a></li>
+                    <li><a href="/refund">Refund Policy</a></li>
+                    <li><a href="/cookie-policy">Cookie Policy</a></li>
+                    <li><a href="/affiliate-disclosure">Affiliate Disclosure</a></li>
+                    <li><a href="/disclaimer">Disclaimer</a></li>
+                    <li><a href="/agent-agreement">Agent Agreement</a></li>
+                    <li><a href="/contact">Contact Us</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 RoomRateCompare.com. All rights reserved. | Compare hotel room rates worldwide.</p>
+        </div>
+    </footer>
+
+    <!-- Write for Us Button -->
+    <button class="write-btn" onclick="window.location.href='/blog/submit'">✍️ Write for Us</button>
+
+    <script>
+        // Mobile menu
+        (function() {
+            const menuBtn = document.getElementById('menuBtn');
+            const navLinks = document.getElementById('navLinks');
+            const menuOverlay = document.getElementById('menuOverlay');
+            if (!menuBtn) return;
+            function toggleMenu() {
+                navLinks.classList.toggle('active');
+                menuOverlay.classList.toggle('active');
+                document.body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : '';
+            }
+            function closeMenu() {
+                navLinks.classList.remove('active');
+                menuOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+            menuBtn.addEventListener('click', toggleMenu);
+            if (menuOverlay) menuOverlay.addEventListener('click', closeMenu);
+            document.querySelectorAll('.nav-links a').forEach(link => link.addEventListener('click', closeMenu));
+            window.addEventListener('resize', function() { if (window.innerWidth > 768) closeMenu(); });
+        })();
+
+        let allPosts = [];
+        let currentCategory = 'all';
+        let currentPage = 1;
+        let totalPages = 1;
+        
+        function getCategoryIcon(category) {
+            const icons = {
+                'travel-tips': '💡',
+                'destination-guide': '🗺️',
+                'hotel-reviews': '🏨',
+                'travel-stories': '📖',
+                'packing-guides': '🎒',
+                'general': '✈️'
+            };
+            return icons[category] || '✈️';
+        }
+        
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+        }
+        
+        async function loadPosts() {
+            const grid = document.getElementById('postsGrid');
+            grid.innerHTML = '<div class="loader"><div class="loader-spinner"></div><p>Loading articles...</p></div>';
+            
+            try {
+                const url = `/api/blog/posts?page=${currentPage}&limit=9${currentCategory !== 'all' ? `&category=${currentCategory}` : ''}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.success && data.posts && data.posts.length > 0) {
+                    allPosts = data.posts;
+                    totalPages = data.totalPages || 1;
+                    displayPosts();
+                    displayPagination();
+                } else {
+                    grid.innerHTML = '<div class="no-posts">📝 No articles yet. Be the first to <a href="/blog/submit">write for us</a>!</div>';
+                    document.getElementById('pagination').innerHTML = '';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                grid.innerHTML = '<div class="no-posts">⚠️ Error loading articles. Please try again.</div>';
+            }
+        }
+        
+        function displayPosts() {
+            const grid = document.getElementById('postsGrid');
+            let html = '';
+            
+            for (let i = 0; i < allPosts.length; i++) {
+                const post = allPosts[i];
+                const icon = getCategoryIcon(post.category);
+                const date = formatDate(post.published_at);
+                const excerpt = post.excerpt || post.content.substring(0, 120) + '...';
+                
+                html += `
+                    <a href="/blog/${post.slug}" class="post-card">
+                        <div class="post-image">${icon}</div>
+                        <div class="post-content">
+                            <span class="post-category">${post.category?.replace('-', ' ') || 'Travel'}</span>
+                            <h3 class="post-title">${escapeHtml(post.title)}</h3>
+                            <p class="post-excerpt">${escapeHtml(excerpt)}</p>
+                            <div class="post-meta">
+                                <span>✍️ ${escapeHtml(post.author_name)}</span>
+                                <span>📅 ${date}</span>
+                                <span>👁️ ${post.views || 0}</span>
+                            </div>
+                        </div>
+                    </a>
+                `;
+            }
+            
+            grid.innerHTML = html;
+        }
+        
+        function displayPagination() {
+            const paginationDiv = document.getElementById('pagination');
+            if (totalPages <= 1) {
+                paginationDiv.innerHTML = '';
+                return;
+            }
+            
+            let html = '';
+            html += `<button onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>← Previous</button>`;
+            html += `<span>Page ${currentPage} of ${totalPages}</span>`;
+            html += `<button onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Next →</button>`;
+            paginationDiv.innerHTML = html;
+        }
+        
+        function goToPage(page) {
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            loadPosts();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        function filterByCategory(category) {
+            currentCategory = category;
+            currentPage = 1;
+            
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-category') === category) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            loadPosts();
+        }
+        
+        // Newsletter subscription
+        document.getElementById('newsletterForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('newsletterEmail').value;
+            const messageDiv = document.getElementById('newsletterMessage');
+            const btn = e.target.querySelector('button');
+            const originalText = btn.textContent;
+            
+            btn.textContent = 'Subscribing...';
+            btn.disabled = true;
+            messageDiv.innerHTML = '';
+            
+            try {
+                const response = await fetch('/api/blog/subscribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    messageDiv.innerHTML = '<span style="color: #e8f5e9;">✅ Subscribed successfully! Check your email.</span>';
+                    document.getElementById('newsletterForm').reset();
+                } else {
+                    messageDiv.innerHTML = `<span style="color: #ffebee;">❌ ${data.error}</span>`;
+                }
+            } catch (error) {
+                messageDiv.innerHTML = '<span style="color: #ffebee;">❌ Error subscribing</span>';
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        });
+        
+        // Load posts
+        loadPosts();
+    </script>
+</body>
+</html>

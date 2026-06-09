@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Travel Agent Profile | RoomRateCompare</title>
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GKJZTX45SB"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-GKJZTX45SB');
+    </script>
+    
+    <!-- Travelpayouts Affiliate Script -->
+    <script nowprocket data-noptimize="1" data-cfasync="false" data-wpfc-render="false" seraph-accel-crit="1" data-no-defer="1">
+        (function () {
+            var script = document.createElement("script");
+            script.async = 1;
+            script.src = 'https://emrldtp.cc/NTMxODI2.js?t=531826';
+            document.head.appendChild(script);
+        })();
+    </script>
+    
+    <style>
+        .profile-container { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
+        .profile-card { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.1); }
+        .profile-header { background: linear-gradient(135deg, #e67e22, #d35400); padding: 2rem; text-align: center; color: white; }
+        .profile-avatar { width: 100px; height: 100px; background: rgba(255,255,255,0.2); border-radius: 50%; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; font-size: 48px; overflow: hidden; }
+        .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .profile-name { font-size: 28px; font-weight: bold; margin-bottom: 0.5rem; }
+        .profile-specialty { font-size: 16px; opacity: 0.9; display: inline-block; background: rgba(255,255,255,0.2); padding: 0.3rem 1rem; border-radius: 50px; }
+        .profile-rating { margin-top: 1rem; font-size: 20px; }
+        .profile-content { padding: 2rem; }
+        .info-section { margin-bottom: 2rem; }
+        .info-title { font-size: 20px; font-weight: bold; color: #e67e22; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e67e22; }
+        .bio-text { color: #666; line-height: 1.6; }
+        .contact-buttons { display: flex; gap: 15px; flex-wrap: wrap; margin-top: 1rem; }
+        .contact-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 50px; text-decoration: none; font-weight: 500; transition: all 0.3s; }
+        .contact-btn.email { background: #ea4335; color: white; }
+        .contact-btn.whatsapp { background: #25D366; color: white; }
+        .contact-btn.phone { background: #34B7F1; color: white; }
+        .contact-btn:hover { transform: translateY(-2px); }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem; }
+        .stat-box { background: #f8f9fa; padding: 1rem; border-radius: 10px; text-align: center; }
+        .stat-number { font-size: 28px; font-weight: bold; color: #e67e22; }
+        .review-card { background: #f9f9f9; padding: 1rem; border-radius: 10px; margin-bottom: 1rem; border-left: 3px solid #e67e22; }
+        .review-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; }
+        .review-stars { color: #ffc107; }
+        .stars-input { display: flex; justify-content: center; gap: 10px; margin: 15px 0; }
+        .star { font-size: 30px; cursor: pointer; color: #ddd; }
+        .star.active, .star:hover { color: #ffc107; }
+        .loading, .error { text-align: center; padding: 3rem; color: white; font-size: 18px; background: #333; border-radius: 16px; }
+        input, select, textarea { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; }
+        .submit-btn { background: #e67e22; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; width: 100%; font-size: 16px; margin-top: 10px; }
+        .submit-btn:hover { background: #d35400; }
+        .success { background: #e8f5e9; color: #2e7d32; padding: 10px; border-radius: 8px; text-align: center; }
+        .error-msg { background: #ffebee; color: #c62828; padding: 10px; border-radius: 8px; text-align: center; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        .phone-row { display: grid; grid-template-columns: 120px 1fr; gap: 10px; margin-bottom: 15px; }
+        @media (max-width: 768px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .profile-name { font-size: 22px; }
+            .form-row { grid-template-columns: 1fr; }
+            .phone-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo"><h1>Room<span>Rate</span>Compare</h1><p class="tagline">Compare 1000+ hotels. Find your best room rate.</p></div>
+            <button class="mobile-menu-btn" id="menuBtn">☰</button>
+            <div class="nav-links" id="navLinks">
+                <a href="/">Home</a><a href="/search">Search</a><a href="/agents">Travel Agents</a>
+                <a href="/agent-register">Become an Agent</a><a href="/blog">Blog</a><a href="/partners">Partners</a>
+            </div>
+        </nav>
+        <div class="menu-overlay" id="menuOverlay"></div>
+    </header>
+
+    <main>
+        <div class="profile-container" id="profileContainer">
+            <div class="loading">Loading profile...</div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-column"><h3>🏨 RoomRateCompare</h3><p>Compare hotel room rates from 50+ travel sites.</p><p>📍 UK: Aamir Saba Ltd<br>📍 USA: Aamir Saba Inc</p></div>
+            <div class="footer-column"><h3>🔗 Quick Links</h3><ul><li><a href="/">Home</a></li><li><a href="/search">Search Hotels</a></li><li><a href="/agents">Travel Agents</a></li><li><a href="/agent-register">Become an Agent</a></li><li><a href="/blog">Blog</a></li><li><a href="/partners">Partners</a></li></ul></div>
+            <div class="footer-column"><h3>⚖️ Legal & Support</h3><ul><li><a href="/privacy">Privacy Policy</a></li><li><a href="/terms">Terms & Conditions</a></li><li><a href="/refund">Refund Policy</a></li><li><a href="/contact">Contact Us</a></li></ul></div>
+        </div>
+        <div class="footer-bottom"><p>&copy; 2026 RoomRateCompare.com. All rights reserved.</p></div>
+    </footer>
+
+    <script>
+        console.log('Profile page loaded');
+        
+        // Get agent ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const agentId = urlParams.get('id');
+        
+        console.log('Agent ID from URL:', agentId);
+        
+        if (!agentId) {
+            document.getElementById('profileContainer').innerHTML = '<div class="error">❌ Agent ID not provided. Please go back to <a href="/agents">Agents page</a>.</div>';
+        } else {
+            loadAgentProfile();
+        }
+        
+        async function loadAgentProfile() {
+            console.log('Loading agent profile for ID:', agentId);
+            
+            try {
+                // Fetch agent data
+                const agentRes = await fetch(`/api/agents/${agentId}`);
+                const agentData = await agentRes.json();
+                console.log('Agent API response:', agentData);
+                
+                if (!agentData.success) {
+                    document.getElementById('profileContainer').innerHTML = `<div class="error">❌ ${agentData.error || 'Agent not found'}</div>`;
+                    return;
+                }
+                
+                const agent = agentData.agent;
+                
+                // Fetch ratings
+                const ratingsRes = await fetch(`/api/agent-auth/ratings/${agentId}`);
+                const ratingsData = await ratingsRes.json();
+                console.log('Ratings response:', ratingsData);
+                
+                renderProfile(agent, ratingsData);
+                
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                document.getElementById('profileContainer').innerHTML = `<div class="error">❌ Error loading profile: ${error.message}</div>`;
+            }
+        }
+        
+        function renderProfile(agent, ratingsData) {
+            const avgRating = ratingsData.averageRating || 0;
+            const totalRatings = ratingsData.totalRatings || 0;
+            const ratings = ratingsData.ratings || [];
+            
+            let starsHtml = '';
+            for (let i = 0; i < Math.floor(avgRating); i++) starsHtml += '⭐';
+            for (let i = 0; i < 5 - Math.floor(avgRating); i++) starsHtml += '☆';
+            if (starsHtml === '') starsHtml = '☆☆☆☆☆';
+            
+            const specialtyIcons = { 'Luxury & Business': '💼', 'Budget & Family': '👨‍👩‍👧‍👦', 'Honeymoon & Romantic': '💕', 'Adventure & Eco': '🏔️' };
+            const avatarIcon = specialtyIcons[agent.specialty] || '✈️';
+            const hasPhoto = agent.profile_photo && agent.profile_photo !== null;
+            const avatarHtml = hasPhoto ? `<img src="${agent.profile_photo}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">` : `<span>${avatarIcon}</span>`;
+            
+            const html = `
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <div class="profile-avatar">${avatarHtml}</div>
+                        <div class="profile-name">${escapeHtml(agent.name)}</div>
+                        <div class="profile-specialty">${escapeHtml(agent.specialty || 'Travel Specialist')}</div>
+                        <div class="profile-rating">${starsHtml} <span style="font-size: 14px;">(${avgRating.toFixed(1)}/5 - ${totalRatings} reviews)</span></div>
+                    </div>
+                    <div class="profile-content">
+                        <div class="stats-grid">
+                            <div class="stat-box"><div class="stat-number">${totalRatings}</div><div>Reviews</div></div>
+                            <div class="stat-box"><div class="stat-number">${avgRating.toFixed(1)}</div><div>Rating</div></div>
+                            <div class="stat-box"><div class="stat-number">${avatarIcon}</div><div>Specialist</div></div>
+                        </div>
+                        ${agent.bio ? `<div class="info-section"><div class="info-title">📖 About Me</div><div class="bio-text">${escapeHtml(agent.bio)}</div></div>` : ''}
+                        <div class="info-section"><div class="info-title">📞 Contact Me</div>
+                            <div class="contact-buttons">
+                                ${agent.email ? `<a href="mailto:${escapeHtml(agent.email)}" class="contact-btn email">✉️ Email</a>` : ''}
+                                ${agent.whatsapp_number ? `<a href="https://wa.me/${escapeHtml(agent.whatsapp_number.replace(/[^0-9]/g, ''))}" target="_blank" class="contact-btn whatsapp">💬 WhatsApp</a>` : ''}
+                                ${agent.phone ? `<a href="tel:${escapeHtml(agent.phone)}" class="contact-btn phone">📞 Call</a>` : ''}
+                            </div>
+                        </div>
+                        
+                        <!-- Lead Request Form -->
+<div class="info-section">
+    <div class="info-title">📋 Request a Quote</div>
+    <div id="leadForm">
+        <form id="contactLeadForm">
+            <div class="form-row">
+                <input type="text" id="clientName" placeholder="Your Full Name *" required>
+                <input type="email" id="clientEmail" placeholder="Your Email *" required>
+            </div>
+            
+            <div class="phone-row">
+                <select id="phoneCode" required>
+                    <option value="">Select Code *</option>
+                    <option value="+971">🇦🇪 UAE (+971)</option>
+                    <option value="+968">🇴🇲 Oman (+968)</option>
+                    <option value="+966">🇸🇦 Saudi (+966)</option>
+                    <option value="+974">🇶🇦 Qatar (+974)</option>
+                    <option value="+965">🇰🇼 Kuwait (+965)</option>
+                    <option value="+973">🇧🇭 Bahrain (+973)</option>
+                    <option value="+1">🇺🇸 USA (+1)</option>
+                    <option value="+44">🇬🇧 UK (+44)</option>
+                    <option value="+91">🇮🇳 India (+91)</option>
+                    <option value="+92">🇵🇰 Pakistan (+92)</option>
+                    <option value="+61">🇦🇺 Australia (+61)</option>
+                    <option value="+64">🇳🇿 New Zealand (+64)</option>
+                    <option value="+33">🇫🇷 France (+33)</option>
+                    <option value="+49">🇩🇪 Germany (+49)</option>
+                    <option value="+39">🇮🇹 Italy (+39)</option>
+                    <option value="+34">🇪🇸 Spain (+34)</option>
+                    <option value="+90">🇹🇷 Turkey (+90)</option>
+                    <option value="+20">🇪🇬 Egypt (+20)</option>
+                    <option value="+27">🇿🇦 South Africa (+27)</option>
+                    <option value="+81">🇯🇵 Japan (+81)</option>
+                    <option value="+82">🇰🇷 South Korea (+82)</option>
+                    <option value="+86">🇨🇳 China (+86)</option>
+                    <option value="+66">🇹🇭 Thailand (+66)</option>
+                    <option value="+60">🇲🇾 Malaysia (+60)</option>
+                    <option value="+65">🇸🇬 Singapore (+65)</option>
+                    <option value="+62">🇮🇩 Indonesia (+62)</option>
+                    <option value="+55">🇧🇷 Brazil (+55)</option>
+                    <option value="+54">🇦🇷 Argentina (+54)</option>
+                    <option value="+52">🇲🇽 Mexico (+52)</option>
+                </select>
+                <input type="tel" id="clientPhone" placeholder="Phone Number *" required>
+            </div>
+            
+<div class="phone-row">
+    <select id="whatsappCode">
+        <option value="">WhatsApp Code (Optional)</option>
+        <option value="+971">🇦🇪 UAE (+971)</option>
+        <option value="+968">🇴🇲 Oman (+968)</option>
+        <option value="+966">🇸🇦 Saudi (+966)</option>
+        <option value="+1">🇺🇸 USA (+1)</option>
+        <option value="+44">🇬🇧 UK (+44)</option>
+        <option value="+91">🇮🇳 India (+91)</option>
+        <option value="+92">🇵🇰 Pakistan (+92)</option>
+    </select>
+    <input type="tel" id="clientWhatsapp" placeholder="WhatsApp Number">
+</div>
+            <div class="form-row">
+                <select id="country" onchange="updateDestinationCities()" required>
+                    <option value="">Select Destination Country *</option>
+                    <option value="UAE">🇦🇪 United Arab Emirates</option>
+                    <option value="Oman">🇴🇲 Oman</option>
+                    <option value="Saudi Arabia">🇸🇦 Saudi Arabia</option>
+                    <option value="Qatar">🇶🇦 Qatar</option>
+                    <option value="Kuwait">🇰🇼 Kuwait</option>
+                    <option value="Bahrain">🇧🇭 Bahrain</option>
+                    <option value="USA">🇺🇸 United States</option>
+                    <option value="UK">🇬🇧 United Kingdom</option>
+                    <option value="India">🇮🇳 India</option>
+                    <option value="Pakistan">🇵🇰 Pakistan</option>
+                    <option value="France">🇫🇷 France</option>
+                    <option value="Germany">🇩🇪 Germany</option>
+                    <option value="Italy">🇮🇹 Italy</option>
+                    <option value="Spain">🇪🇸 Spain</option>
+                    <option value="Turkey">🇹🇷 Turkey</option>
+                    <option value="Egypt">🇪🇬 Egypt</option>
+                    <option value="Thailand">🇹🇭 Thailand</option>
+                    <option value="Malaysia">🇲🇾 Malaysia</option>
+                    <option value="Singapore">🇸🇬 Singapore</option>
+                    <option value="Indonesia">🇮🇩 Indonesia</option>
+                    <option value="Japan">🇯🇵 Japan</option>
+                    <option value="Australia">🇦🇺 Australia</option>
+                    <option value="Canada">🇨🇦 Canada</option>
+                </select>
+                <select id="city">
+                    <option value="">Select City *</option>
+                </select>
+            </div>
+            
+            <div class="form-row">
+                <input type="date" id="checkin" placeholder="Check-in Date">
+                <input type="date" id="checkout" placeholder="Check-out Date">
+            </div>
+            <div id="dateError" style="color: #f44336; font-size: 12px; display: none;">❌ Check-out must be after check-in</div>
+            
+            <div class="form-group">
+                <label>Budget (Optional)</label>
+                <input type="text" id="budget" placeholder="e.g., $500-1000, Luxury, Economy" list="budgetOptions">
+                <datalist id="budgetOptions">
+                    <option value="Budget ($)">
+                    <option value="Moderate ($$)">
+                    <option value="Luxury ($$$)">
+                    <option value="$500 - $1000">
+                    <option value="$1000 - $2000">
+                    <option value="$2000+">
+                    <option value="Custom Quote">
+                </datalist>
+            </div>
+            
+            <div class="form-group">
+                <label>Message / Special Requests</label>
+                <textarea id="message" rows="4" placeholder="Tell me about your travel plans..."></textarea>
+            </div>
+            
+            <button type="button" class="submit-btn" id="sendLeadBtn">✈️ Send Request</button>
+        </form>
+        <div id="leadFormMessage" style="margin-top: 10px;"></div>
+    </div>
+</div>
+                        <div class="info-section">
+                            <div class="info-title">⭐ Rate This Agent</div>
+                            <div id="ratingForm">
+                                <div class="stars-input" id="starContainer">
+                                    <span class="star" data-rating="1">☆</span>
+                                    <span class="star" data-rating="2">☆</span>
+                                    <span class="star" data-rating="3">☆</span>
+                                    <span class="star" data-rating="4">☆</span>
+                                    <span class="star" data-rating="5">☆</span>
+                                </div>
+                                <input type="text" id="reviewerName" placeholder="Your name *">
+                                <textarea id="reviewText" rows="3" placeholder="Share your experience..."></textarea>
+                                <button class="submit-btn" onclick="submitRating(${agentId})">Submit Review</button>
+                            </div>
+                            <div id="ratingMessage"></div>
+                        </div>
+                        
+                        <div class="info-section">
+                            <div class="info-title">⭐ Client Reviews</div>
+                            <div id="reviewsList">${renderReviews(ratings)}</div>
+                        </div>
+                        
+                        <div style="text-align:center; margin-top:1rem;">
+                            <a href="/agents" style="color:#e67e22;">← Browse All Agents</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('profileContainer').innerHTML = html;
+            setupStars();
+            attachLeadButton();
+        }
+        
+        function renderReviews(ratings) {
+            if (!ratings || ratings.length === 0) {
+                return '<div style="text-align:center; padding:2rem; color:#999;">No reviews yet. Be the first to review!</div>';
+            }
+            let html = '';
+            for (let i = 0; i < ratings.length; i++) {
+                const r = ratings[i];
+                let stars = '';
+                for (let j = 0; j < r.rating; j++) stars += '⭐';
+                for (let j = 0; j < 5 - r.rating; j++) stars += '☆';
+                html += `
+                    <div class="review-card">
+                        <div class="review-header">
+                            <span><strong>${escapeHtml(r.client_name)}</strong></span>
+                            <span class="review-stars">${stars}</span>
+                            <span>${new Date(r.created_at).toLocaleDateString()}</span>
+                        </div>
+                        ${r.review ? `<div>"${escapeHtml(r.review)}"</div>` : ''}
+                    </div>
+                `;
+            }
+            return html;
+        }
+        
+        function setupStars() {
+            const stars = document.querySelectorAll('.star');
+            stars.forEach(star => {
+                star.addEventListener('click', function() {
+                    selectedRating = parseInt(this.dataset.rating);
+                    stars.forEach((s, i) => {
+                        if (i < selectedRating) {
+                            s.textContent = '★';
+                            s.style.color = '#ffc107';
+                        } else {
+                            s.textContent = '☆';
+                            s.style.color = '#ddd';
+                        }
+                    });
+                });
+            });
+        }
+        
+        let selectedRating = 0;
+        
+        async function submitRating(agentId) {
+            const name = document.getElementById('reviewerName').value;
+            const review = document.getElementById('reviewText').value;
+            if (!name) {
+                document.getElementById('ratingMessage').innerHTML = '<div class="error-msg">Please enter your name</div>';
+                return;
+            }
+            if (selectedRating === 0) {
+                document.getElementById('ratingMessage').innerHTML = '<div class="error-msg">Please select a rating</div>';
+                return;
+            }
+            try {
+                const res = await fetch('/api/agent-auth/submit-rating', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ agentId, clientName: name, rating: selectedRating, review })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('ratingMessage').innerHTML = '<div class="success">✅ Thank you for your rating!</div>';
+                    setTimeout(() => location.reload(), 2000);
+                } else {
+                    document.getElementById('ratingMessage').innerHTML = '<div class="error-msg">❌ ' + data.error + '</div>';
+                }
+            } catch(e) {
+                document.getElementById('ratingMessage').innerHTML = '<div class="error-msg">❌ Error</div>';
+            }
+        }
+        
+        const destinationCities = {
+    'UAE': ['Dubai', 'Abu Dhabi', 'Sharjah', 'Ajman', 'Ras Al Khaimah', 'Fujairah', 'Umm Al Quwain'],
+    'Oman': ['Muscat', 'Salalah', 'Sohar', 'Nizwa', 'Sur', 'Ibri', 'Rustaq', 'Barka', 'Khasab'],
+    'Saudi Arabia': ['Riyadh', 'Jeddah', 'Mecca', 'Medina', 'Dammam', 'Khobar', 'Taif', 'Abha'],
+    'Qatar': ['Doha', 'Al Wakrah', 'Al Khor', 'Lusail', 'Al Rayyan'],
+    'Kuwait': ['Kuwait City', 'Hawalli', 'Salmiya', 'Jahra', 'Farwaniya'],
+    'Bahrain': ['Manama', 'Riffa', 'Muharraq', 'Hamad Town', 'Isa Town'],
+    'USA': ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Las Vegas', 'Miami', 'San Francisco', 'Seattle', 'Boston', 'Orlando'],
+    'UK': ['London', 'Manchester', 'Birmingham', 'Edinburgh', 'Glasgow', 'Liverpool', 'Bristol', 'Leeds'],
+    'India': ['Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai', 'Kolkata', 'Pune', 'Jaipur', 'Goa', 'Kochi'],
+    'Pakistan': ['Karachi', 'Lahore', 'Islamabad', 'Rawalpindi', 'Faisalabad', 'Multan', 'Peshawar', 'Quetta'],
+    'France': ['Paris', 'Nice', 'Lyon', 'Marseille', 'Bordeaux', 'Toulouse', 'Strasbourg', 'Cannes'],
+    'Germany': ['Berlin', 'Munich', 'Hamburg', 'Frankfurt', 'Cologne', 'Stuttgart', 'Dusseldorf', 'Dresden'],
+    'Italy': ['Rome', 'Milan', 'Venice', 'Florence', 'Naples', 'Turin', 'Bologna', 'Palermo', 'Verona'],
+    'Spain': ['Madrid', 'Barcelona', 'Valencia', 'Seville', 'Malaga', 'Palma', 'Bilbao', 'Granada', 'Alicante'],
+    'Turkey': ['Istanbul', 'Ankara', 'Antalya', 'Izmir', 'Bursa', 'Bodrum', 'Marmaris', 'Kusadasi', 'Cappadocia'],
+    'Egypt': ['Cairo', 'Alexandria', 'Luxor', 'Aswan', 'Hurghada', 'Sharm El Sheikh', 'Giza', 'Marsa Alam'],
+    'Thailand': ['Bangkok', 'Phuket', 'Chiang Mai', 'Pattaya', 'Krabi', 'Koh Samui', 'Hua Hin', 'Ayutthaya'],
+    'Malaysia': ['Kuala Lumpur', 'Penang', 'Langkawi', 'Johor Bahru', 'Malacca', 'Kota Kinabalu', 'Kuching'],
+    'Singapore': ['Singapore', 'Marina Bay', 'Sentosa', 'Orchard Road'],
+    'Indonesia': ['Bali', 'Jakarta', 'Surabaya', 'Bandung', 'Yogyakarta', 'Lombok', 'Medan'],
+    'Japan': ['Tokyo', 'Osaka', 'Kyoto', 'Yokohama', 'Nagoya', 'Sapporo', 'Fukuoka', 'Kobe', 'Hiroshima'],
+    'Australia': ['Sydney', 'Melbourne', 'Brisbane', 'Perth', 'Gold Coast', 'Adelaide', 'Hobart', 'Cairns', 'Darwin'],
+    'Canada': ['Toronto', 'Vancouver', 'Montreal', 'Calgary', 'Ottawa', 'Quebec City', 'Edmonton', 'Halifax', 'Niagara Falls']
+};
+
+function updateDestinationCities() {
+    const country = document.getElementById('country').value;
+    const citySelect = document.getElementById('city');
+    citySelect.innerHTML = '<option value="">Select City *</option>';
+    if (country && destinationCities[country]) {
+        destinationCities[country].forEach(city => {
+            const option = document.createElement('option');
+            option.value = city;
+            option.textContent = city;
+            citySelect.appendChild(option);
+        });
+    }
+}
+
+        function attachLeadButton() {
+            const sendBtn = document.getElementById('sendLeadBtn');
+            if (sendBtn) {
+                sendBtn.addEventListener('click', submitLead);
+                console.log('Lead button attached');
+            }
+        }
+        
+        async function submitLead() {
+    console.log('submitLead called');
+    
+    // Get form values
+    const clientName = document.getElementById('clientName').value;
+    const clientEmail = document.getElementById('clientEmail').value;
+    const phoneCode = document.getElementById('phoneCode').value;
+    const clientPhoneRaw = document.getElementById('clientPhone').value;
+    const clientPhone = phoneCode && clientPhoneRaw ? phoneCode + clientPhoneRaw.replace(/\D/g, '') : '';
+    const whatsappCode = document.getElementById('whatsappCode').value;
+    const clientWhatsappRaw = document.getElementById('clientWhatsapp').value;
+    const clientWhatsapp = whatsappCode && clientWhatsappRaw ? whatsappCode + clientWhatsappRaw.replace(/\D/g, '') : '';    
+
+    const country = document.getElementById('country').value;
+    const city = document.getElementById('city').value;
+    const countrySelect = document.getElementById('country');
+    const countryText = countrySelect.options[countrySelect.selectedIndex]?.text.replace(/[🇦🇨🇧🇩🇪🇫🇬🇭🇮🇯🇰🇱🇲🇳🇴🇵🇶🇷🇸🇹🇺🇻🇼🇽🇾🇿]/g, '') || '';
+    const destination = city && country ? `${city}, ${countryText.trim()}` : countryText.trim();
+    
+    const budget = document.getElementById('budget').value;
+    const checkin = document.getElementById('checkin').value;
+    const checkout = document.getElementById('checkout').value;
+    const message = document.getElementById('message').value;
+    
+    // Validation
+    if (!clientName) {
+        showLeadMessage('Please enter your name', 'error');
+        return;
+    }
+    if (!clientEmail) {
+        showLeadMessage('Please enter your email', 'error');
+        return;
+    }
+    if (!phoneCode || !clientPhoneRaw) {
+        showLeadMessage('Please enter your phone number', 'error');
+        return;
+    }
+    if (!country) {
+        showLeadMessage('Please select a destination country', 'error');
+        return;
+    }
+    
+    // Date validation
+    if (checkin && checkout) {
+        if (new Date(checkout) <= new Date(checkin)) {
+            document.getElementById('dateError').style.display = 'block';
+            return;
+        }
+        document.getElementById('dateError').style.display = 'none';
+    }
+    
+    const btn = document.getElementById('sendLeadBtn');
+    const originalText = btn.textContent;
+    btn.textContent = 'Sending...';
+    btn.disabled = true;
+    
+    try {
+        const response = await fetch('/api/agent-auth/submit-lead', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+    agentId: agentId,
+    clientName: clientName,
+    clientEmail: clientEmail,
+    clientPhone: clientPhone,
+    clientWhatsapp: clientWhatsapp,
+    destination: destination,
+    checkin: checkin,
+    checkout: checkout,
+    budget: budget,
+    message: message
+})
+
+   });
+        
+        const data = await response.json();
+        console.log('Lead response:', data);
+        
+        if (data.success) {
+            showLeadMessage('✅ Request sent successfully! The agent will contact you soon.', 'success');
+            document.getElementById('contactLeadForm').reset();
+            document.getElementById('city').innerHTML = '<option value="">Select City *</option>';
+            document.getElementById('budget').value = '';
+        } else {
+            showLeadMessage('❌ ' + (data.error || 'Failed to send request'), 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showLeadMessage('❌ Error sending request. Please try again.', 'error');
+    } finally {
+        btn.textContent = originalText;
+        btn.disabled = false;
+    }
+}
+ 
+        function showLeadMessage(msg, type) {
+            const msgDiv = document.getElementById('leadFormMessage');
+            msgDiv.innerHTML = `<div class="${type === 'success' ? 'success' : 'error-msg'}">${msg}</div>`;
+            setTimeout(() => {
+                if (msgDiv.innerHTML.includes(msg)) msgDiv.innerHTML = '';
+            }, 5000);
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+        }
+    </script>
+</body>
+</html>
