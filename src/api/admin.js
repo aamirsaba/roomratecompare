@@ -103,6 +103,7 @@ router.get('/dashboard', verifyAdminToken, async (req, res) => {
     }
 });
 
+	
 // Change admin password
 router.post('/change-password', verifyAdminToken, async (req, res) => {
     const { currentPassword, newPassword } = req.body;
@@ -117,6 +118,42 @@ router.post('/change-password', verifyAdminToken, async (req, res) => {
     
     // In production, you would hash and save the new password
     res.json({ success: true, message: 'Password changed successfully' });
+});
+
+// Resend welcome email to agent
+router.post('/resend-welcome', verifyAdminToken, async (req, res) => {
+    const { agentId, agentEmail, agentName } = req.body;
+    
+    console.log(`📧 Resending welcome email to: ${agentEmail}`);
+    
+    if (!agentEmail) {
+        return res.status(400).json({ success: false, error: 'Agent email required' });
+    }
+    
+    try {
+        const { getWelcomeEmail, sendEmail } = require('../utils/emailService');
+        const baseUrl = process.env.APP_URL || 'https://www.roomratecompare.com';
+        const loginUrl = `${baseUrl}/agent-login`;
+        
+        const emailHtml = getWelcomeEmail(agentName || 'Agent', loginUrl);
+        
+        const result = await sendEmail(
+            agentEmail,
+            'Welcome to RoomRateCompare! 🎉',
+            emailHtml,
+            'noreply'
+        );
+        
+        if (result.success) {
+            console.log(`✅ Welcome email resent to ${agentEmail}`);
+            res.json({ success: true, message: 'Welcome email sent' });
+        } else {
+            throw new Error(result.error || 'Failed to send');
+        }
+    } catch (error) {
+        console.error('Resend error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
 });
 
 module.exports = router;

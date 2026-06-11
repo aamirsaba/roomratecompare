@@ -125,7 +125,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 800px;
+            min-width: 900px;
         }
         th, td {
             padding: 0.8rem;
@@ -175,6 +175,7 @@
         .action-unflag { color: #2196f3; }
         .action-delete { color: #9e9e9e; }
         .action-view { color: #e67e22; }
+        .action-email { color: #2196f3; }
         
         .modal {
             display: none;
@@ -234,6 +235,24 @@
             padding: 1rem;
             border-radius: 8px;
             text-align: center;
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #4caf50;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            z-index: 1001;
+            animation: slideIn 0.3s ease;
+        }
+        .toast.error {
+            background: #f44336;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
         @media (max-width: 768px) {
             .sidebar {
@@ -297,6 +316,9 @@
         </div>
     </div>
 
+    <!-- Toast Notification -->
+    <div id="toast" style="display: none;"></div>
+
     <!-- Flag Modal -->
     <div id="flagModal" class="modal">
         <div class="modal-content">
@@ -345,6 +367,16 @@
         
         let currentAgentId = null;
         let currentAction = null;
+        
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = isError ? 'toast error' : 'toast';
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
         
         async function loadAgents() {
             const statusFilter = document.getElementById('statusFilter').value;
@@ -401,6 +433,11 @@
         }
         
         function renderAgentsTable(agents) {
+            if (!agents || agents.length === 0) {
+                document.getElementById('agentsTable').innerHTML = '<p>📭 No agents found.</p>';
+                return;
+            }
+            
             let html = `<table><thead><tr>
                 <th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Specialty</th><th>Status</th><th>Registered</th><th>Actions</th>
             </tr></thead><tbody>`;
@@ -428,7 +465,10 @@
                 // View button
                 html += `<button class="action-btn action-view" onclick="viewAgent(${agent.id})" title="View Details">👁️</button>`;
                 
-                // Approve button (only if not already approved)
+                // RESEND WELCOME EMAIL BUTTON (NEW)
+                html += `<button class="action-btn action-email" onclick="resendWelcomeEmail(${agent.id}, '${escapeHtml(agent.name)}', '${escapeHtml(agent.email)}')" title="Resend Welcome Email">📧</button>`;
+                
+                // Approve button
                 if (statusText !== 'approved' && statusText !== 'deleted') {
                     html += `<button class="action-btn action-approve" onclick="approveAgent(${agent.id})" title="Approve">✅</button>`;
                 }
@@ -443,7 +483,7 @@
                     html += `<button class="action-btn action-flag" onclick="flagAgent(${agent.id})" title="Flag">⚠️</button>`;
                 }
                 
-                // Unflag button (only if flagged)
+                // Unflag button
                 if (statusText === 'flagged') {
                     html += `<button class="action-btn action-unflag" onclick="unflagAgent(${agent.id})" title="Unflag">🔓</button>`;
                 }
@@ -460,7 +500,42 @@
             document.getElementById('agentsTable').innerHTML = html;
         }
         
-        // Action Functions
+        // ============ RESEND WELCOME EMAIL FUNCTION ============
+        async function resendWelcomeEmail(agentId, agentName, agentEmail) {
+            if (!confirm(`📧 Send welcome email to ${agentName} (${agentEmail})?`)) {
+                return;
+            }
+            
+            showToast(`Sending welcome email to ${agentName}...`);
+            
+            try {
+                const response = await fetch('/api/admin/resend-welcome', {
+                    method: 'POST',
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        agentId: agentId,
+                        agentName: agentName,
+                        agentEmail: agentEmail 
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast(`✅ Welcome email sent to ${agentName}`);
+                } else {
+                    showToast(`❌ Failed: ${data.error}`, true);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('❌ Failed to send email', true);
+            }
+        }
+        
+        // ============ Other Agent Actions ============
         async function approveAgent(id) {
             if (confirm('Approve this agent? They will get full access to the platform.')) {
                 try {
@@ -474,13 +549,13 @@
                     });
                     const data = await response.json();
                     if (data.success) {
-                        alert('✅ Agent approved successfully!');
+                        showToast('✅ Agent approved successfully!');
                         loadAgents();
                     } else {
-                        alert('❌ Error: ' + data.error);
+                        showToast('❌ Error: ' + data.error, true);
                     }
                 } catch (error) {
-                    alert('❌ Failed to approve agent');
+                    showToast('❌ Failed to approve agent', true);
                 }
             }
         }
@@ -508,14 +583,14 @@
                 });
                 const data = await response.json();
                 if (data.success) {
-                    alert('❌ Agent rejected');
+                    showToast('❌ Agent rejected');
                     closeModal('rejectModal');
                     loadAgents();
                 } else {
-                    alert('Error: ' + data.error);
+                    showToast('Error: ' + data.error, true);
                 }
             } catch (error) {
-                alert('Failed to reject agent');
+                showToast('Failed to reject agent', true);
             }
         }
         
@@ -542,14 +617,14 @@
                 });
                 const data = await response.json();
                 if (data.success) {
-                    alert('⚠️ Agent flagged successfully');
+                    showToast('⚠️ Agent flagged successfully');
                     closeModal('flagModal');
                     loadAgents();
                 } else {
-                    alert('Error: ' + data.error);
+                    showToast('Error: ' + data.error, true);
                 }
             } catch (error) {
-                alert('Failed to flag agent');
+                showToast('Failed to flag agent', true);
             }
         }
         
@@ -566,13 +641,13 @@
                     });
                     const data = await response.json();
                     if (data.success) {
-                        alert('🔓 Agent un-flagged successfully');
+                        showToast('🔓 Agent un-flagged successfully');
                         loadAgents();
                     } else {
-                        alert('Error: ' + data.error);
+                        showToast('Error: ' + data.error, true);
                     }
                 } catch (error) {
-                    alert('Failed to unflag agent');
+                    showToast('Failed to unflag agent', true);
                 }
             }
         }
@@ -600,14 +675,14 @@
                 });
                 const data = await response.json();
                 if (data.success) {
-                    alert('🗑️ Agent deleted');
+                    showToast('🗑️ Agent deleted');
                     closeModal('deleteModal');
                     loadAgents();
                 } else {
-                    alert('Error: ' + data.error);
+                    showToast('Error: ' + data.error, true);
                 }
             } catch (error) {
-                alert('Failed to delete agent');
+                showToast('Failed to delete agent', true);
             }
         }
         

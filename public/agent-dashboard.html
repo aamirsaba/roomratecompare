@@ -16,16 +16,6 @@
         gtag('config', 'G-GKJZTX45SB');
     </script>
     
-    <!-- Travelpayouts Affiliate Script -->
-    <script nowprocket data-noptimize="1" data-cfasync="false" data-wpfc-render="false" seraph-accel-crit="1" data-no-defer="1">
-        (function () {
-            var script = document.createElement("script");
-            script.async = 1;
-            script.src = 'https://emrldtp.cc/NTMxODI2.js?t=531826';
-            document.head.appendChild(script);
-        })();
-    </script>
-    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; }
@@ -40,7 +30,7 @@
         .info-row { display: flex; padding: 0.8rem 0; border-bottom: 1px solid #eee; flex-wrap: wrap; }
         .info-label { width: 130px; font-weight: 600; color: #666; }
         .info-value { flex: 1; color: #333; }
-        .edit-btn { background: #e67e22; color: white; border: none; padding: 0.3rem 0.8rem; border-radius: 20px; cursor: pointer; }
+        .edit-btn { background: #e67e22; color: white; border: none; padding: 0.3rem 0.8rem; border-radius: 20px; cursor: pointer; font-size: 12px; }
         .form-group { margin-bottom: 1rem; }
         label { display: block; margin-bottom: 0.3rem; font-weight: 600; color: #333; }
         input, select, textarea { width: 100%; padding: 0.6rem; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; }
@@ -55,16 +45,19 @@
         .filter-btn.active { background: #e67e22; color: white; }
         .stat-card { background: #f8f9fa; padding: 15px; border-radius: 10px; text-align: center; }
         .stat-number { font-size: 28px; font-weight: bold; color: #e67e22; }
-        .note-btn { background: none; border: none; cursor: pointer; font-size: 16px; padding: 4px 8px; border-radius: 5px; }
-        .contact-btn { background: #17a2b8; color: white; border: none; padding: 4px 8px; border-radius: 5px; cursor: pointer; font-size: 11px; }
         .status-select { padding: 6px 10px; border-radius: 20px; border: 1px solid #ddd; cursor: pointer; font-size: 12px; }
         .profile-photo-section { text-align: center; margin-bottom: 1rem; }
         .profile-photo-circle { width: 80px; height: 80px; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; overflow: hidden; margin: 0 auto; border: 3px solid #e67e22; }
         .profile-photo-circle img { width: 100%; height: 100%; object-fit: cover; }
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; justify-content: center; align-items: center; }
-        .modal-content { background: white; padding: 25px; border-radius: 16px; max-width: 500px; width: 90%; }
+        .profile-photo-circle span { font-size: 32px; }
         .btn-link { background: #e67e22; color: white; padding: 0.3rem 0.8rem; border-radius: 20px; text-decoration: none; display: inline-block; font-size: 0.8rem; }
         .btn-link:hover { background: #d35400; }
+        .rating-stars { color: #ffc107; font-size: 18px; margin-bottom: 5px; }
+        .rating-card { border-bottom: 1px solid #eee; padding: 15px; margin-bottom: 10px; }
+        .services-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px; }
+        .service-tag { background: #e67e22; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; }
+        .checkbox-group { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 5px; }
+        .checkbox-group label { display: flex; align-items: center; gap: 5px; font-weight: normal; cursor: pointer; }
         @media (max-width: 768px) {
             .dashboard-container { padding: 0 1rem; }
             .tabs { gap: 0.5rem; }
@@ -111,7 +104,7 @@
             <div id="profilePanel" class="panel">
                 <div class="profile-photo-section">
                     <div class="profile-photo-circle" id="profilePhotoCircle">
-                        <span id="photoPlaceholder" style="font-size: 32px;">📷</span>
+                        <span id="photoPlaceholder">📷</span>
                         <img id="profilePhotoImg" style="display: none;">
                     </div>
                     <div style="margin-top: 10px;">
@@ -154,10 +147,24 @@
                     </div>
                     <div class="form-group"><label>Country</label><input type="text" id="editCountry"></div>
                     <div class="form-group"><label>City</label><input type="text" id="editCity"></div>
-                    <div class="form-group"><label>Languages</label><input type="text" id="editLanguages"></div>
+                    <div class="form-group"><label>Languages</label><input type="text" id="editLanguages" placeholder="e.g., English, Arabic, French"></div>
+                    
+                    <!-- Services Checkboxes - FIXED -->
+                    <div class="form-group">
+                        <label>Services Offered</label>
+                        <div class="checkbox-group" id="servicesCheckboxes">
+                            <label><input type="checkbox" value="Hotel Booking"> 🏨 Hotel Booking</label>
+                            <label><input type="checkbox" value="Flight Booking"> ✈️ Flight Booking</label>
+                            <label><input type="checkbox" value="Visa Assistance"> 🛂 Visa Assistance</label>
+                            <label><input type="checkbox" value="Tour Packages"> 🗺️ Tour Packages</label>
+                            <label><input type="checkbox" value="Car Rental"> 🚗 Car Rental</label>
+                            <label><input type="checkbox" value="Travel Insurance"> 🛡️ Travel Insurance</label>
+                        </div>
+                    </div>
+                    
                     <div class="form-group"><label>Bio</label><textarea id="editBio" rows="3"></textarea></div>
                     <button class="save-btn" onclick="saveProfile()">Save Changes</button>
-                    <button onclick="cancelEdit()" style="background:#999; margin-left:1rem;">Cancel</button>
+                    <button onclick="cancelEdit()" style="background:#999; margin-left:1rem; padding:0.6rem 1.5rem; border:none; border-radius:8px; cursor:pointer;">Cancel</button>
                 </div>
             </div>
             
@@ -205,31 +212,28 @@
                 <hr style="margin: 2rem 0;">
                 
                 <h3 style="color: #f44336;">⚠️ Danger Zone</h3>
+                <div style="background: #ffebee; padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                    <h4>Cancel Subscription</h4>
+                    <p>Your subscription will end at the current billing period. You will lose access to leads.</p>
+                    <button id="cancelSubscriptionBtn" style="background: #f44336; width: auto; padding: 0.5rem 1rem; border: none; border-radius: 5px; color: white; cursor: pointer;">Cancel Subscription →</button>
+                    <div id="cancelMessage" style="margin-top: 0.5rem;"></div>
+                </div>
 
-<!-- Cancel Subscription -->
-<div style="background: #ffebee; padding: 1rem; border-radius: 8px; margin-top: 1rem;">
-    <h4>Cancel Subscription</h4>
-    <p>Your subscription will end at the current billing period. You will lose access to leads.</p>
-    <button id="cancelSubscriptionBtn" style="background: #f44336; width: auto; padding: 0.5rem 1rem;">Cancel Subscription →</button>
-    <div id="cancelMessage" style="margin-top: 0.5rem;"></div>
-</div>
-
-<!-- Delete Account -->
-<div style="background: #ffebee; padding: 1rem; border-radius: 8px; margin-top: 1rem;">
-    <h4>🗑️ Delete Account</h4>
-    <p>Permanently delete your account. All your data will be lost. This action cannot be undone.</p>
-    <button id="deleteAccountBtn" style="background: #f44336; width: auto; padding: 0.5rem 1rem;">Delete Account →</button>
-    <div id="deleteMessage" style="margin-top: 0.5rem;"></div>
-</div>
-
+                <div style="background: #ffebee; padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                    <h4>🗑️ Delete Account</h4>
+                    <p>Permanently delete your account. All your data will be lost. This action cannot be undone.</p>
+                    <button id="deleteAccountBtn" style="background: #f44336; width: auto; padding: 0.5rem 1rem; border: none; border-radius: 5px; color: white; cursor: pointer;">Delete Account →</button>
+                    <div id="deleteMessage" style="margin-top: 0.5rem;"></div>
+                </div>
+            </div>
             
-            <!-- Ratings Panel -->
+            <!-- Ratings Panel - FIXED -->
             <div id="ratingsPanel" class="panel" style="display: none;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap;">
-                    <h3>⭐ My Ratings</h3>
+                    <h3>⭐ My Ratings & Reviews</h3>
                     <div style="text-align: center;">
                         <div style="font-size: 36px; font-weight: bold; color: #e67e22;" id="avgRating">0.0</div>
-                        <div id="starRating">☆☆☆☆☆</div>
+                        <div id="starRatingDisplay" class="rating-stars">☆☆☆☆☆</div>
                         <div id="totalRatings">0 reviews</div>
                     </div>
                 </div>
@@ -349,6 +353,20 @@
                     document.getElementById('profileCountry').textContent = currentAgent.country || '-';
                     document.getElementById('profileCity').textContent = currentAgent.city || '-';
                     document.getElementById('profileLanguages').textContent = currentAgent.languages || '-';
+                    
+                    // Display services as tags
+                    let servicesHtml = '';
+                    if (currentAgent.services && Array.isArray(currentAgent.services) && currentAgent.services.length > 0) {
+                        servicesHtml = '<div class="services-tags">';
+                        currentAgent.services.forEach(s => {
+                            servicesHtml += `<span class="service-tag">${escapeHtml(s)}</span>`;
+                        });
+                        servicesHtml += '</div>';
+                    } else {
+                        servicesHtml = '-';
+                    }
+                    document.getElementById('profileServices').innerHTML = servicesHtml;
+                    
                     document.getElementById('profileBio').textContent = currentAgent.bio || '-';
                     document.getElementById('profileSubscription').textContent = currentAgent.subscription_status === 'active' ? '✅ Active' : '❌ Inactive';
                     document.getElementById('publicProfileLink').href = `/agent-profile?id=${agentId}`;
@@ -368,6 +386,10 @@
                     document.getElementById('profilePhotoImg').style.display = 'block';
                     document.getElementById('photoPlaceholder').style.display = 'none';
                     document.getElementById('deletePhotoBtn').style.display = 'inline-block';
+                } else {
+                    document.getElementById('profilePhotoImg').style.display = 'none';
+                    document.getElementById('photoPlaceholder').style.display = 'block';
+                    document.getElementById('deletePhotoBtn').style.display = 'none';
                 }
             } catch(e) { console.error(e); }
         }
@@ -406,16 +428,50 @@
             document.getElementById('editCity').value = currentAgent.city || '';
             document.getElementById('editLanguages').value = currentAgent.languages || '';
             document.getElementById('editBio').value = currentAgent.bio || '';
+            
+            // Set services checkboxes
+            const services = currentAgent.services || [];
+            document.querySelectorAll('#servicesCheckboxes input[type="checkbox"]').forEach(cb => {
+                cb.checked = services.includes(cb.value);
+            });
         }
         
-        function cancelEdit() { document.getElementById('profileView').style.display = 'block'; document.getElementById('profileEdit').style.display = 'none'; }
+        function cancelEdit() { 
+            document.getElementById('profileView').style.display = 'block'; 
+            document.getElementById('profileEdit').style.display = 'none'; 
+        }
         
         async function saveProfile() {
-            const data = { agentId, name: document.getElementById('editName').value, phone: document.getElementById('editPhone').value, whatsapp_number: document.getElementById('editWhatsapp').value, specialty: document.getElementById('editSpecialty').value, country: document.getElementById('editCountry').value, city: document.getElementById('editCity').value, languages: document.getElementById('editLanguages').value, bio: document.getElementById('editBio').value };
-            const res = await fetch('/api/agent-auth/update-profile', { method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+            // Get selected services
+            const selectedServices = [];
+            document.querySelectorAll('#servicesCheckboxes input[type="checkbox"]:checked').forEach(cb => {
+                selectedServices.push(cb.value);
+            });
+            
+            const data = { 
+                agentId, 
+                name: document.getElementById('editName').value, 
+                phone: document.getElementById('editPhone').value, 
+                whatsapp_number: document.getElementById('editWhatsapp').value, 
+                specialty: document.getElementById('editSpecialty').value, 
+                country: document.getElementById('editCountry').value, 
+                city: document.getElementById('editCity').value, 
+                languages: document.getElementById('editLanguages').value,
+                services: selectedServices,
+                bio: document.getElementById('editBio').value 
+            };
+            
+            const res = await fetch('/api/agent-auth/update-profile', { 
+                method: 'PUT', 
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, 
+                body: JSON.stringify(data) 
+            });
             const result = await res.json();
-            if (result.success) { alert('Profile updated'); cancelEdit(); loadProfile(); }
-            else alert(result.error);
+            if (result.success) { 
+                alert('Profile updated'); 
+                cancelEdit(); 
+                loadProfile(); 
+            } else alert(result.error);
         }
         
         async function loadAllLeads() {
@@ -441,11 +497,14 @@
             for(let i=29;i>=0;i--){ let d=new Date(); d.setDate(d.getDate()-i); let ds=d.toISOString().split('T')[0]; days.push(ds); byDay[ds]=0; }
             allLeads.forEach(l=>{ let ds=new Date(l.created_at).toISOString().split('T')[0]; if(byDay[ds]!==undefined) byDay[ds]++; });
             if(leadsChart) leadsChart.destroy();
-            leadsChart = new Chart(document.getElementById('leadsChart'), { type:'line', data:{ labels:days, datasets:[{ label:'Leads', data:Object.values(byDay), borderColor:'#e67e22', fill:true }] }, options:{ responsive:true } });
+            const ctx = document.getElementById('leadsChart').getContext('2d');
+            leadsChart = new Chart(ctx, { type:'line', data:{ labels:days, datasets:[{ label:'Leads', data:Object.values(byDay), borderColor:'#e67e22', fill:true }] }, options:{ responsive:true } });
+            
             let newC=0,contC=0,convC=0,lostC=0;
             allLeads.forEach(l=>{ const s=l.status||'new'; if(s==='new') newC++; else if(s==='contacted') contC++; else if(s==='converted') convC++; else if(s==='lost') lostC++; });
             if(statusChart) statusChart.destroy();
-            statusChart = new Chart(document.getElementById('statusChart'), { type:'pie', data:{ labels:['New','Contacted','Converted','Lost'], datasets:[{ data:[newC,contC,convC,lostC], backgroundColor:['#2196f3','#e67e22','#4caf50','#f44336'] }] }, options:{ responsive:true, plugins:{ legend:{ position:'bottom' } } } });
+            const statusCtx = document.getElementById('statusChart').getContext('2d');
+            statusChart = new Chart(statusCtx, { type:'pie', data:{ labels:['New','Contacted','Converted','Lost'], datasets:[{ data:[newC,contC,convC,lostC], backgroundColor:['#2196f3','#e67e22','#4caf50','#f44336'] }] }, options:{ responsive:true, plugins:{ legend:{ position:'bottom' } } } });
         }
         
         async function filterLeads(status) {
@@ -468,7 +527,7 @@
                     <td style="max-width:200px;">${escapeHtml(l.message)||'-'}</td>
                     <td><select class="status-select" onchange="updateLeadStatus(${l.id}, this.value)"><option value="new" ${status==='new'?'selected':''}>🆕 New</option><option value="contacted" ${status==='contacted'?'selected':''}>📞 Contacted</option><option value="converted" ${status==='converted'?'selected':''}>✅ Converted</option><option value="lost" ${status==='lost'?'selected':''}>❌ Lost</option></select></td>
                     <td>${new Date(l.created_at).toLocaleDateString()}</td>
-                </table>`;
+                </tr>`;
             });
             html+='</tbody></table></div>';
             document.getElementById('leadsList').innerHTML = html;
@@ -486,7 +545,6 @@
             const blob = await res.blob();
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a'); a.href = url; a.download = `leads_${new Date().toISOString().slice(0,10)}.csv`; a.click(); URL.revokeObjectURL(url);
-            alert('Exported!');
         }
         
         async function exportLeadsJSON() {
@@ -494,21 +552,46 @@
             const blob = await res.blob();
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a'); a.href = url; a.download = `leads_${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(url);
-            alert('Exported!');
         }
         
         async function loadRatings() {
-            const res = await fetch(`/api/agent-auth/ratings/${agentId}`, { headers: { 'Authorization': `Bearer ${token}` } });
-            const data = await res.json();
-            if(data.success){
-                document.getElementById('avgRating').innerHTML = data.averageRating.toFixed(1);
-                document.getElementById('totalRatings').innerHTML = `${data.totalRatings} reviews`;
-                let stars=''; for(let i=0;i<Math.floor(data.averageRating);i++) stars+='⭐'; for(let i=0;i<5-Math.floor(data.averageRating);i++) stars+='☆';
-                document.getElementById('starRating').innerHTML = stars||'☆☆☆☆☆';
-                let html='';
-                if(data.ratings && data.ratings.length>0){ data.ratings.forEach(r=>{ html+=`<div style="border-bottom:1px solid #eee;padding:10px;"><strong>${escapeHtml(r.client_name)}</strong> gave ${'⭐'.repeat(r.rating)}<br>${r.review?`"${escapeHtml(r.review)}"`:''}<br><small>${new Date(r.created_at).toLocaleDateString()}</small></div>`; }); }
-                else html='<p>No ratings yet</p>';
-                document.getElementById('ratingsList').innerHTML = html;
+            try {
+                const res = await fetch(`/api/agent-auth/ratings/${agentId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = await res.json();
+                if(data.success){
+                    const avgRating = data.averageRating || 0;
+                    document.getElementById('avgRating').innerHTML = avgRating.toFixed(1);
+                    document.getElementById('totalRatings').innerHTML = `${data.totalRatings} ${data.totalRatings === 1 ? 'review' : 'reviews'}`;
+                    
+                    // Display star rating
+                    let stars = '';
+                    const fullStars = Math.floor(avgRating);
+                    const hasHalfStar = avgRating % 1 >= 0.5;
+                    for(let i=0; i<fullStars; i++) stars += '⭐';
+                    if(hasHalfStar) stars += '½';
+                    for(let i=0; i<5 - Math.ceil(avgRating); i++) stars += '☆';
+                    document.getElementById('starRatingDisplay').innerHTML = stars || '☆☆☆☆☆';
+                    
+                    let html = '';
+                    if(data.ratings && data.ratings.length > 0){ 
+                        data.ratings.forEach(r=>{ 
+                            let ratingStars = '';
+                            for(let i=0; i<r.rating; i++) ratingStars += '⭐';
+                            for(let i=0; i<5-r.rating; i++) ratingStars += '☆';
+                            html+=`<div class="rating-card">
+                                <div><strong>${escapeHtml(r.client_name)}</strong> <span class="rating-stars">${ratingStars}</span></div>
+                                ${r.review ? `<div style="margin-top: 5px;">"${escapeHtml(r.review)}"</div>` : ''}
+                                <div style="margin-top: 5px; font-size: 12px; color: #666;">${new Date(r.created_at).toLocaleDateString()}</div>
+                            </div>`; 
+                        }); 
+                    } else {
+                        html = '<p style="text-align: center; color: #666;">No ratings yet. When clients rate you, they will appear here.</p>';
+                    }
+                    document.getElementById('ratingsList').innerHTML = html;
+                }
+            } catch(e) { 
+                console.error('Error loading ratings:', e);
+                document.getElementById('ratingsList').innerHTML = '<p>Unable to load ratings at this time.</p>';
             }
         }
         
@@ -522,97 +605,63 @@
         });
         
         document.getElementById('cancelSubscriptionBtn')?.addEventListener('click', async () => {
-            if(confirm('Cancel subscription?')){
+            if(confirm('Are you sure you want to cancel your subscription? You will lose access to leads at the end of your billing period.')){
                 const res = await fetch('/api/agent-auth/cancel-subscription', { method:'POST', headers:{ 'Authorization':`Bearer ${token}`, 'Content-Type':'application/json' }, body:JSON.stringify({ agentId }) });
                 const data = await res.json();
-                if(data.success){ alert('Subscription cancelled'); setTimeout(()=>logout(),3000); }
+                if(data.success){ alert('Subscription cancelled. You will be logged out.'); setTimeout(()=>logout(),3000); }
                 else alert(data.error);
             }
         });
         
-       
-// Delete Account - Make sure this is inside the script section
-document.getElementById('deleteAccountBtn')?.addEventListener('click', async () => {
-    if (confirm('⚠️ DANGER: This will permanently delete your account. All your leads, profile, and data will be lost forever. This cannot be undone. Are you absolutely sure?')) {
-        const btn = document.getElementById('deleteAccountBtn');
-        btn.textContent = 'Processing...';
-        btn.disabled = true;
-        
-        try {
-            const response = await fetch('/api/agent-auth/delete-account', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ agentId: agentId })
-            });
-            
-            const data = await response.json();
-            console.log('Delete response:', data);
-            
-            if (data.success) {
-                const deleteMsg = document.getElementById('deleteMessage');
-                if (deleteMsg) {
-                    deleteMsg.innerHTML = '<div class="success">✅ Account deleted. You will be logged out in 5 seconds.</div>';
+        document.getElementById('deleteAccountBtn')?.addEventListener('click', async () => {
+            if (confirm('⚠️ DANGER: This will permanently delete your account. All your leads, profile, and data will be lost forever. This cannot be undone. Are you absolutely sure?')) {
+                const btn = document.getElementById('deleteAccountBtn');
+                btn.textContent = 'Processing...';
+                btn.disabled = true;
+                
+                try {
+                    const response = await fetch('/api/agent-auth/delete-account', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ agentId: agentId })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        alert('Account deleted. You will be redirected.');
+                        setTimeout(() => {
+                            localStorage.clear();
+                            window.location.href = '/';
+                        }, 3000);
+                    } else {
+                        alert('Error: ' + data.error);
+                        btn.textContent = 'Delete Account →';
+                        btn.disabled = false;
+                    }
+                } catch (error) {
+                    console.error('Delete error:', error);
+                    alert('Error deleting account');
+                    btn.textContent = 'Delete Account →';
+                    btn.disabled = false;
                 }
-                setTimeout(() => {
-                    localStorage.clear();
-                    window.location.href = '/';
-                }, 5000);
-            } else {
-                const deleteMsg = document.getElementById('deleteMessage');
-                if (deleteMsg) {
-                    deleteMsg.innerHTML = `<div class="error">❌ ${data.error}</div>`;
-                }
-                btn.textContent = 'Delete Account →';
-                btn.disabled = false;
             }
-        } catch (error) {
-            console.error('Delete error:', error);
-            const deleteMsg = document.getElementById('deleteMessage');
-            if (deleteMsg) {
-                deleteMsg.innerHTML = '<div class="error">❌ Error deleting account</div>';
-            }
-            btn.textContent = 'Delete Account →';
-            btn.disabled = false;
-        }
-    }
-});
+        });
 
-
-// Show active leads with response timer
-async function loadActiveLeads() {
-    const response = await fetch('/api/agent/leads/active', {
-        headers: { 'Authorization': `Bearer ${agentToken}` }
-    });
-    const data = await response.json();
-    
-    data.leads.forEach(lead => {
-        const ageHours = (Date.now() - new Date(lead.created_at)) / (1000 * 60 * 60);
-        let statusColor = 'green';
-        let warning = '';
-        
-        if (ageHours >= 24) {
-            statusColor = 'red';
-            warning = '⚠️ Will be escalated soon!';
-        } else if (ageHours >= 6) {
-            statusColor = 'orange';
-            warning = '⏰ Respond soon';
-        } else if (ageHours >= 1) {
-            statusColor = 'yellow';
-            warning = '📞 Waiting for response';
+        function logout() { 
+            localStorage.clear(); 
+            window.location.href = '/agent-login'; 
         }
         
-        // Display lead with warning
-    });
-}
+        function escapeHtml(str) { 
+            if(!str) return ''; 
+            return str.replace(/[&<>]/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); 
+        }
 
-
-        function logout() { localStorage.clear(); window.location.href = '/agent-login'; }
-        function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
-
- 
+        // Load initial profile
         loadProfile();
     </script>
 </body>
