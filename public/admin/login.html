@@ -2,144 +2,173 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>RoomRateCompare | RoomRateCompare</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login | RoomRateCompare</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-container {
+            max-width: 450px;
+            width: 90%;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            text-align: center;
+            color: #e67e22;
+            margin-bottom: 0.5rem;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+        input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        input:focus {
+            outline: none;
+            border-color: #e67e22;
+        }
+        button {
+            width: 100%;
+            background: #e67e22;
+            color: white;
+            border: none;
+            padding: 0.8rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        button:hover {
+            background: #d35400;
+        }
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            text-align: center;
+        }
+        .demo-box {
+            background: #fff3e0;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+        .demo-box h4 {
+            color: #e67e22;
+            margin-bottom: 0.5rem;
+        }
+        .warning {
+            color: #f44336;
+            font-size: 0.7rem;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <nav>
-            <div class="logo">
-                <h1>Room<span>Rate</span>Compare</h1>
-                <p class="tagline">Compare 1000+ hotels. Find your best room rate.</p>
-            </div>
-            <button class="mobile-menu-btn" id="menuBtn" aria-label="Menu">☰</button>
-            <div class="nav-links" id="navLinks">
-                <a href="/">Home</a>
-                <a href="/search">Search</a>
-                <a href="/agents">Travel Agents</a>
-                <a href="/agent-register">Become an Agent</a>
-                <a href="/blog">Blog</a>
-                <a href="/partners">Partners</a>
-            </div>
-        </nav>
-        <div class="menu-overlay" id="menuOverlay"></div>
-    </header>
-
-    <main>
-        <main>
-        <main>
-        <div class="login-container">
+    <div class="login-container">
         <h1>🔐 Admin Login</h1>
-        <p>Access the RoomRateCompare admin dashboard</p>
+        <div class="subtitle">Access the RoomRateCompare admin dashboard</div>
         
         <form id="loginForm">
             <div class="form-group">
                 <label>Email</label>
-                <input type="email" id="email" required placeholder="admin@roomratecompare.com">
+                <input type="email" id="email" placeholder="admin@roomratecompare.com" required>
             </div>
             <div class="form-group">
                 <label>Password</label>
-                <input type="password" id="password" required placeholder="Enter your password">
+                <input type="password" id="password" placeholder="Enter your password" required>
             </div>
             <button type="submit">Login →</button>
         </form>
         
-        <div id="errorMsg" class="error" style="display: none;"></div>
+        <div id="errorMsg" style="display: none;"></div>
         
-        <div class="demo-credentials">
-            <strong>Demo Credentials (First Time Login)</strong><br>
-            Email: admin@roomratecompare.com<br>
-            Password: admin123
-            <br><br>
-            <span style="color:#e67e22;">⚠️ Change password after first login</span>
+        <div class="demo-box">
+            <h4>Demo Credentials (First Time Login)</h4>
+            <p>Email: <strong>admin@roomratecompare.com</strong></p>
+            <p>Password: <strong>admin123</strong></p>
         </div>
+        <div class="warning">⚠️ Change password after first login</div>
     </div>
-    </main>
-    </main>
-
-    <footer>
-        <div class="footer-container">
-            <div class="footer-column">
-                <h3>🏨 RoomRateCompare</h3>
-                <p>Compare hotel room rates from 50+ travel sites including Booking.com, Agoda, and Expedia. Find the best price for your stay.</p>
-                <p>📍 UK: Aamir Saba Ltd<br>📍 USA: Aamir Saba Inc</p>
-            </div>
-            
-            <div class="footer-column">
-                <h3>🔗 Quick Links</h3>
-                <ul>
-                    <li><a href="/">Home</a></li>
-                    <li><a href="/search">Search Hotels</a></li>
-                    <li><a href="/agents">Travel Agents</a></li>
-                    <li><a href="/agent-register">Become an Agent</a></li>
-                    <li><a href="/blog">Travel Blog</a></li>
-                    <li><a href="/partners">Affiliate Partners</a></li>
-                </ul>
-            </div>
-            
-            <div class="footer-column">
-                <h3>⚖️ Legal & Support</h3>
-                <ul>
-                    <li><a href="/privacy">Privacy Policy</a></li>
-                    <li><a href="/terms">Terms & Conditions</a></li>
-                    <li><a href="/refund">Refund Policy</a></li>
-                    <li><a href="/cookie-policy">Cookie Policy</a></li>
-                    <li><a href="/affiliate-disclosure">Affiliate Disclosure</a></li>
-                    <li><a href="/disclaimer">Disclaimer</a></li>
-                    <li><a href="/agent-agreement">Agent Agreement</a></li>
-                    <li><a href="/contact">Contact Us</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; 2026 RoomRateCompare.com. All rights reserved. | Compare hotel room rates worldwide.</p>
-        </div>
-    </footer>
 
     <script>
-        // ============ MOBILE MENU FUNCTIONALITY ============
-        (function() {
-            const menuBtn = document.getElementById('menuBtn');
-            const navLinks = document.getElementById('navLinks');
-            const menuOverlay = document.getElementById('menuOverlay');
+        // Clear any existing admin token on login page
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminEmail');
+        
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
             
-            if (!menuBtn) return;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
             
-            function toggleMenu() {
-                navLinks.classList.toggle('active');
-                menuOverlay.classList.toggle('active');
-                document.body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : '';
-            }
+            const btn = document.querySelector('button');
+            const originalText = btn.textContent;
+            btn.textContent = 'Logging in...';
+            btn.disabled = true;
+            document.getElementById('errorMsg').style.display = 'none';
             
-            function closeMenu() {
-                navLinks.classList.remove('active');
-                menuOverlay.classList.remove('active');
-                document.body.style.overflow = '';
-            }
-            
-            menuBtn.addEventListener('click', toggleMenu);
-            
-            if (menuOverlay) {
-                menuOverlay.addEventListener('click', closeMenu);
-            }
-            
-            document.querySelectorAll('.nav-links a').forEach(link => {
-                link.addEventListener('click', closeMenu);
-            });
-            
-            window.addEventListener('resize', function() {
-                if (window.innerWidth > 768) {
-                    closeMenu();
+            try {
+                const response = await fetch('/api/admin/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    localStorage.setItem('adminToken', data.token);
+                    localStorage.setItem('adminEmail', email);
+                    window.location.href = '/admin/dashboard';
+                } else {
+                    document.getElementById('errorMsg').textContent = data.error || 'Invalid credentials';
+                    document.getElementById('errorMsg').style.display = 'block';
+                    document.getElementById('errorMsg').className = 'error';
                 }
-            });
-            
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && navLinks.classList.contains('active')) {
-                    closeMenu();
-                }
-            });
-        })();
+            } catch (error) {
+                document.getElementById('errorMsg').textContent = 'Login failed. Please try again.';
+                document.getElementById('errorMsg').style.display = 'block';
+                document.getElementById('errorMsg').className = 'error';
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        });
     </script>
 </body>
 </html>

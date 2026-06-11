@@ -16,6 +16,10 @@ const blogRouter = require('./api/blog');
 const { generateSitemap } = require('./utils/sitemap');
 generateSitemap();
 const partnersRouter = require('./api/partners');
+// Add near the top of server.js
+const cron = require('node-cron');
+const { monitorAndProcessLeads } = require('./cron/leadMonitorCron');
+
 
 
 
@@ -29,6 +33,20 @@ app.post('/api/agent-register/webhook', express.raw({ type: 'application/json' }
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../public')));
+
+// Run lead monitor every 15 minutes
+cron.schedule('*/15 * * * *', async () => {
+    console.log('🕐 Running lead monitor cron job...');
+    await monitorAndProcessLeads();
+});
+
+// Run performance metrics update hourly
+cron.schedule('0 * * * *', async () => {
+    console.log('📊 Updating agent performance metrics...');
+    const { updateAgentPerformanceMetrics } = require('./cron/leadMonitorCron');
+    await updateAgentPerformanceMetrics();
+});
+
 
 // Trust proxy for HTTPS detection
 app.set('trust proxy', 1);

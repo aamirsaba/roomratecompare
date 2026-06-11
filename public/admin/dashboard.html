@@ -2,186 +2,667 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>RoomRateCompare | RoomRateCompare</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | RoomRateCompare</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+        }
+        .admin-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 260px;
+            background: #1a252f;
+            color: white;
+            padding: 1.5rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .sidebar h2 {
+            color: #e67e22;
+            margin-bottom: 2rem;
+            font-size: 1.3rem;
+        }
+        .sidebar nav a {
+            display: block;
+            padding: 0.8rem;
+            color: #ccc;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s;
+        }
+        .sidebar nav a:hover, .sidebar nav a.active {
+            background: #e67e22;
+            color: white;
+        }
+        .main-content {
+            margin-left: 260px;
+            padding: 2rem;
+            width: 100%;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #ddd;
+        }
+        .header h1 {
+            color: #1a1a1a;
+        }
+        .logout-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #e67e22;
+        }
+        .panel {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .panel h3 {
+            margin-bottom: 1rem;
+            color: #1a1a1a;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 0.8rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        .status {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+        }
+        .status-approved { background: #e8f5e9; color: #4caf50; }
+        .status-pending { background: #fff3e0; color: #e67e22; }
+        .status-flagged { background: #ffebee; color: #f44336; }
+        .status-cancelled { background: #eeeeee; color: #757575; }
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            margin: 0 0.25rem;
+        }
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .tab {
+            padding: 0.5rem 1rem;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .tab.active {
+            background: #e67e22;
+            color: white;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.3rem;
+            font-weight: 600;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <nav>
-            <div class="logo">
-                <h1>Room<span>Rate</span>Compare</h1>
-                <p class="tagline">Compare 1000+ hotels. Find your best room rate.</p>
-            </div>
-            <button class="mobile-menu-btn" id="menuBtn" aria-label="Menu">☰</button>
-            <div class="nav-links" id="navLinks">
-                <a href="/">Home</a>
-                <a href="/search">Search</a>
-                <a href="/agents">Travel Agents</a>
-                <a href="/agent-register">Become an Agent</a>
-                <a href="/blog">Blog</a>
-                <a href="/partners">Partners</a>
-            </div>
-        </nav>
-        <div class="menu-overlay" id="menuOverlay"></div>
-    </header>
-
-    <main>
-        <main>
-        <main>
+    <div class="admin-wrapper">
         <div class="sidebar">
-        <h2>RoomRateCompare</h2>
-        <nav>
-            <a href="#" class="active" data-page="dashboard">📊 Dashboard</a>
-            <a href="#" data-page="agents">👥 Agents</a>
-            <a href="#" data-page="requests">📋 Client Requests</a>
-            <a href="#" data-page="settings">⚙️ Settings</a>
-        </nav>
-    </div>
-    
-    <div class="main-content">
-        <div class="header">
-            <h1 id="pageTitle">Dashboard</h1>
-            <button class="logout-btn" onclick="logout()">Logout</button>
+            <h2>RoomRateCompare</h2>
+            <nav>
+                <a href="#" data-page="dashboard">📊 Dashboard</a>
+                <a href="#" data-page="agents">👥 Agents</a>
+                <a href="#" data-page="requests">📋 Client Requests</a>
+                <a href="#" data-page="settings">⚙️ Settings</a>
+            </nav>
         </div>
         
-        <div id="dashboardPage">
-            <div class="stats" id="stats"></div>
-            <div class="panel">
-                <h3>Recent Agent Registrations</h3>
-                <div id="recentAgents"></div>
-            </div>
-            <div class="panel">
-                <h3>Recent Client Requests</h3>
-                <div id="recentRequests"></div>
-            </div>
-        </div>
-        
-        <div id="agentsPage" style="display: none;">
-            <div class="tabs">
-                <button class="tab active" onclick="filterAgents('all')">All</button>
-                <button class="tab" onclick="filterAgents('pending_approval')">Pending Approval</button>
-                <button class="tab" onclick="filterAgents('approved')">Approved</button>
-                <button class="tab" onclick="filterAgents('rejected')">Rejected</button>
-                <button class="tab" onclick="filterAgents('flagged')">Flagged</button>
-            </div>
-            <div class="panel">
-                <div id="agentsTable"></div>
-            </div>
-        </div>
-        
-        <div id="requestsPage" style="display: none;">
-            <div class="panel">
-                <div id="requestsTable"></div>
-            </div>
-        </div>
-        
-        <div id="settingsPage" style="display: none;">
-            <div class="panel">
-                <h3>Admin Settings</h3>
-                <form id="changePasswordForm">
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label>Current Password</label>
-                        <input type="password" id="currentPassword" style="width:100%; padding:0.8rem;">
-                    </div>
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label>New Password</label>
-                        <input type="password" id="newPassword" style="width:100%; padding:0.8rem;">
-                    </div>
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label>Confirm New Password</label>
-                        <input type="password" id="confirmPassword" style="width:100%; padding:0.8rem;">
-                    </div>
-                    <button type="submit" style="background:#e67e22; color:white; border:none; padding:0.8rem 1.5rem; border-radius:6px;">Change Password</button>
-                </form>
-            </div>
-        </div>
-    </div>
-    </main>
-    </main>
-
-    <footer>
-        <div class="footer-container">
-            <div class="footer-column">
-                <h3>🏨 RoomRateCompare</h3>
-                <p>Compare hotel room rates from 50+ travel sites including Booking.com, Agoda, and Expedia. Find the best price for your stay.</p>
-                <p>📍 UK: Aamir Saba Ltd<br>📍 USA: Aamir Saba Inc</p>
+        <div class="main-content">
+            <div class="header">
+                <h1 id="pageTitle">Dashboard</h1>
+                <button class="logout-btn" onclick="logout()">Logout</button>
             </div>
             
-            <div class="footer-column">
-                <h3>🔗 Quick Links</h3>
-                <ul>
-                    <li><a href="/">Home</a></li>
-                    <li><a href="/search">Search Hotels</a></li>
-                    <li><a href="/agents">Travel Agents</a></li>
-                    <li><a href="/agent-register">Become an Agent</a></li>
-                    <li><a href="/blog">Travel Blog</a></li>
-                    <li><a href="/partners">Affiliate Partners</a></li>
-                </ul>
+            <div id="dashboardPage">
+                <div class="stats" id="stats">
+                    <div class="stat-card"><div class="stat-number">-</div><div>Total Agents</div></div>
+                    <div class="stat-card"><div class="stat-number">-</div><div>Pending Approval</div></div>
+                    <div class="stat-card"><div class="stat-number">-</div><div>Client Requests</div></div>
+                    <div class="stat-card"><div class="stat-number">-</div><div>Pending Requests</div></div>
+                </div>
+                <div class="panel">
+                    <h3>Recent Agent Registrations</h3>
+                    <div id="recentAgents" class="loading">Loading...</div>
+                </div>
+                <div class="panel">
+                    <h3>Recent Client Requests</h3>
+                    <div id="recentRequests" class="loading">Loading...</div>
+                </div>
             </div>
             
-            <div class="footer-column">
-                <h3>⚖️ Legal & Support</h3>
-                <ul>
-                    <li><a href="/privacy">Privacy Policy</a></li>
-                    <li><a href="/terms">Terms & Conditions</a></li>
-                    <li><a href="/refund">Refund Policy</a></li>
-                    <li><a href="/cookie-policy">Cookie Policy</a></li>
-                    <li><a href="/affiliate-disclosure">Affiliate Disclosure</a></li>
-                    <li><a href="/disclaimer">Disclaimer</a></li>
-                    <li><a href="/agent-agreement">Agent Agreement</a></li>
-                    <li><a href="/contact">Contact Us</a></li>
-                </ul>
+            <div id="agentsPage" style="display: none;">
+                <div class="tabs">
+                    <button class="tab active" onclick="filterAgents('all')">All</button>
+                    <button class="tab" onclick="filterAgents('pending')">Pending Approval</button>
+                    <button class="tab" onclick="filterAgents('approved')">Approved</button>
+                    <button class="tab" onclick="filterAgents('rejected')">Rejected</button>
+                </div>
+                <div class="panel">
+                    <div id="agentsTable" class="loading">Loading...</div>
+                </div>
+            </div>
+            
+            <div id="requestsPage" style="display: none;">
+                <div class="panel">
+                    <div id="requestsTable" class="loading">Loading...</div>
+                </div>
+            </div>
+            
+            <div id="settingsPage" style="display: none;">
+                <div class="panel">
+                    <h3>Admin Settings</h3>
+                    <form id="changePasswordForm">
+                        <div class="form-group">
+                            <label>Current Password</label>
+                            <input type="password" id="currentPassword" required>
+                        </div>
+                        <div class="form-group">
+                            <label>New Password</label>
+                            <input type="password" id="newPassword" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Confirm New Password</label>
+                            <input type="password" id="confirmPassword" required>
+                        </div>
+                        <button type="submit" style="background:#e67e22; color:white; border:none; padding:0.8rem 1.5rem; border-radius:6px; cursor:pointer;">Change Password</button>
+                    </form>
+                </div>
             </div>
         </div>
-        <div class="footer-bottom">
-            <p>&copy; 2026 RoomRateCompare.com. All rights reserved. | Compare hotel room rates worldwide.</p>
-        </div>
-    </footer>
+    </div>
 
     <script>
-        // ============ MOBILE MENU FUNCTIONALITY ============
-        (function() {
-            const menuBtn = document.getElementById('menuBtn');
-            const navLinks = document.getElementById('navLinks');
-            const menuOverlay = document.getElementById('menuOverlay');
-            
-            if (!menuBtn) return;
-            
-            function toggleMenu() {
-                navLinks.classList.toggle('active');
-                menuOverlay.classList.toggle('active');
-                document.body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : '';
-            }
-            
-            function closeMenu() {
-                navLinks.classList.remove('active');
-                menuOverlay.classList.remove('active');
-                document.body.style.overflow = '';
-            }
-            
-            menuBtn.addEventListener('click', toggleMenu);
-            
-            if (menuOverlay) {
-                menuOverlay.addEventListener('click', closeMenu);
-            }
-            
-            document.querySelectorAll('.nav-links a').forEach(link => {
-                link.addEventListener('click', closeMenu);
-            });
-            
-            window.addEventListener('resize', function() {
-                if (window.innerWidth > 768) {
-                    closeMenu();
+        // Check token once on load
+        const token = localStorage.getItem('adminToken');
+        if (!token) {
+            window.location.href = '/admin/login';
+        }
+        
+        let currentFilter = 'all';
+        let isLoading = false;
+        
+        // Set active class on current page
+        function setActivePage(page) {
+            document.querySelectorAll('.sidebar nav a').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('data-page') === page) {
+                    link.classList.add('active');
                 }
             });
-            
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && navLinks.classList.contains('active')) {
-                    closeMenu();
+        }
+        
+        // Page navigation
+        document.querySelectorAll('.sidebar nav a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const page = link.getAttribute('data-page');
+                
+                // Hide all pages
+                document.getElementById('dashboardPage').style.display = 'none';
+                document.getElementById('agentsPage').style.display = 'none';
+                document.getElementById('requestsPage').style.display = 'none';
+                document.getElementById('settingsPage').style.display = 'none';
+                
+                // Show selected page
+                if (page === 'dashboard') {
+                    document.getElementById('dashboardPage').style.display = 'block';
+                    document.getElementById('pageTitle').textContent = 'Dashboard';
+                    loadDashboard();
+                } else if (page === 'agents') {
+                    document.getElementById('agentsPage').style.display = 'block';
+                    document.getElementById('pageTitle').textContent = 'Agent Management';
+                    loadAgents();
+                } else if (page === 'requests') {
+                    document.getElementById('requestsPage').style.display = 'block';
+                    document.getElementById('pageTitle').textContent = 'Client Requests';
+                    loadRequests();
+                } else if (page === 'settings') {
+                    document.getElementById('settingsPage').style.display = 'block';
+                    document.getElementById('pageTitle').textContent = 'Settings';
                 }
+                
+                setActivePage(page);
             });
-        })();
+        });
+        
+        async function loadDashboard() {
+            if (isLoading) return;
+            isLoading = true;
+            
+            try {
+                const response = await fetch('/api/admin/dashboard', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('stats').innerHTML = `
+                        <div class="stat-card"><div class="stat-number">${data.stats.totalAgents || 0}</div><div>Total Agents</div></div>
+                        <div class="stat-card"><div class="stat-number">${data.stats.pendingAgents || 0}</div><div>Pending Approval</div></div>
+                        <div class="stat-card"><div class="stat-number">${data.stats.totalRequests || 0}</div><div>Client Requests</div></div>
+                        <div class="stat-card"><div class="stat-number">${data.stats.pendingRequests || 0}</div><div>Pending Requests</div></div>
+                    `;
+                    renderRecentAgents(data.recentAgents);
+                    renderRecentRequests(data.recentRequests);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('recentAgents').innerHTML = '<p>Error loading data</p>';
+                document.getElementById('recentRequests').innerHTML = '<p>Error loading data</p>';
+            } finally {
+                isLoading = false;
+            }
+        }
+        
+        function renderRecentAgents(agents) {
+            if (!agents || agents.length === 0) {
+                document.getElementById('recentAgents').innerHTML = '<p>No recent registrations.</p>';
+                return;
+            }
+            let html = '<table><thead><tr><th>Name</th><th>Email</th><th>Specialty</th><th>Status</th><th>Date</th></tr></thead><tbody>';
+            agents.forEach(a => {
+                html += `<tr>
+                    <td>${escapeHtml(a.name)}</td>
+                    <td>${escapeHtml(a.email)}</td>
+                    <td>${a.specialty || '-'}</td>
+                    <td><span class="status status-${a.status}">${a.status}</span></td>
+                    <td>${new Date(a.created_at).toLocaleDateString()}</td>
+                </tr>`;
+            });
+            html += '</tbody> nahil';
+            document.getElementById('recentAgents').innerHTML = html;
+        }
+        
+        function renderRecentRequests(requests) {
+    if (!requests || requests.length === 0) {
+        document.getElementById('recentRequests').innerHTML = '<p>No recent requests.</p>';
+        return;
+    }
+    let html = '<table class="data-table"><thead><tr><th>Name</th><th>Destination</th><th>Budget</th><th>Date</th></tr></thead><tbody>';
+    requests.forEach(r => {
+        html += `<tr>
+            <td>${escapeHtml(r.client_name)}</td>  <!-- Changed from r.name -->
+            <td>${escapeHtml(r.destination)}</td>
+            <td>${r.budget || '-'}</td>
+            <td>${new Date(r.created_at).toLocaleDateString()}</td>
+        </tr>`;
+    });
+    html += '</tbody></table>';
+    document.getElementById('recentRequests').innerHTML = html;
+}
+ 
+        async function loadAgents() {
+            if (isLoading) return;
+            isLoading = true;
+            
+            try {
+                const response = await fetch('/api/agent-register/admin/agents', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    let agents = data.agents;
+                    if (currentFilter !== 'all') {
+                        agents = agents.filter(a => a.status === currentFilter);
+                    }
+                    renderAgentsTable(agents);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('agentsTable').innerHTML = '<p>Error loading agents.</p>';
+            } finally {
+                isLoading = false;
+            }
+        }
+        
+        function renderAgentsTable(agents) {
+    if (!agents || agents.length === 0) {
+        document.getElementById('agentsTable').innerHTML = '<p>No agents found.</p>';
+        return;
+    }
+    let html = '<div style="overflow-x: auto;"><table class="data-table"><thead><tr>';
+    html += '<th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Specialty</th><th>Status</th><th>Registered</th><th>Subscription</th><th>Actions</th>';
+    html += '</tr></thead><tbody>';
+    
+    agents.forEach(a => {
+        let statusDisplay = '';
+        let statusClass = '';
+        
+        if (a.account_deleted || a.status === 'deleted') {
+            statusDisplay = 'DELETED';
+            statusClass = 'status-cancelled';
+        } else if (a.subscription_cancelled) {
+            statusDisplay = 'CANCELLED';
+            statusClass = 'status-cancelled';
+        } else if (a.status === 'approved') {
+            statusDisplay = 'APPROVED';
+            statusClass = 'status-approved';
+        } else if (a.status === 'flagged') {
+            statusDisplay = 'FLAGGED';
+            statusClass = 'status-flagged';
+        } else if (a.status === 'pending_payment') {
+            statusDisplay = 'PENDING PAYMENT';
+            statusClass = 'status-pending';
+        } else if (a.status === 'rejected') {
+            statusDisplay = 'REJECTED';
+            statusClass = 'status-cancelled';
+        } else {
+            statusDisplay = (a.status || 'PENDING').toUpperCase();
+            statusClass = 'status-pending';
+        }
+        
+        let subscriptionDisplay = '';
+        if (a.account_deleted || a.status === 'deleted') {
+            subscriptionDisplay = '❌ Deleted';
+        } else if (a.subscription_cancelled) {
+            subscriptionDisplay = '❌ Cancelled';
+        } else if (a.status === 'approved' && a.subscription_status === 'active') {
+            subscriptionDisplay = '✅ Active';
+        } else if (a.status === 'approved') {
+            subscriptionDisplay = '⚠️ Pending';
+        } else {
+            subscriptionDisplay = '❌ Inactive';
+        }
+        
+        html += `<tr>
+            <td>${a.id}</td>
+            <td><strong>${escapeHtml(a.name)}</strong></td>
+            <td><small>${escapeHtml(a.email)}</small></td>
+            <td>${a.phone || '-'}</td>
+            <td>${a.specialty || '-'}</td>
+            <td><span class="status ${statusClass}">${statusDisplay}</span></td>
+            <td>${new Date(a.created_at).toLocaleDateString()}</td>
+            <td>${subscriptionDisplay}</td>
+            <td>
+                <button class="action-btn" onclick="viewAgentDetails(${a.id})" title="View Details">👁️</button>
+                <button class="action-btn" onclick="approveAgentFromDashboard(${a.id})" title="Approve" style="color:#4caf50;">✅</button>
+                <button class="action-btn" onclick="flagAgentFromDashboard(${a.id})" title="Flag" style="color:#ff9800;">⚠️</button>
+                <button class="action-btn" onclick="deleteAgentFromDashboard(${a.id})" title="Delete" style="color:#f44336;">🗑️</button>
+            </td>
+        </tr>`;
+    });
+    
+    html += '</tbody></table></div>';
+    document.getElementById('agentsTable').innerHTML = html;
+}
+
+        
+        async function loadRequests() {
+    if (isLoading) return;
+    isLoading = true;
+    
+    try {
+        // FIXED: Use correct endpoint from agent-register.js
+        const response = await fetch('/api/agent-register/admin/requests', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+        if (data.success) {
+            renderRequestsTable(data.requests);
+        } else {
+            document.getElementById('requestsTable').innerHTML = '<p>Error: ' + (data.error || 'Unknown error') + '</p>';
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('requestsTable').innerHTML = '<p>Error loading requests. Please try again.</p>';
+    } finally {
+        isLoading = false;
+    }
+}
+
+        
+        function renderRequestsTable(requests) {
+    if (!requests || requests.length === 0) {
+        document.getElementById('requestsTable').innerHTML = '<p>No requests found.</p>';
+        return;
+    }
+    let html = '<div style="overflow-x: auto;"><table class="data-table"><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Destination</th><th>Check-in</th><th>Check-out</th><th>Budget</th><th>Status</th><th>Date</th></tr></thead><tbody>';
+    
+    requests.forEach(r => {
+        // Map status to proper class
+        let statusClass = 'status-pending';
+        let statusText = r.status || 'new';
+        if (statusText === 'contacted') statusClass = 'status-pending';
+        if (statusText === 'converted') statusClass = 'status-approved';
+        
+        html += `<tr>
+            <td>${r.id}</td>
+            <td><strong>${escapeHtml(r.client_name)}</strong></td>
+            <td><small>${escapeHtml(r.client_email)}</small></td>
+            <td>${r.client_phone || '-'}</td>
+            <td><strong>${escapeHtml(r.destination)}</strong></td>
+            <td>${r.checkin || '-'}</td>
+            <td>${r.checkout || '-'}</td>
+            <td>${r.budget || '-'}</td>
+            <td><span class="status ${statusClass}">${statusText.toUpperCase()}</span></td>
+            <td>${new Date(r.created_at).toLocaleDateString()}</td>
+        </tr>`;
+    });
+    
+    html += '</tbody></table></div>';
+    document.getElementById('requestsTable').innerHTML = html;
+}
+
+        
+        function filterAgents(status) {
+            currentFilter = status;
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            loadAgents();
+        }
+        
+        function viewAgentDetails(id) {
+            window.open(`/agent-profile?id=${id}`, '_blank');
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+        }
+        
+        function logout() {
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('adminEmail');
+            window.location.href = '/admin/login';
+        }
+        
+        document.getElementById('changePasswordForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            if (newPassword !== confirmPassword) {
+                alert('New passwords do not match');
+                return;
+            }
+            try {
+                const response = await fetch('/api/admin/change-password', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ currentPassword, newPassword })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert('Password changed successfully');
+                    document.getElementById('changePasswordForm').reset();
+                } else {
+                    alert(data.error);
+                }
+            } catch (error) {
+                alert('Error changing password');
+            }
+        });
+        
+// Additional agent actions for dashboard
+async function approveAgentFromDashboard(id) {
+    if (confirm('Approve this agent? They will get full access to the platform.')) {
+        try {
+            const response = await fetch(`/api/agent-register/admin/agents/${id}/status`, {
+                method: 'PUT',
+                headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status: 'approved' })
+            });
+            const data = await response.json();
+            if (data.success) {
+                alert('✅ Agent approved successfully!');
+                loadAgents(); // Refresh the agents list
+            } else {
+                alert('❌ Error: ' + data.error);
+            }
+        } catch (error) {
+            alert('❌ Failed to approve agent');
+        }
+    }
+}
+
+async function flagAgentFromDashboard(id) {
+    const reason = prompt('Enter reason for flagging this agent:');
+    if (reason) {
+        try {
+            const response = await fetch(`/api/agent-register/admin/agents/${id}/status`, {
+                method: 'PUT',
+                headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status: 'flagged', flag_reason: reason })
+            });
+            const data = await response.json();
+            if (data.success) {
+                alert('⚠️ Agent flagged successfully');
+                loadAgents();
+            } else {
+                alert('Error: ' + data.error);
+            }
+        } catch (error) {
+            alert('Failed to flag agent');
+        }
+    }
+}
+
+async function deleteAgentFromDashboard(id) {
+    if (confirm('⚠️ WARNING: This will permanently delete the agent. Are you sure?')) {
+        const confirmText = prompt('Type "DELETE" to confirm:');
+        if (confirmText === 'DELETE') {
+            try {
+                const response = await fetch(`/api/agent-register/admin/agents/${id}/status`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status: 'deleted' })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert('🗑️ Agent deleted');
+                    loadAgents();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Failed to delete agent');
+            }
+        } else {
+            alert('Deletion cancelled');
+        }
+    }
+}
+
+
+        // Set active page on load
+        setActivePage('dashboard');
+        
+        // Load initial dashboard
+        loadDashboard();
     </script>
 </body>
 </html>

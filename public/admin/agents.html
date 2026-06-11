@@ -2,148 +2,640 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Travel Agents | RoomRateCompare</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Management | Admin | RoomRateCompare</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+        }
+        .admin-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 260px;
+            background: #1a252f;
+            color: white;
+            padding: 1.5rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .sidebar h2 {
+            color: #e67e22;
+            margin-bottom: 2rem;
+            font-size: 1.3rem;
+        }
+        .sidebar nav a {
+            display: block;
+            padding: 0.8rem;
+            color: #ccc;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s;
+        }
+        .sidebar nav a:hover, .sidebar nav a.active {
+            background: #e67e22;
+            color: white;
+        }
+        .main-content {
+            margin-left: 260px;
+            padding: 2rem;
+            width: 100%;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #ddd;
+        }
+        .header h1 {
+            color: #1a1a1a;
+        }
+        .logout-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #e67e22;
+        }
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .filters select, .filters input {
+            padding: 0.5rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+        .filters input {
+            flex: 1;
+            min-width: 200px;
+        }
+        .refresh-btn {
+            background: #e67e22;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+        .refresh-btn:hover {
+            background: #d35400;
+        }
+        .panel {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+        th, td {
+            padding: 0.8rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        .status {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        .status-approved { background: #e8f5e9; color: #4caf50; }
+        .status-pending { background: #fff3e0; color: #e67e22; }
+        .status-flagged { background: #ffebee; color: #f44336; }
+        .status-pending_payment { background: #e3f2fd; color: #2196f3; }
+        .status-rejected { background: #ffebee; color: #f44336; }
+        .status-deleted { background: #eeeeee; color: #757575; }
+        .action-group {
+            display: flex;
+            gap: 0.3rem;
+            flex-wrap: wrap;
+        }
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .action-btn:hover {
+            background: #f0f0f0;
+            transform: scale(1.05);
+        }
+        .action-approve { color: #4caf50; }
+        .action-reject { color: #f44336; }
+        .action-flag { color: #ff9800; }
+        .action-unflag { color: #2196f3; }
+        .action-delete { color: #9e9e9e; }
+        .action-view { color: #e67e22; }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 450px;
+            max-width: 90%;
+        }
+        .modal-content h3 {
+            margin-bottom: 1rem;
+        }
+        .modal-content textarea, .modal-content input {
+            width: 100%;
+            padding: 0.8rem;
+            margin: 1rem 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: inherit;
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+        .modal-buttons button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+        .error-msg {
+            background: #ffebee;
+            color: #c62828;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .success-msg {
+            background: #e8f5e9;
+            color: #4caf50;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <nav>
-            <div class="logo">
-                <h1>Room<span>Rate</span>Compare</h1>
-                <p class="tagline">Compare 1000+ hotels. Find your best room rate.</p>
-            </div>
-            <button class="mobile-menu-btn" id="menuBtn" aria-label="Menu">☰</button>
-            <div class="nav-links" id="navLinks">
-                <a href="/">Home</a>
-                <a href="/search">Search</a>
-                <a href="/agents">Travel Agents</a>
-                <a href="/agent-register">Become an Agent</a>
-                <a href="/blog">Blog</a>
-                <a href="/partners">Partners</a>
-            </div>
-        </nav>
-        <div class="menu-overlay" id="menuOverlay"></div>
-    </header>
-
-    <main>
-        <main>
-        <main>
-        <div class="container">
-        <h1>👥 Agent Management</h1>
-        <button onclick="loadAgents()" style="background:#e67e22; color:white; border:none; padding:0.5rem 1rem; border-radius:6px; margin-bottom:1rem;">🔄 Refresh</button>
-        
-        <div class="stats" id="stats"></div>
-        
-        <div class="filters">
-            <select id="statusFilter" onchange="loadAgents()">
-                <option value="all">All Status</option>
-                <option value="pending">Pending Payment</option>
-                <option value="pending_approval">Pending Approval</option>
-                <option value="approved">Approved</option>
-                <option value="rejected">Rejected</option>
-                <option value="flagged">Flagged</option>
-            </select>
-            <input type="text" id="searchFilter" placeholder="Search by name, email..." onkeyup="loadAgents()">
+    <div class="admin-wrapper">
+        <div class="sidebar">
+            <h2>RoomRateCompare</h2>
+            <nav>
+                <a href="/admin/dashboard">📊 Dashboard</a>
+                <a href="/admin/agents" class="active">👥 Agents</a>
+                <a href="/admin/requests">📋 Client Requests</a>
+                <a href="/admin/settings">⚙️ Settings</a>
+            </nav>
         </div>
         
-        <div id="agentsTable"></div>
+        <div class="main-content">
+            <div class="header">
+                <h1>👥 Agent Management</h1>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+            
+            <button class="refresh-btn" onclick="loadAgents()">🔄 Refresh Agents</button>
+            
+            <div class="stats" id="stats">
+                <div class="stat-card"><div class="stat-number">-</div><div>Total</div></div>
+                <div class="stat-card"><div class="stat-number">-</div><div>Approved</div></div>
+                <div class="stat-card"><div class="stat-number">-</div><div>Pending</div></div>
+                <div class="stat-card"><div class="stat-number">-</div><div>Flagged</div></div>
+                <div class="stat-card"><div class="stat-number">-</div><div>Deleted</div></div>
+            </div>
+            
+            <div class="filters">
+                <select id="statusFilter" onchange="loadAgents()">
+                    <option value="all">📋 All Status</option>
+                    <option value="approved">✅ Approved</option>
+                    <option value="pending">⏳ Pending</option>
+                    <option value="pending_payment">💳 Pending Payment</option>
+                    <option value="flagged">⚠️ Flagged</option>
+                    <option value="rejected">❌ Rejected</option>
+                    <option value="deleted">🗑️ Deleted</option>
+                </select>
+                <input type="text" id="searchFilter" placeholder="🔍 Search by name, email, phone..." onkeyup="loadAgents()">
+            </div>
+            
+            <div class="panel">
+                <div id="agentsTable" class="loading">Loading agents...</div>
+            </div>
+        </div>
     </div>
-    
+
+    <!-- Flag Modal -->
     <div id="flagModal" class="modal">
         <div class="modal-content">
-            <h3>Flag Agent</h3>
+            <h3>⚠️ Flag Agent</h3>
             <p>Reason for flagging this agent:</p>
-            <textarea id="flagReason" rows="3" placeholder="Enter reason..."></textarea>
-            <button onclick="submitFlag()" style="background:#f44336; color:white; border:none; padding:0.5rem 1rem; border-radius:6px;">Flag Agent</button>
-            <button onclick="closeModal()" style="background:#999; color:white; border:none; padding:0.5rem 1rem; border-radius:6px; margin-left:0.5rem;">Cancel</button>
+            <textarea id="flagReason" rows="3" placeholder="Enter detailed reason..."></textarea>
+            <div class="modal-buttons">
+                <button onclick="submitFlag()" style="background:#ff9800; color:white;">Flag Agent</button>
+                <button onclick="closeModal('flagModal')" style="background:#999; color:white;">Cancel</button>
+            </div>
         </div>
     </div>
-    </main>
-    </main>
 
-    <footer>
-        <div class="footer-container">
-            <div class="footer-column">
-                <h3>🏨 RoomRateCompare</h3>
-                <p>Compare hotel room rates from 50+ travel sites including Booking.com, Agoda, and Expedia. Find the best price for your stay.</p>
-                <p>📍 UK: Aamir Saba Ltd<br>📍 USA: Aamir Saba Inc</p>
-            </div>
-            
-            <div class="footer-column">
-                <h3>🔗 Quick Links</h3>
-                <ul>
-                    <li><a href="/">Home</a></li>
-                    <li><a href="/search">Search Hotels</a></li>
-                    <li><a href="/agents">Travel Agents</a></li>
-                    <li><a href="/agent-register">Become an Agent</a></li>
-                    <li><a href="/blog">Travel Blog</a></li>
-                    <li><a href="/partners">Affiliate Partners</a></li>
-                </ul>
-            </div>
-            
-            <div class="footer-column">
-                <h3>⚖️ Legal & Support</h3>
-                <ul>
-                    <li><a href="/privacy">Privacy Policy</a></li>
-                    <li><a href="/terms">Terms & Conditions</a></li>
-                    <li><a href="/refund">Refund Policy</a></li>
-                    <li><a href="/cookie-policy">Cookie Policy</a></li>
-                    <li><a href="/affiliate-disclosure">Affiliate Disclosure</a></li>
-                    <li><a href="/disclaimer">Disclaimer</a></li>
-                    <li><a href="/agent-agreement">Agent Agreement</a></li>
-                    <li><a href="/contact">Contact Us</a></li>
-                </ul>
+    <!-- Reject Modal -->
+    <div id="rejectModal" class="modal">
+        <div class="modal-content">
+            <h3>❌ Reject Agent</h3>
+            <p>Reason for rejection:</p>
+            <textarea id="rejectReason" rows="3" placeholder="Enter rejection reason..."></textarea>
+            <div class="modal-buttons">
+                <button onclick="submitReject()" style="background:#f44336; color:white;">Reject Agent</button>
+                <button onclick="closeModal('rejectModal')" style="background:#999; color:white;">Cancel</button>
             </div>
         </div>
-        <div class="footer-bottom">
-            <p>&copy; 2026 RoomRateCompare.com. All rights reserved. | Compare hotel room rates worldwide.</p>
+    </div>
+
+    <!-- Delete Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <h3>🗑️ Delete Agent</h3>
+            <p>Are you sure you want to delete this agent? This action cannot be undone.</p>
+            <p><strong>Type "DELETE" to confirm:</strong></p>
+            <input type="text" id="deleteConfirm" placeholder="DELETE">
+            <div class="modal-buttons">
+                <button onclick="submitDelete()" style="background:#f44336; color:white;">Delete Permanently</button>
+                <button onclick="closeModal('deleteModal')" style="background:#999; color:white;">Cancel</button>
+            </div>
         </div>
-    </footer>
+    </div>
 
     <script>
-        // ============ MOBILE MENU FUNCTIONALITY ============
-        (function() {
-            const menuBtn = document.getElementById('menuBtn');
-            const navLinks = document.getElementById('navLinks');
-            const menuOverlay = document.getElementById('menuOverlay');
+        const token = localStorage.getItem('adminToken');
+        if (!token) {
+            window.location.href = '/admin/login';
+        }
+        
+        let currentAgentId = null;
+        let currentAction = null;
+        
+        async function loadAgents() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const searchFilter = document.getElementById('searchFilter').value.toLowerCase();
             
-            if (!menuBtn) return;
+            document.getElementById('agentsTable').innerHTML = '<div class="loading">🔄 Loading agents...</div>';
             
-            function toggleMenu() {
-                navLinks.classList.toggle('active');
-                menuOverlay.classList.toggle('active');
-                document.body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : '';
-            }
-            
-            function closeMenu() {
-                navLinks.classList.remove('active');
-                menuOverlay.classList.remove('active');
-                document.body.style.overflow = '';
-            }
-            
-            menuBtn.addEventListener('click', toggleMenu);
-            
-            if (menuOverlay) {
-                menuOverlay.addEventListener('click', closeMenu);
-            }
-            
-            document.querySelectorAll('.nav-links a').forEach(link => {
-                link.addEventListener('click', closeMenu);
-            });
-            
-            window.addEventListener('resize', function() {
-                if (window.innerWidth > 768) {
-                    closeMenu();
+            try {
+                const response = await fetch('/api/agent-register/admin/agents', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                
+                if (data.success && data.agents) {
+                    let agents = data.agents;
+                    
+                    if (statusFilter !== 'all') {
+                        agents = agents.filter(a => a.status === statusFilter);
+                    }
+                    
+                    if (searchFilter) {
+                        agents = agents.filter(a => 
+                            (a.name && a.name.toLowerCase().includes(searchFilter)) ||
+                            (a.email && a.email.toLowerCase().includes(searchFilter)) ||
+                            (a.phone && a.phone.includes(searchFilter))
+                        );
+                    }
+                    
+                    updateStats(agents);
+                    renderAgentsTable(agents);
+                } else {
+                    document.getElementById('agentsTable').innerHTML = '<div class="error-msg">❌ Failed to load agents</div>';
                 }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('agentsTable').innerHTML = '<div class="error-msg">❌ Error loading agents</div>';
+            }
+        }
+        
+        function updateStats(agents) {
+            const total = agents.length;
+            const approved = agents.filter(a => a.status === 'approved').length;
+            const pending = agents.filter(a => a.status === 'pending' || a.status === 'pending_payment').length;
+            const flagged = agents.filter(a => a.status === 'flagged').length;
+            const deleted = agents.filter(a => a.status === 'deleted').length;
+            
+            document.getElementById('stats').innerHTML = `
+                <div class="stat-card"><div class="stat-number">${total}</div><div>Total</div></div>
+                <div class="stat-card"><div class="stat-number">${approved}</div><div>Approved</div></div>
+                <div class="stat-card"><div class="stat-number">${pending}</div><div>Pending</div></div>
+                <div class="stat-card"><div class="stat-number">${flagged}</div><div>Flagged</div></div>
+                <div class="stat-card"><div class="stat-number">${deleted}</div><div>Deleted</div></div>
+            `;
+        }
+        
+        function renderAgentsTable(agents) {
+            let html = `<table><thead><tr>
+                <th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Specialty</th><th>Status</th><th>Registered</th><th>Actions</th>
+            </tr></thead><tbody>`;
+            
+            agents.forEach(agent => {
+                let statusClass = 'status-pending';
+                let statusText = agent.status || 'pending';
+                
+                if (statusText === 'approved') statusClass = 'status-approved';
+                else if (statusText === 'flagged') statusClass = 'status-flagged';
+                else if (statusText === 'pending_payment') statusClass = 'status-pending_payment';
+                else if (statusText === 'rejected') statusClass = 'status-rejected';
+                else if (statusText === 'deleted') statusClass = 'status-deleted';
+                
+                html += `<tr>
+                    <td>${agent.id}</td>
+                    <td><strong>${escapeHtml(agent.name)}</strong></td>
+                    <td><small>${escapeHtml(agent.email)}</small></td>
+                    <td>${agent.phone || '-'}</td>
+                    <td>${agent.specialty || '-'}</td>
+                    <td><span class="status ${statusClass}">${statusText.toUpperCase()}</span></td>
+                    <td>${new Date(agent.created_at).toLocaleDateString()}</td>
+                    <td class="action-group">`;
+                
+                // View button
+                html += `<button class="action-btn action-view" onclick="viewAgent(${agent.id})" title="View Details">👁️</button>`;
+                
+                // Approve button (only if not already approved)
+                if (statusText !== 'approved' && statusText !== 'deleted') {
+                    html += `<button class="action-btn action-approve" onclick="approveAgent(${agent.id})" title="Approve">✅</button>`;
+                }
+                
+                // Reject button
+                if (statusText !== 'rejected' && statusText !== 'deleted' && statusText !== 'approved') {
+                    html += `<button class="action-btn action-reject" onclick="rejectAgent(${agent.id})" title="Reject">❌</button>`;
+                }
+                
+                // Flag button
+                if (statusText !== 'flagged' && statusText !== 'deleted') {
+                    html += `<button class="action-btn action-flag" onclick="flagAgent(${agent.id})" title="Flag">⚠️</button>`;
+                }
+                
+                // Unflag button (only if flagged)
+                if (statusText === 'flagged') {
+                    html += `<button class="action-btn action-unflag" onclick="unflagAgent(${agent.id})" title="Unflag">🔓</button>`;
+                }
+                
+                // Delete button
+                if (statusText !== 'deleted') {
+                    html += `<button class="action-btn action-delete" onclick="deleteAgent(${agent.id})" title="Delete">🗑️</button>`;
+                }
+                
+                html += `</td></tr>`;
             });
             
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && navLinks.classList.contains('active')) {
-                    closeMenu();
+            html += '</tbody></table>';
+            document.getElementById('agentsTable').innerHTML = html;
+        }
+        
+        // Action Functions
+        async function approveAgent(id) {
+            if (confirm('Approve this agent? They will get full access to the platform.')) {
+                try {
+                    const response = await fetch(`/api/agent-register/admin/agents/${id}/status`, {
+                        method: 'PUT',
+                        headers: { 
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ status: 'approved' })
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        alert('✅ Agent approved successfully!');
+                        loadAgents();
+                    } else {
+                        alert('❌ Error: ' + data.error);
+                    }
+                } catch (error) {
+                    alert('❌ Failed to approve agent');
                 }
-            });
-        })();
+            }
+        }
+        
+        function rejectAgent(id) {
+            currentAgentId = id;
+            document.getElementById('rejectModal').style.display = 'block';
+        }
+        
+        async function submitReject() {
+            const reason = document.getElementById('rejectReason').value.trim();
+            if (!reason) {
+                alert('Please enter a reason for rejection');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/agent-register/admin/agents/${currentAgentId}/status`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status: 'rejected', flag_reason: reason })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert('❌ Agent rejected');
+                    closeModal('rejectModal');
+                    loadAgents();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Failed to reject agent');
+            }
+        }
+        
+        function flagAgent(id) {
+            currentAgentId = id;
+            document.getElementById('flagModal').style.display = 'block';
+        }
+        
+        async function submitFlag() {
+            const reason = document.getElementById('flagReason').value.trim();
+            if (!reason) {
+                alert('Please enter a reason for flagging');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/agent-register/admin/agents/${currentAgentId}/status`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status: 'flagged', flag_reason: reason })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert('⚠️ Agent flagged successfully');
+                    closeModal('flagModal');
+                    loadAgents();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Failed to flag agent');
+            }
+        }
+        
+        async function unflagAgent(id) {
+            if (confirm('Remove flag from this agent?')) {
+                try {
+                    const response = await fetch(`/api/agent-register/admin/agents/${id}/status`, {
+                        method: 'PUT',
+                        headers: { 
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ status: 'pending' })
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        alert('🔓 Agent un-flagged successfully');
+                        loadAgents();
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                } catch (error) {
+                    alert('Failed to unflag agent');
+                }
+            }
+        }
+        
+        function deleteAgent(id) {
+            currentAgentId = id;
+            document.getElementById('deleteModal').style.display = 'block';
+        }
+        
+        async function submitDelete() {
+            const confirmText = document.getElementById('deleteConfirm').value;
+            if (confirmText !== 'DELETE') {
+                alert('Please type "DELETE" to confirm');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/agent-register/admin/agents/${currentAgentId}/status`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status: 'deleted' })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert('🗑️ Agent deleted');
+                    closeModal('deleteModal');
+                    loadAgents();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Failed to delete agent');
+            }
+        }
+        
+        function viewAgent(id) {
+            window.open(`/agent-profile?id=${id}`, '_blank');
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            if (modalId === 'flagModal') document.getElementById('flagReason').value = '';
+            if (modalId === 'rejectModal') document.getElementById('rejectReason').value = '';
+            if (modalId === 'deleteModal') document.getElementById('deleteConfirm').value = '';
+            currentAgentId = null;
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+        }
+        
+        function logout() {
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('adminEmail');
+            window.location.href = '/admin/login';
+        }
+        
+        // Load agents on page load
+        loadAgents();
     </script>
 </body>
 </html>

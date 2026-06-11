@@ -229,6 +229,29 @@ router.get('/admin/agents', async (req, res) => {
     }
 });
 
+// Get all client requests (Admin)
+router.get('/admin/requests', async (req, res) => {
+    const adminToken = req.headers.authorization?.split(' ')[1];
+    
+    if (!adminToken) {
+        return res.status(401).json({ success: false, error: 'Unauthorized' });
+    }
+    
+    try {
+        const { data: requests, error } = await supabase
+            .from('agent_leads')
+            .select('*')
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        res.json({ success: true, requests: requests || [] });
+        
+    } catch (error) {
+        console.error('Get requests error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 // Update agent status (Admin - for flagging/removing agents)
 router.put('/admin/agents/:id/status', async (req, res) => {
     const { id } = req.params;

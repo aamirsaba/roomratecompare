@@ -580,6 +580,35 @@ document.getElementById('deleteAccountBtn')?.addEventListener('click', async () 
     }
 });
 
+
+// Show active leads with response timer
+async function loadActiveLeads() {
+    const response = await fetch('/api/agent/leads/active', {
+        headers: { 'Authorization': `Bearer ${agentToken}` }
+    });
+    const data = await response.json();
+    
+    data.leads.forEach(lead => {
+        const ageHours = (Date.now() - new Date(lead.created_at)) / (1000 * 60 * 60);
+        let statusColor = 'green';
+        let warning = '';
+        
+        if (ageHours >= 24) {
+            statusColor = 'red';
+            warning = '⚠️ Will be escalated soon!';
+        } else if (ageHours >= 6) {
+            statusColor = 'orange';
+            warning = '⏰ Respond soon';
+        } else if (ageHours >= 1) {
+            statusColor = 'yellow';
+            warning = '📞 Waiting for response';
+        }
+        
+        // Display lead with warning
+    });
+}
+
+
         function logout() { localStorage.clear(); window.location.href = '/agent-login'; }
         function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
 

@@ -277,6 +277,23 @@ function getNewLeadEmail(agentName, leadDetails) {
     `;
 }
 
+
+// Add these functions to your existing emailService.js
+
+async function sendAgentReminderEmail(lead, agent, reminderType) {
+    // Implementation based on reminderType ('first', 'second', 'final')
+}
+
+async function sendEscalationEmail(lead, adminEmail) {
+    // Implementation for admin escalation
+}
+
+async function sendWeeklyReportEmail(adminEmail, reportData) {
+    // Implementation for weekly reports
+}
+
+
+
 // Notify admin function
 async function notifyAdmin(subject, message, agentDetails = null) {
     const adminEmail = process.env.ADMIN_EMAIL || 'admin@roomratecompare.com';
@@ -296,5 +313,9 @@ module.exports = {
     getCancellationEmail,
     getExpiryReminderEmail,
     getAdminNotificationEmail,
-    getNewLeadEmail
+    getNewLeadEmail,
+    sendAgentReminderEmail,
+    sendEscalationEmail,
+    sendWeeklyReportEmail
+
 };
