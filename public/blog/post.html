@@ -3,8 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>RoomRateCompare | RoomRateCompare</title>
+    <title>Blog Post | RoomRateCompare</title>
     <link rel="stylesheet" href="/css/style.css">
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GKJZTX45SB"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-GKJZTX45SB');
+    </script>
+    
+    <style>
+        .post-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        .post-header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .post-header h1 {
+            font-size: 2.5rem;
+            color: #1a1a1a;
+            margin-bottom: 1rem;
+        }
+        .post-meta {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        .post-meta span {
+            margin: 0 0.5rem;
+        }
+        .featured-image {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+        .post-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #333;
+        }
+        .post-content h2 {
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            color: #e67e22;
+        }
+        .post-content p {
+            margin-bottom: 1rem;
+        }
+        .post-content img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+        .ai-score {
+            background: #f0f0f0;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+        }
+        .like-section {
+            margin-top: 3rem;
+            text-align: center;
+            padding: 2rem;
+            background: #f9f9f9;
+            border-radius: 12px;
+        }
+        .like-btn {
+            background: #e67e22;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: transform 0.2s;
+        }
+        .like-btn:hover {
+            background: #d35400;
+            transform: scale(1.05);
+        }
+        .back-btn {
+            display: inline-block;
+            margin-top: 1rem;
+            color: #e67e22;
+            text-decoration: none;
+        }
+        .loader {
+            text-align: center;
+            padding: 3rem;
+        }
+        .loader-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f0f0f0;
+            border-top-color: #e67e22;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .error {
+            text-align: center;
+            padding: 3rem;
+            color: #f44336;
+        }
+        @media (max-width: 768px) {
+            .post-container {
+                padding: 0 1rem;
+            }
+            .post-header h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -27,13 +150,12 @@
     </header>
 
     <main>
-        <main>
-        <main>
-        <main>
         <div class="post-container" id="postContainer">
-            <div class="loader"><div class="loader-spinner"></div><p>Loading article...</p></div>
+            <div class="loader">
+                <div class="loader-spinner"></div>
+                <p>Loading article...</p>
+            </div>
         </div>
-    </main>
     </main>
 
     <footer>
@@ -43,7 +165,6 @@
                 <p>Compare hotel room rates from 50+ travel sites including Booking.com, Agoda, and Expedia. Find the best price for your stay.</p>
                 <p>📍 UK: Aamir Saba Ltd<br>📍 USA: Aamir Saba Inc</p>
             </div>
-            
             <div class="footer-column">
                 <h3>🔗 Quick Links</h3>
                 <ul>
@@ -55,7 +176,6 @@
                     <li><a href="/partners">Affiliate Partners</a></li>
                 </ul>
             </div>
-            
             <div class="footer-column">
                 <h3>⚖️ Legal & Support</h3>
                 <ul>
@@ -81,43 +201,110 @@
             const menuBtn = document.getElementById('menuBtn');
             const navLinks = document.getElementById('navLinks');
             const menuOverlay = document.getElementById('menuOverlay');
-            
             if (!menuBtn) return;
-            
             function toggleMenu() {
                 navLinks.classList.toggle('active');
                 menuOverlay.classList.toggle('active');
                 document.body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : '';
             }
-            
             function closeMenu() {
                 navLinks.classList.remove('active');
                 menuOverlay.classList.remove('active');
                 document.body.style.overflow = '';
             }
-            
             menuBtn.addEventListener('click', toggleMenu);
-            
-            if (menuOverlay) {
-                menuOverlay.addEventListener('click', closeMenu);
-            }
-            
-            document.querySelectorAll('.nav-links a').forEach(link => {
-                link.addEventListener('click', closeMenu);
-            });
-            
-            window.addEventListener('resize', function() {
-                if (window.innerWidth > 768) {
-                    closeMenu();
-                }
-            });
-            
+            if (menuOverlay) menuOverlay.addEventListener('click', closeMenu);
+            document.querySelectorAll('.nav-links a').forEach(link => link.addEventListener('click', closeMenu));
+            window.addEventListener('resize', function() { if (window.innerWidth > 768) closeMenu(); });
             document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && navLinks.classList.contains('active')) {
-                    closeMenu();
-                }
+                if (e.key === 'Escape' && navLinks.classList.contains('active')) closeMenu();
             });
         })();
+
+        // Get slug from URL
+        const pathParts = window.location.pathname.split('/');
+        const slug = pathParts[pathParts.length - 1];
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        function getStars(score) {
+            const fullStars = Math.floor(score / 20);
+            let stars = '⭐'.repeat(fullStars);
+            stars += '☆'.repeat(5 - fullStars);
+            return stars;
+        }
+
+        async function loadPost() {
+            const container = document.getElementById('postContainer');
+            
+            try {
+                const response = await fetch(`/api/blog/post/${slug}`);
+                const data = await response.json();
+                
+                if (data.success && data.post) {
+                    const post = data.post;
+                    const formattedDate = formatDate(post.published_at || post.created_at);
+                    const aiStars = post.ai_score ? getStars(post.ai_score) : '';
+                    
+                    container.innerHTML = `
+                        <div class="post-header">
+                            <h1>${escapeHtml(post.title)}</h1>
+                            <div class="post-meta">
+                                ✍️ By ${escapeHtml(post.author_name)}
+                                <span>•</span>
+                                📅 ${formattedDate}
+                                <span>•</span>
+                                📚 ${escapeHtml(post.category || 'General')}
+                                <span>•</span>
+                                👁️ ${post.views || 0} views
+                            </div>
+                            ${post.ai_score ? `<div class="ai-score">🤖 AI Quality Score: ${aiStars} (${post.ai_score}%)</div>` : ''}
+                        </div>
+                        ${post.featured_image ? `<img src="${post.featured_image}" alt="${escapeHtml(post.title)}" class="featured-image" onerror="this.style.display='none'">` : ''}
+                        <div class="post-content">
+                            ${post.content}
+                        </div>
+                        <div class="like-section">
+                            <button class="like-btn" onclick="likePost(${post.id})">❤️ Like (${post.likes || 0})</button>
+                            <br>
+                            <a href="/blog" class="back-btn">← Back to Blog</a>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = '<div class="error">❌ Article not found</div>';
+                }
+            } catch (error) {
+                console.error('Error loading post:', error);
+                container.innerHTML = '<div class="error">❌ Error loading article. Please try again later.</div>';
+            }
+        }
+
+        async function likePost(postId) {
+            try {
+                const response = await fetch(`/api/blog/${postId}/like`, { method: 'POST' });
+                const data = await response.json();
+                if (data.success) {
+                    loadPost(); // Reload to update like count
+                }
+            } catch (error) {
+                console.error('Like error:', error);
+            }
+        }
+
+        // Load the post
+        loadPost();
     </script>
 </body>
 </html>
